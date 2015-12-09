@@ -14,7 +14,33 @@ RF24 radio(7, 8);
 byte addresses[][6] = {"1Node", "2Node"};
 // Used to control whether this node is sending or receiving
 bool role = 0;
+
+#define BUTTON  3
+#define LEDR    4
+#define LEDG    5
+#define LEDY    6
+#include <TimerOne.h>
+bool LEDRstate = false;
+int numFlashes = 0;
+
 void setup() {
+  pinMode(BUTTON, INPUT_PULLUP);
+  pinMode(LEDR, OUTPUT);
+  pinMode(LEDG, OUTPUT);
+  pinMode(LEDY, OUTPUT);
+  //while(BUTTON); /////////// wait for a button press to continue, allowing for user to setup terminal
+  delay(5000);
+  //attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);  
+  digitalWrite(LEDR, LOW);
+  digitalWrite(LEDG, LOW);
+  digitalWrite(LEDY, LOW);
+
+  digitalWrite(LEDR, HIGH);
+  delay(500);
+  digitalWrite(LEDR, LOW);
+  digitalWrite(LEDY, HIGH);
+
+  
   Serial.begin(9600);
   Serial.println(F("RF24/examples/GettingStarted"));
   Serial.println(F("*** PRESS 'T' to begin transmitting to the other node"));
@@ -35,7 +61,31 @@ void setup() {
 
   // Start the radio listening for data
   radio.startListening();
+
+
+  digitalWrite(LEDY, LOW);
+  digitalWrite(LEDR, HIGH);
+  delay(250);
+  digitalWrite(LEDR, LOW);
+  delay(250);
+  digitalWrite(LEDR, HIGH);
+  delay(250);
+  digitalWrite(LEDR, LOW);
+
+  Timer1.initialize(1000000);
+  Timer1.attachInterrupt(flashLEDR);
 }
+
+void flashLEDR(){
+  LEDRstate = !LEDRstate;
+  digitalWrite(LEDR, LEDRstate);
+  if(LEDRstate){
+    numFlashes++;
+    Serial.print("Flash LEDR ");
+    Serial.println(numFlashes);
+  }
+}
+
 void loop() {
 
 
