@@ -57,7 +57,7 @@ void setup() {
   digitalWrite(LEDR, LOW);
   digitalWrite(LEDY, HIGH);
 
-  Serial.begin(115200);
+  Serial.begin(9600);
   //printf_begin();
   // Set the nodeID manually
   mesh.setNodeID(nodeID);
@@ -65,7 +65,7 @@ void setup() {
   Serial.println("Connecting to the mesh...");
   Serial.print("Output of mesh.begin(): ");
   Serial.println(mesh.begin(12, RF24_250KBPS, 2000));
-  mesh.setAddress(nodeID, nodeID+1); 
+  //mesh.setAddress(nodeID, nodeID+1); 
 
   digitalWrite(LEDY, LOW);
   digitalWrite(LEDR, HIGH);
