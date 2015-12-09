@@ -30,7 +30,7 @@ RF24Mesh mesh(radio, network);
  * This will be stoLEDR in EEPROM on AVR devices, so remains persistent between further uploads, loss of power, etc.
  *
  **/
-#define nodeID  1
+#define nodeID  04
 #define BUTTON  3
 #define LEDY    6
 #define LEDR    5
@@ -58,6 +58,7 @@ void setup() {
   digitalWrite(LEDY, HIGH);
 
   Serial.begin(9600);
+  radio.setPALevel(RF24_PA_LOW);
   //printf_begin();
   // Set the nodeID manually
   mesh.setNodeID(nodeID);

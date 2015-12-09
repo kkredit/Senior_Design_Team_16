@@ -51,8 +51,8 @@ void setup() {
   digitalWrite(LEDR, LOW);
   digitalWrite(LEDY, HIGH);
   
-  Serial.begin(115200);
-
+  Serial.begin(9600);
+  radio.setPALevel(RF24_PA_LOW);
   // Set the nodeID to 0 for the master node
   mesh.setNodeID(0);
   Serial.println(mesh.getNodeID());
