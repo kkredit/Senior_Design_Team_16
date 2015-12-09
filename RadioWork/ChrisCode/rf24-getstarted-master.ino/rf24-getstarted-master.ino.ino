@@ -19,8 +19,12 @@ bool role = 0;
 #define LEDR    4
 #define LEDG    5
 #define LEDY    6
+const unsigned long CODE = 1010101;
 #include <TimerOne.h>
 bool LEDRstate = false;
+bool LEDYstate = false;
+bool RFisListening = false;
+bool hadButtonPress = false;
 int numFlashes = 0;
 
 void setup() {
@@ -28,9 +32,8 @@ void setup() {
   pinMode(LEDR, OUTPUT);
   pinMode(LEDG, OUTPUT);
   pinMode(LEDY, OUTPUT);
-  //while(BUTTON); /////////// wait for a button press to continue, allowing for user to setup terminal
   delay(5000);
-  //attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);  
+  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);  
   digitalWrite(LEDR, LOW);
   digitalWrite(LEDG, LOW);
   digitalWrite(LEDY, LOW);
@@ -39,11 +42,12 @@ void setup() {
   delay(500);
   digitalWrite(LEDR, LOW);
   digitalWrite(LEDY, HIGH);
-
   
+  noInterrupts();
   Serial.begin(9600);
   Serial.println(F("RF24/examples/GettingStarted"));
   Serial.println(F("*** PRESS 'T' to begin transmitting to the other node"));
+  interrupts();
 
   radio.begin();
   // Set the PA Level low to prevent power supply related issues since this is a
@@ -61,7 +65,7 @@ void setup() {
 
   // Start the radio listening for data
   radio.startListening();
-
+  RFisListening = true;
 
   digitalWrite(LEDY, LOW);
   digitalWrite(LEDR, HIGH);
@@ -86,48 +90,84 @@ void flashLEDR(){
   }
 }
 
+/*
+ * Regardless of current state, send message to other to turn on LEDY
+ */
+void handleButton(){
+    noInterrupts();
+    Serial.println(F("Buttonpress: Sending 'turn on LEDY' message"));
+    interrupts();
+    hadButtonPress = true;
+}
+
 void loop() {
 
-
+  if(hadButtonPress){
+    radio.stopListening();                                  // First, stop listening so we can talk.
+    if (!radio.write( &CODE, sizeof(unsigned long) )){
+      Serial.println(F("failed"));
+    }
+    hadButtonPress = false;
+    if(RFisListening) radio.startListening();               // Second, if was already listening
+                                                              // turn back on
+  }   
+    
   /****************** Ping Out Role ***************************/
   if (role == 1)  {
 
     radio.stopListening();                                    // First, stop listening so we can talk.
+    RFisListening = false;
 
-
+    noInterrupts();
     Serial.println(F("Now sending"));
-    unsigned long time = micros();                             // Take the time, and send it.  This will block until complete
-    if (!radio.write( &time, sizeof(unsigned long) )) {
+    unsigned long presentTime = micros();                             // Take the presentTime, and send it.  This will block until complete
+    if (!radio.write( &presentTime, sizeof(unsigned long) )){
       Serial.println(F("failed"));
     }
+    interrupts();
 
     radio.startListening();                                    // Now, continue listening
+    RFisListening = true;
 
-    unsigned long started_waiting_at = micros();               // Set up a timeout period, get the current microseconds
-    boolean timeout = false;                                   // Set up a variable to indicate if a response was received or not
+    unsigned long started_waiting_at = micros();               // Set up a presentTimeout period, get the current microseconds
+    boolean presentTimeout = false;                                   // Set up a variable to indicate if a response was received or not
 
     while ( ! radio.available() ) {                            // While nothing is received
-      if (micros() - started_waiting_at > 200000 ) {           // If waited longer than 200ms, indicate timeout and exit while loop
-        timeout = true;
+      if (micros() - started_waiting_at > 200000 ) {           // If waited longer than 200ms, indicate presentTimeout and exit while loop
+        presentTimeout = true;
         break;
       }
     }
 
-    if ( timeout ) {                                            // Describe the results
-      Serial.println(F("Failed, response timed out."));
-    } else {
-      unsigned long got_time;                                 // Grab the response, compare, and send to debugging spew
-      radio.read( &got_time, sizeof(unsigned long) );
-      unsigned long time = micros();
+    if ( presentTimeout ) {                                            // Describe the results
+        noInterrupts();
+        Serial.println(F("Failed, response presentTimed out."));
+        interrupts();
+    }else{
+        unsigned long got_presentTime;                                 // Grab the response, compare, and send to debugging spew
+        radio.read( &got_presentTime, sizeof(unsigned long) );
 
-      // Spew it
-      Serial.print(F("Sent "));
-      Serial.print(time);
-      Serial.print(F(", Got response "));
-      Serial.print(got_time);
-      Serial.print(F(", Round-trip delay "));
-      Serial.print(time - got_time);
-      Serial.println(F(" microseconds"));
+        if(got_presentTime == CODE){   // TOGGLE LEDY
+          LEDYstate = !LEDYstate;
+          digitalWrite(LEDY, LEDYstate);
+          noInterrupts();
+          Serial.println(F("\nToggling LEDY\n"));
+          interrupts();
+        }
+        else{                   // NORMAL
+          unsigned long presentTime = micros();
+        
+          // Spew it
+          noInterrupts();
+          Serial.print(F("Sent "));
+          Serial.print(presentTime);
+          Serial.print(F(", Got response "));
+          Serial.print(got_presentTime);
+          Serial.print(F(", Round-trip delay "));
+          Serial.print(presentTime-got_presentTime);
+          Serial.println(F(" microseconds"));
+          interrupts();
+        }
     }
     // Try again 1s later
     delay(1000);
@@ -135,34 +175,51 @@ void loop() {
   /****************** Pong Back Role ***************************/
   if ( role == 0 )
   {
-    unsigned long got_time;
+    unsigned long got_presentTime;
 
     if ( radio.available()) {
-      // Variable for the received timestamp
+      // Variable for the received presentTimestamp
       while (radio.available()) {                                   // While there is data ready
-        radio.read( &got_time, sizeof(unsigned long) );             // Get the payload
+        radio.read( &got_presentTime, sizeof(unsigned long) );             // Get the payload
       }
 
-      radio.stopListening();                                        // First, stop listening so we can talk
-      radio.write( &got_time, sizeof(unsigned long) );              // Send the final one back.
-      radio.startListening();                                       // Now, resume listening so we catch the next packets.
-      Serial.print(F("Sent response "));
-      Serial.println(got_time);
+      if(got_presentTime == CODE){   // TOGGLE LEDY
+        LEDYstate = !LEDYstate;
+        digitalWrite(LEDY, LEDYstate);
+        noInterrupts();
+        Serial.println(F("\nToggling LEDY\n"));
+        interrupts();
+      }
+      else{                   // NORMAL
+        radio.stopListening();                                        // First, stop listening so we can talk   
+        RFisListening = false;
+        radio.write( &got_presentTime, sizeof(unsigned long) );              // Send the final one back.      
+        radio.startListening();                                       // Now, resume listening so we catch the next packets. 
+        RFisListening = true;
+        noInterrupts();
+        Serial.print(F("Sent response "));
+        Serial.println(got_presentTime);
+        interrupts();      
+      }
     }
   }
   /****************** Change Roles via Serial Commands ***************************/
   if ( Serial.available() )
   {
+    noInterrupts();
     char c = toupper(Serial.read());
-    if ( c == 'T' && role == 0 ) {
+    if ( c == 'T' && role == 0 ){      
       Serial.println(F("*** CHANGING TO TRANSMIT ROLE -- PRESS 'R' TO SWITCH BACK"));
       role = 1;                  // Become the primary transmitter (ping out)
-
-    } else if ( c == 'R' && role == 1 ) {
-      Serial.println(F("*** CHANGING TO RECEIVE ROLE -- PRESS 'T' TO SWITCH BACK"));
-      role = 0;                // Become the primary receiver (pong back)
-      radio.startListening();
-
+    
+    }else
+    if ( c == 'R' && role == 1 ){
+      Serial.println(F("*** CHANGING TO RECEIVE ROLE -- PRESS 'T' TO SWITCH BACK"));      
+       role = 0;                // Become the primary receiver (pong back)
+       radio.startListening();
+       RFisListening = true;
     }
+    interrupts();
   }
 } // Loop
+
