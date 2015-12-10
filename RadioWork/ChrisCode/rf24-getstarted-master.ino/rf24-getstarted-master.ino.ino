@@ -9,7 +9,7 @@
 /***      Set this radio as radio number 0 or 1         ***/
 bool radioNumber = 0;
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
-RF24 radio(7, 8);
+RF24 radio(9, 10);
 /**********************************************************/
 byte addresses[][6] = {"1Node", "2Node"};
 // Used to control whether this node is sending or receiving
