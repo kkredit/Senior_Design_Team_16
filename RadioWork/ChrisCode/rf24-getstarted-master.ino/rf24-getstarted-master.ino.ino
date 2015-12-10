@@ -94,10 +94,8 @@ void flashLEDR(){
  * Regardless of current state, send message to other to turn on LEDY
  */
 void handleButton(){
-    noInterrupts();
-    Serial.println(F("Buttonpress: Sending 'turn on LEDY' message"));
-    interrupts();
     hadButtonPress = true;
+    Serial.println(F("Deteceted Button Press"));
 }
 
 void loop() {
@@ -110,6 +108,9 @@ void loop() {
     hadButtonPress = false;
     if(RFisListening) radio.startListening();               // Second, if was already listening
                                                               // turn back on
+    noInterrupts();
+    Serial.println(F("Buttonpress: Sending 'turn on LEDY' message"));
+    interrupts();
   }   
     
   /****************** Ping Out Role ***************************/
@@ -191,6 +192,7 @@ void loop() {
         interrupts();
       }
       else{                   // NORMAL
+        got_presentTime = 55555;
         radio.stopListening();                                        // First, stop listening so we can talk   
         RFisListening = false;
         radio.write( &got_presentTime, sizeof(unsigned long) );              // Send the final one back.      
