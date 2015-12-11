@@ -22,7 +22,7 @@
 #include <TimerOne.h>
 
 /***** Configure the chosen CE,CS pins *****/
-RF24 radio(7,8);
+RF24 radio(9,10);
 RF24Network network(radio);
 RF24Mesh mesh(radio,network);
 
@@ -52,7 +52,7 @@ void setup() {
   digitalWrite(LEDY, HIGH);
   
   Serial.begin(9600);
-  radio.setPALevel(RF24_PA_LOW);
+  //radio.setPALevel(RF24_PA_LOW);
   // Set the nodeID to 0 for the master node
   mesh.setNodeID(0);
   Serial.println(mesh.getNodeID());

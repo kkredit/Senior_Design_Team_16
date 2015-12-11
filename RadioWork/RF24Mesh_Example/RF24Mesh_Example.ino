@@ -58,7 +58,7 @@ void setup() {
   digitalWrite(LEDY, HIGH);
 
   Serial.begin(9600);
-  radio.setPALevel(RF24_PA_LOW);
+  //radio.setPALevel(RF24_PA_LOW);
   //printf_begin();
   // Set the nodeID manually
   mesh.setNodeID(nodeID);
@@ -66,7 +66,7 @@ void setup() {
   Serial.println("Connecting to the mesh...");
   Serial.print("Output of mesh.begin(): ");
   Serial.println(mesh.begin(12, RF24_250KBPS, 2000));
-  //mesh.setAddress(nodeID, nodeID+1); 
+  mesh.setAddress(nodeID,nodeID+2);
 
   digitalWrite(LEDY, LOW);
   digitalWrite(LEDR, HIGH);
