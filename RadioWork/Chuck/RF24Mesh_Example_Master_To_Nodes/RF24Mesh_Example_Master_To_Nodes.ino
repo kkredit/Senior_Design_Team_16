@@ -16,7 +16,7 @@
 #include <SPI.h>
  
 /***** Configure the chosen CE,CS pins *****/
-RF24 radio(7,8);
+RF24 radio(9,10);
 RF24Network network(radio);
 RF24Mesh mesh(radio,network);
  
@@ -30,7 +30,7 @@ uint32_t ctr=0;
  
  
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
  
   // Set the nodeID to 0 for the master node
   mesh.setNodeID(0);

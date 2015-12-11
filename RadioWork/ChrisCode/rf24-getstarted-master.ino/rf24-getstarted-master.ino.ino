@@ -121,8 +121,9 @@ void loop() {
 
     noInterrupts();
     Serial.println(F("Now sending"));
-    unsigned long presentTime = micros();                             // Take the presentTime, and send it.  This will block until complete
-    if (!radio.write( &presentTime, sizeof(unsigned long) )){
+    //unsigned long presentTime = micros();                             // Take the presentTime, and send it.  This will block until complete
+    int myNum = 5555;
+    if (!radio.write( &myNum, sizeof(myNum) )){
       Serial.println(F("failed"));
     }
     interrupts();
@@ -145,7 +146,7 @@ void loop() {
         Serial.println(F("Failed, response presentTimed out."));
         interrupts();
     }else{
-        unsigned long got_presentTime;                                 // Grab the response, compare, and send to debugging spew
+        int got_presentTime;                                 // Grab the response, compare, and send to debugging spew
         radio.read( &got_presentTime, sizeof(unsigned long) );
 
         if(got_presentTime == CODE){   // TOGGLE LEDY
@@ -161,19 +162,16 @@ void loop() {
           // Spew it
           noInterrupts();
           Serial.print(F("Sent "));
-          Serial.print(presentTime);
+          Serial.print(myNum);
           Serial.print(F(", Got response "));
-          Serial.print(got_presentTime);
-          Serial.print(F(", Round-trip delay "));
-          Serial.print(presentTime-got_presentTime);
-          Serial.println(F(" microseconds"));
+          Serial.println(got_presentTime);
           interrupts();
         }
     }
     // Try again 1s later
     delay(1000);
   }
-  /****************** Pong Back Role ***************************/
+  /****************** Ping Back Role ***************************/
   if ( role == 0 )
   {
     unsigned long got_presentTime;

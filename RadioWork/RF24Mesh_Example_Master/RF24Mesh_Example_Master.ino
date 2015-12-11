@@ -71,7 +71,7 @@ void setup() {
   delay(250);
   digitalWrite(LEDR, LOW);
 
-  Timer1.initialize(5000000);
+  Timer1.initialize(50000000);
   Timer1.attachInterrupt(printStatus);
 }
 
@@ -88,12 +88,16 @@ void printStatus(){
   Serial.println(mesh.getAddress(0));
   Serial.println(" ");
   Serial.println(F("********Assigned Addresses********"));
-  for(int i=0; i<mesh.addrListTop; i++){
+  int i = 0;
+  for(i; i<mesh.addrListTop; i++){
     Serial.print("NodeID: ");
     Serial.print(mesh.addrList[i].nodeID);
     Serial.print(" RF24Network Address: 0");
     Serial.println(mesh.addrList[i].address,OCT);
  }
+  Serial.print("There were ");
+  Serial.print(i);
+  Serial.println(" Nodes on the network");
   Serial.println(F("**********************************"));
 }
 
@@ -124,18 +128,5 @@ void loop() {
         break;
       default: network.read(header,0,0); Serial.println(header.type);break;
     }
-  }
-  
-  if(millis() - displayTimer > 5000){
-    displayTimer = millis();
-    Serial.println(" ");
-    Serial.println(F("********Assigned Addresses********"));
-     for(int i=0; i<mesh.addrListTop; i++){
-       Serial.print("NodeID: ");
-       Serial.print(mesh.addrList[i].nodeID);
-       Serial.print(" RF24Network Address: 0");
-       Serial.println(mesh.addrList[i].address,OCT);
-     }
-    Serial.println(F("**********************************"));
   }
 }
