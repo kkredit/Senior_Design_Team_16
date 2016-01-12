@@ -94,8 +94,10 @@ void flashLEDR(){
  * Regardless of current state, send message to other to turn on LEDY
  */
 void handleButton(){
+    noInterrupts();
+    Serial.println(F("Buttonpress: Sending 'turn on LEDY' message"));
+    interrupts();
     hadButtonPress = true;
-    Serial.println(F("Deteceted Button Press"));
 }
 
 void loop() {
