@@ -22,7 +22,7 @@
 #include <TimerOne.h>
 
 /***** Configure the chosen CE,CS pins *****/
-RF24 radio(7,8);
+RF24 radio(9,10);
 RF24Network network(radio);
 RF24Mesh mesh(radio,network);
 
@@ -33,6 +33,9 @@ int printcount = 0;
 #define LEDR    4
 #define LEDG    5
 #define LEDY    6
+
+bool hadButtonPress = false;
+bool LEDYstate = false;
 
 void setup() {
   pinMode(BUTTON, INPUT_PULLUP);
@@ -52,7 +55,7 @@ void setup() {
   digitalWrite(LEDY, HIGH);
   
   Serial.begin(9600);
-  radio.setPALevel(RF24_PA_LOW);
+  //radio.setPALevel(RF24_PA_LOW);
   // Set the nodeID to 0 for the master node
   mesh.setNodeID(0);
   Serial.println(mesh.getNodeID());
@@ -75,8 +78,12 @@ void setup() {
   Timer1.attachInterrupt(printStatus);
 }
 
+/*
+ * Regardless of current state, send message to other to turn on LEDY
+ */
 void handleButton(){
-  Serial.println("[button press]");
+    hadButtonPress = true;
+    Serial.println(F("Deteceted Button Press"));
 }
 
 void printStatus(){
@@ -115,14 +122,23 @@ void loop() {
     uint32_t dat=0;
     switch(header.type){
       // Display the incoming millis() values from the sensor nodes
-      case 'M': 
-        digitalWrite(LEDR, HIGH);
-        delay(1000);
-        digitalWrite(LEDR, LOW);
+//      case 'M': 
+//        digitalWrite(LEDR, HIGH);
+//        delay(1000);
+//        digitalWrite(LEDR, LOW);
+//        network.read(header,&dat,sizeof(dat)); 
+//        Serial.println(dat); 
+//        break;
+      case 'B':
+        LEDYstate = !LEDYstate;
+        digitalWrite(LEDY,LEDYstate);
+        Serial.println(F("Toggling LEDY"));
         network.read(header,&dat,sizeof(dat)); 
-        Serial.println(dat); 
         break;
-      default: network.read(header,0,0); Serial.println(header.type);break;
+      default: 
+        network.read(header,0,0); 
+        Serial.println("Message on network, but not reading it");
+        break;
     }
   }
   
