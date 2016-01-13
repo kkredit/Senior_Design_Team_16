@@ -102,16 +102,16 @@ void handleButton(){
 void loop() {
 
   if(hadButtonPress){
-  radio.stopListening();                                  // First, stop listening so we can talk.
-  if (!radio.write( &CODE, sizeof(unsigned long) )){
-    Serial.println(F("failed"));
-  }
-  hadButtonPress = false;
-  if(RFisListening) radio.startListening();               // Second, if was already listening
-                                                            // turn back on
-  noInterrupts();
-  Serial.println(F("Buttonpress: Sending 'turn on LEDY' message"));
-  interrupts();
+    radio.stopListening();                                  // First, stop listening so we can talk.
+    if (!radio.write( &CODE, sizeof(unsigned long) )){
+      Serial.println(F("failed"));
+    }
+    hadButtonPress = false;
+    if(RFisListening) radio.startListening();               // Second, if was already listening
+                                                              // turn back on
+    noInterrupts();
+    Serial.println(F("Buttonpress: Sending 'turn on LEDY' message"));
+    interrupts();
   }   
   
 /****************** Ping Out Role ***************************/  
@@ -193,7 +193,7 @@ if (role == 1)  {
         interrupts();
       }
       else{                   // NORMAL
-        got_time = 9999;
+        //got_time = 9999;
         radio.stopListening();                                        // First, stop listening so we can talk   
         RFisListening = false;
         radio.write( &got_time, sizeof(unsigned long) );              // Send the final one back.      

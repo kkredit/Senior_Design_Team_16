@@ -16,8 +16,11 @@
 //#include <printf.h>
 #include <TimerOne.h>
 
+#define CE 7
+#define CS 8
+
 /**** Configure the nrf24l01 CE and CS pins ****/
-RF24 radio(7, 8);
+RF24 radio(CE, CS);
 RF24Network network(radio);
 RF24Mesh mesh(radio, network);
 
@@ -30,13 +33,14 @@ RF24Mesh mesh(radio, network);
  * This will be stoLEDR in EEPROM on AVR devices, so remains persistent between further uploads, loss of power, etc.
  *
  **/
-#define nodeID  04
+#define nodeID  02
 #define BUTTON  3
 #define LEDY    6
 #define LEDR    5
 
 uint32_t displayTimer = 0;
 int printcount = 0;
+volatile bool hadButtonPress = false;
 
 struct payload_t {
   unsigned long ms;
@@ -47,8 +51,8 @@ void setup() {
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(LEDR, OUTPUT);
   pinMode(LEDY, OUTPUT);
-  //while(BUTTON); /////////// wait for a button press to continue, allowing for user to setup terminal
-  delay(5000);
+  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING); 
+  //delay(5000);
   digitalWrite(LEDR, LOW);
   digitalWrite(LEDY, LOW);
 
@@ -58,7 +62,7 @@ void setup() {
   digitalWrite(LEDY, HIGH);
 
   Serial.begin(9600);
-  radio.setPALevel(RF24_PA_LOW);
+  //radio.setPALevel(RF24_PA_LOW);
   //printf_begin();
   // Set the nodeID manually
   mesh.setNodeID(nodeID);
@@ -81,6 +85,14 @@ void setup() {
   Timer1.attachInterrupt(printStatus);
 }
 
+/*
+ * Regardless of current state, send message to other to turn on LEDY
+ */
+void handleButton(){
+    hadButtonPress = true;
+    Serial.println(F("Detected buttonpress"));
+}
+
 void printStatus(){
   Serial.println("\n");
   Serial.println(printcount++);
@@ -93,6 +105,26 @@ void printStatus(){
 void loop() {
 
   mesh.update();
+
+  // handle button presses
+  if(hadButtonPress){
+    // Send an 'B' type message to signal the master that there was a button press
+    if (!mesh.write(&displayTimer, 'B', sizeof(displayTimer))) {
+
+      // If a write fails, check connectivity to the mesh network
+      if ( ! mesh.checkConnection() ) {
+        //refresh the network address
+        Serial.println("Renewing Address");
+        mesh.renewAddress();
+      } else {
+        Serial.println("Send fail, Test OK");
+      }
+    } else {
+      Serial.print("Send OK: "); Serial.println(displayTimer);
+    }
+
+    hadButtonPress = false;
+  }
 
   // Send to the master node every second
   if (millis() - displayTimer >= 1000) {
