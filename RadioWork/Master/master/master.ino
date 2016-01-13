@@ -42,42 +42,12 @@ bool changedPulseFlag = false;
 /*******************************************/
 
 /***** Configure I/O ports with #define ****/
-#define FLOWSENSORPIN 2
 #define BUTTON  3
 #define LEDR    4
 #define LEDG    5
 #define LEDY    6
 /*******************************************/
 
-SIGNAL(TIMER0_COMPA_vect) {
-  uint8_t x = digitalRead(FLOWSENSORPIN);
-  
-  if (x == lastflowpinstate) {
-    lastflowratetimer++;
-    return; // nothing changed!
-  }
-  
-  if (x == HIGH) {
-    //low to high transition!
-    pulses++;
-    changedPulseFlag = true;
-  }
-  lastflowpinstate = x;
-  flowrate = 1000.0 / lastflowratetimer;  // in hertz
-  lastflowratetimer = 0;
-}
-
-void useInterrupt(boolean v) {
-  if (v) {
-    // Timer0 is already used for millis() - we'll just interrupt somewhere
-    // in the middle and call the "Compare A" function above
-    OCR0A = 0xAF;
-    TIMSK0 |= _BV(OCIE0A);
-  } else {
-    // do not call the interrupt function COMPA anymore
-    TIMSK0 &= ~_BV(OCIE0A);
-  }
-}
 void setup() {
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(LEDR, OUTPUT);
@@ -117,11 +87,6 @@ void setup() {
 
   Timer1.initialize(5000000);
   Timer1.attachInterrupt(printStatus);
-
-   pinMode(FLOWSENSORPIN, INPUT);
-   digitalWrite(FLOWSENSORPIN, HIGH);
-   lastflowpinstate = digitalRead(FLOWSENSORPIN);
-   useInterrupt(true);
 }
 
 /*
@@ -166,16 +131,17 @@ void loop() {
     network.peek(header);
     
     uint32_t dat=0;
+    bool boolMessage;
+    float flowSensorData;
     switch(header.type){
       // Display the incoming millis() values from the sensor nodes
 //      case 'M': 
 //        Serial.println(dat); 
 //        break;
       case 'B':
-        LEDYstate = !LEDYstate;
-        digitalWrite(LEDY,LEDYstate);
-        Serial.println(F("Toggling LEDY"));
-        network.read(header,&dat,sizeof(dat)); 
+        network.read(header,&flowSensorData,sizeof(flowSensorData));
+        Serial.print(flowSensorData); 
+        Serial.println(F(" liters"));
         break;
       default: 
         network.read(header,0,0); 
@@ -198,20 +164,5 @@ void loop() {
        Serial.println(mesh.addrList[i].address,OCT);
      }
     Serial.println(F("**********************************"));
-  }
-  if (changedPulseFlag == true){
-    Serial.print("Freq: "); Serial.println(flowrate);
-    Serial.print("Pulses: "); Serial.println(pulses, DEC);
-    // if a plastic sensor use the following calculation
-    // Sensor Frequency (Hz) = 7.5 * Q (Liters/min)
-    // Liters = Q * time elapsed (seconds) / 60 (seconds/minute)
-    // Liters = (Frequency (Pulses/second) / 7.5) * time elapsed (seconds) / 60
-    // Liters = Pulses / (7.5 * 60)
-    changedPulseFlag = false;
-    float liters = pulses;
-    liters /= 7.5;
-    liters /= 60.0;
-    Serial.print(liters); 
-    Serial.println(" Liters");
   }
 }
