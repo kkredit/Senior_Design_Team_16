@@ -14,6 +14,10 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
+/* Randos */
+bool dummyValveCommand = true;
+char networkRequestChar;
+
 /***** Configure the chosen CE,CS pins *****/
 RF24 radio(9,10);
 RF24Network network(radio);
@@ -133,15 +137,45 @@ void loop() {
     uint32_t dat=0;
     bool boolMessage;
     float flowSensorData;
+    // idk if initializing this value is allowed...
+    int valveResponse = -1;
+    int networkStatusRequest;
+    
     switch(header.type){
-      // Display the incoming millis() values from the sensor nodes
-//      case 'M': 
-//        Serial.println(dat); 
-//        break;
-      case 'B':
+      // valve flowrate sensor 
+      case 'r':
         network.read(header,&flowSensorData,sizeof(flowSensorData));
-        Serial.print(flowSensorData); 
-        Serial.println(F(" liters"));
+        if (flowSensorData == float(-1)) {
+          Serial.println("Something went terribly wrong with the flowSensorData...");
+        } else {
+          Serial.print(flowSensorData); 
+          Serial.println(F(" liters"));
+        }
+        break;
+      // read a valve response from one of the nodes
+      case 'v':
+        network.read(header, &valveResponse, sizeof(valveResponse));
+        if (valveResponse == -1){
+          Serial.println("The status is unknown");
+        } else if (valveResponse == 0) {
+          Serial.println("The valve is closed");
+        } else if (valveResponse == 1){
+          Serial.println("The valve is open");
+        } else {
+          Serial.println("Something went terribly wrong with the valveResponse...");
+        }
+        break;
+      case 'n':
+        network.read(header, &networkStatusRequest, sizeof(networkStatusRequest));
+        if (networkStatusRequest == 1){
+          Serial.println("We're solid");
+        } else if (networkStatusRequest == 2) {
+          Serial.println("There's a low battery warning");
+        } else if (networkStatusRequest == 3){
+          Serial.println("There's a valve error");
+        } else {
+          Serial.println("Something went terribly wrong with the valveResponse...");
+        }
         break;
       default: 
         network.read(header,0,0); 
@@ -164,5 +198,77 @@ void loop() {
        Serial.println(mesh.addrList[i].address,OCT);
      }
     Serial.println(F("**********************************"));
+  }
+  if ( Serial.available() )
+  {
+    noInterrupts();
+    char sendMessage = Serial.read();
+    if (sendMessage == 'V'){ 
+      if (!mesh.write(&dummyValveCommand, 'V', sizeof(dummyValveCommand))) {
+      // If a write fails, check connectivity to the mesh network
+        if ( ! mesh.checkConnection() ) {
+          //refresh the network address
+          Serial.println("Renewing Address");
+          mesh.renewAddress();
+      } else {
+        Serial.println("Send fail, Test OK");
+      }
+    } else {
+      Serial.print("Sending the valve command: "); Serial.println(dummyValveCommand);
+    }
+      if (dummyValveCommand){
+        dummyValveCommand = false;
+      } else {
+        dummyValveCommand = true;
+      }
+    }
+    // request a valve state 
+    else if (sendMessage == 's'){
+      networkRequestChar = 's'; 
+      if (!mesh.write(&networkRequestChar, 'R', sizeof(networkRequestChar))) {
+      // If a write fails, check connectivity to the mesh network
+        if ( ! mesh.checkConnection() ) {
+          //refresh the network address
+          Serial.println("Renewing Address");
+          mesh.renewAddress();
+        } else {
+          Serial.println("Send fail, Test OK");
+        } 
+      } else {
+        Serial.print("Sending the valve command: "); Serial.println(networkRequestChar);
+      }
+    }
+    // request a flowrate state 
+    else if (sendMessage == 'r'){
+      networkRequestChar = 'r'; 
+      if (!mesh.write(&networkRequestChar, 'R', sizeof(networkRequestChar))) {
+      // If a write fails, check connectivity to the mesh network
+        if ( ! mesh.checkConnection() ) {
+          //refresh the network address
+          Serial.println("Renewing Address");
+          mesh.renewAddress();
+        } else {
+          Serial.println("Send fail, Test OK");
+        } 
+      } else {
+        Serial.print("Sending the valve command: "); Serial.println(networkRequestChar);
+      }
+    }
+        else if (sendMessage == 'n'){
+      networkRequestChar = 'n'; 
+      if (!mesh.write(&networkRequestChar, 'R', sizeof(networkRequestChar))) {
+      // If a write fails, check connectivity to the mesh network
+        if ( ! mesh.checkConnection() ) {
+          //refresh the network address
+          Serial.println("Renewing Address");
+          mesh.renewAddress();
+        } else {
+          Serial.println("Send fail, Test OK");
+        } 
+      } else {
+        Serial.print("Sending the valve command: "); Serial.println(networkRequestChar);
+      }
+    }
+    interrupts();
   }
 }
