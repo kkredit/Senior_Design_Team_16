@@ -30,7 +30,8 @@
 #define LEDR    5
 
 // mesh settings
-#define nodeID  02
+#define nodeID        02
+#define masterAddress 0
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +60,7 @@ volatile bool hadButtonPress = false;
 int valveState = false;
 bool LEDRstate = false;
 int myStatus = 1;
+unsigned statusCounter = 0;
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -68,8 +70,10 @@ int myStatus = 1;
  * Regardless of current state, send message to other to turn on LEDY
  */
 void handleButton(){
-    hadButtonPress = true;
-    Serial.println(F("Detected buttonpress"));
+    if(statusCounter > 2){   // gets rid of startup error
+      hadButtonPress = true; 
+      Serial.println(F("Detected buttonpress"));
+    }
 }
 
 
@@ -77,10 +81,28 @@ void handleButton(){
 /////////////////////////////// Helper Functions//////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 void printStatus(){
-  Serial.print("\nMy ID:      ");
+  
+  noInterrupts();
+
+  Serial.print('\n'); Serial.println(statusCounter++);
+  
+  if(!mesh.checkConnection()){
+    Serial.println("Not connected... renewing address");
+    if(mesh.renewAddress() == -1)
+      Serial.println("NOT CONNECTED");
+    else
+      Serial.println("Reconnected");
+  }
+  else
+    Serial.println("Connected");
+
+  Serial.print("My ID:      ");
   Serial.println(mesh.getNodeID());
-  Serial.print("My address: ");
-  Serial.println(mesh.getAddress(0));
+  //Serial.print("My address: ");
+  //int i = nodeID;
+  //Serial.println(mesh.getAddress(nodeID));
+
+  interrupts();
 }
 
 SIGNAL(TIMER0_COMPA_vect){
@@ -115,19 +137,23 @@ void useInterrupt(boolean v) {
 }
 
 bool safeMeshWrite(void* payload, char header, unsigned datasize){
-  if (!mesh.write(payload, header, datasize)) {
+  if (!mesh.write(masterAddress, payload, header, datasize)) {
     // If a write fails, check connectivity to the mesh network
     if (!mesh.checkConnection() ) {
       //refresh the network address
       Serial.println(F("Renewing Address"));
       mesh.renewAddress();
     } 
-    else
+    else {
       Serial.println(F("Send fail, Test OK"));
+    }
+    
+    return false;
   }
   else {
-    Serial.print(F("Send OK: "));
+//    Serial.print(F("Send OK: "));
 //    Serial.println(*payload);
+    return true;
   }
 }
 
@@ -147,7 +173,7 @@ int setValve(bool setTo){
 void setup(){
   // init LEDs and Button
   pinMode(BUTTON, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
+  //attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
   pinMode(LEDY, OUTPUT);
   pinMode(LEDR, OUTPUT);
 
@@ -163,8 +189,8 @@ void setup(){
 
   // begin mesh communication
   mesh.setNodeID(nodeID); // do manually
-  Serial.println(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
-  Serial.println(mesh.begin(12, RF24_250KBPS, 2000));
+  Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
+  Serial.println(mesh.begin(12, RF24_250KBPS, 20000));
 
   // "connected" light sequence
   digitalWrite(LEDY, LOW);
@@ -188,6 +214,9 @@ void setup(){
 
   // close valve
   setValve(false);
+
+  // attach interrupt to button
+  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
 }
 
 
@@ -204,7 +233,7 @@ void loop() {
   if(hadButtonPress){
     // 'B' message sends the accumulated water flow, in liters
     float liters = pulses/7.5/60.0;
-    safeMeshWrite(&liters, 'B', sizeof(float));
+    safeMeshWrite(&liters, 'r', sizeof(float));
     /*if (!mesh.write(&liters, 'B', sizeof(float))) {
       // If a write fails, check connectivity to the mesh network
       if (!mesh.checkConnection() ) {
@@ -243,32 +272,40 @@ void loop() {
   // read in messages
   while (network.available()){
     RF24NetworkHeader header;
-    void* payload = malloc(sizeof(float)); // float is largest possible size
-    network.read(header, payload, sizeof(payload));
-    Serial.print(F("Received ")); Serial.print(header.type); Serial.println(F(" type message."));
+    network.peek(header);
+    //void* payload = malloc(sizeof(float)); // float is largest possible size
+    //network.read(header, payload, sizeof(payload));
+    Serial.print(F("Received ")); Serial.print(char(header.type)); Serial.println(F(" type message."));
 
     switch(header.type){
     case 'V':
       // Valve command, on or off; type is bool
-      //  set the value and send return message      
-      setValve( *((bool*)payload) );
+      //  set the value and send return message
+      bool onOrOff;
+      network.read(header, &onOrOff, sizeof(onOrOff));
+      setValve(onOrOff);
       safeMeshWrite(&valveState, 'v', sizeof(valveState));
       break;
-    case 'R':
+      
+    case 'R':    
       // Request; type is char
-      switch( *((char*)payload) ){
+      char typeOfData;
+      network.read(header, &typeOfData, sizeof(typeOfData));
+      
+      switch( typeOfData ){
       case 'v':
         // tell current valve state
         safeMeshWrite(&valveState, 'v', sizeof(valveState));
         break;
       case 'r':
         // tell current flow rate
-        float liters = pulses/7.5/60.0; // TODO: make flowrate; currently is accumulated water
+        float liters;
+        liters = pulses/7.5/60.0; // TODO: make flowrate; currently is accumulated water
         safeMeshWrite(&liters, 'r', sizeof(liters));
         break;
       case 'n':
         // return status
-        safeMeshWrite(&myStatus, 'r', sizeof(myStatus));
+        safeMeshWrite(&myStatus, 'n', sizeof(myStatus));
         break;
       default:
         break;
@@ -278,8 +315,6 @@ void loop() {
     default:
       break;
     }
-
-    free(payload);
   }
 }
 
