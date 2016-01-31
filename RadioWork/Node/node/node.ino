@@ -30,8 +30,9 @@
 #define LEDR    5
 
 // mesh settings
-#define nodeID        02
-#define masterAddress 0
+#define nodeID            02
+#define masterAddress     0
+#define DEFAULTSENDTRIES 5
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -67,10 +68,11 @@ unsigned statusCounter = 0;
 ///////////////////////////////     ISRs        //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 /*
- * Regardless of current state, send message to other to turn on LEDY
+ * Triggered by button press on pin BUTTON
+ * Sets flag, prints to serial port, and exits
  */
 void handleButton(){
-    if(statusCounter > 2){   // gets rid of startup error
+    if(statusCounter > 2){   // gets rid of startup false positive by ignoring for 2 seconds after startup
       hadButtonPress = true; 
       Serial.println(F("Detected buttonpress"));
     }
@@ -80,13 +82,16 @@ void handleButton(){
 //////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// Helper Functions//////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
+/*
+ * Checks mesh connection, prints status
+ */
 void printStatus(){
-  
-  noInterrupts();
-
+  // print number of times executed
   Serial.print('\n'); Serial.println(statusCounter++);
-  
+
+  // check mesh connection and print status
   if(!mesh.checkConnection()){
+    // if unconnected, try to reconnect
     Serial.println("Not connected... renewing address");
     if(mesh.renewAddress() == -1)
       Serial.println("NOT CONNECTED");
@@ -96,15 +101,17 @@ void printStatus(){
   else
     Serial.println("Connected");
 
+  // print node ID
   Serial.print("My ID:      ");
   Serial.println(mesh.getNodeID());
+  // print address DOESN'T WORK
   //Serial.print("My address: ");
-  //int i = nodeID;
   //Serial.println(mesh.getAddress(nodeID));
-
-  interrupts();
 }
 
+/*
+ * Setup flow meter; borrowed function
+ */
 SIGNAL(TIMER0_COMPA_vect){
   uint8_t x = digitalRead(FLOWSENSORPIN);
   
@@ -124,6 +131,9 @@ SIGNAL(TIMER0_COMPA_vect){
   lastflowratetimer = 0;
 }
 
+/*
+ * Setup flow meter; borrowed function
+ */
 void useInterrupt(boolean v) {
   if (v) {
     // Timer0 is already used for millis() - we'll just interrupt somewhere
@@ -136,27 +146,70 @@ void useInterrupt(boolean v) {
   }
 }
 
-bool safeMeshWrite(void* payload, char header, unsigned datasize){
+/*
+ * A function to do a mesh.write with automatic error handling
+ * @param void* payload: a pointer to the payload
+ * @param char header: the type of message
+ * @param unsigned datasize: the size of the payload in bytes (use the sizeof() function)
+ * @param unsigned timesToTry: the number of times to try to send the message if send fails
+ * @return bool: true if send success, false if send fail
+ */
+bool safeMeshWrite(void* payload, char header, unsigned datasize, unsigned timesToTry){
+  // perform write
   if (!mesh.write(masterAddress, payload, header, datasize)) {
-    // If a write fails, check connectivity to the mesh network
+    // if a write fails, check connectivity to the mesh network
+    Serial.print(F("Send fail... "));
     if (!mesh.checkConnection() ) {
       //refresh the network address
-      Serial.println(F("Renewing Address"));
-      mesh.renewAddress();
+      Serial.println(F("renewing Address... "));
+      if (!mesh.renewAddress()){
+        // if failed, connection is down
+        Serial.println(F("MESH CONNECTION DOWN"));
+        return false;
+      }
+      else{
+        if(timesToTry){
+          // if succeeded, are reconnected and try again
+          Serial.println(F("reconnected, trying again"));
+          delay(50);
+          return safeMeshWrite(payload, header, datasize, --timesToTry);
+        }
+        else{
+          // out of tries; send failed
+          Serial.println(F("reconnected, but out of send tries: SEND FAIL"));
+          return false;
+        }
+        
+      }
     } 
-    else {
-      Serial.println(F("Send fail, Test OK"));
-    }
-    
-    return false;
+    else {      
+      if(timesToTry){
+        // if send failed but are connected and have more tries, try again after 50 ms
+        Serial.println(F("mesh connected, trying again"));
+        delay(50);
+        return safeMeshWrite(payload, header, datasize, --timesToTry);
+      }
+      else{
+        // out of tries; send failed
+        Serial.println(F("out of send tries: SEND FAIL"));
+        return false;
+      }
+    }    
+    //return false;
   }
   else {
-//    Serial.print(F("Send OK: "));
-//    Serial.println(*payload);
+    // write succeeded
+    Serial.print(F("Send of type ")); Serial.print(header); Serial.print(F(" success"));
+    //Serial.println(*payload); // cannot dereference void*, and do not know type...
     return true;
   }
 }
 
+/*
+ * Sets valve to desired state
+ * @param bool setTo: the desired state
+ * @param int: the actual state it was set to
+ */
 int setValve(bool setTo){
   // set valve
   valveState = setTo ? 1 : 0;
@@ -228,26 +281,12 @@ void loop() {
   // refresh the mesh
   mesh.update();
 
-  // handle button presses--send 'B' type message
+  // handle button presses--send 'r' type message
   // NOT FINAL CODE
   if(hadButtonPress){
-    // 'B' message sends the accumulated water flow, in liters
+    // 'r' message sends the accumulated water flow, in liters
     float liters = pulses/7.5/60.0;
-    safeMeshWrite(&liters, 'r', sizeof(float));
-    /*if (!mesh.write(&liters, 'B', sizeof(float))) {
-      // If a write fails, check connectivity to the mesh network
-      if (!mesh.checkConnection() ) {
-        //refresh the network address
-        Serial.println("Renewing Address");
-        mesh.renewAddress();
-      } 
-      else
-        Serial.println("Send fail, Test OK");
-    }
-    else {
-      Serial.print("Send OK: ");
-      Serial.println(liters);
-    }*/
+    safeMeshWrite(&liters, 'r', sizeof(float), DEFAULTSENDTRIES);
 
     // reset flag
     hadButtonPress = false;
@@ -284,7 +323,7 @@ void loop() {
       bool onOrOff;
       network.read(header, &onOrOff, sizeof(onOrOff));
       setValve(onOrOff);
-      safeMeshWrite(&valveState, 'v', sizeof(valveState));
+      safeMeshWrite(&valveState, 'v', sizeof(valveState), DEFAULTSENDTRIES);
       break;
       
     case 'R':    
@@ -295,17 +334,17 @@ void loop() {
       switch( typeOfData ){
       case 'v':
         // tell current valve state
-        safeMeshWrite(&valveState, 'v', sizeof(valveState));
+        safeMeshWrite(&valveState, 'v', sizeof(valveState), DEFAULTSENDTRIES);
         break;
       case 'r':
         // tell current flow rate
         float liters;
         liters = pulses/7.5/60.0; // TODO: make flowrate; currently is accumulated water
-        safeMeshWrite(&liters, 'r', sizeof(liters));
+        safeMeshWrite(&liters, 'r', sizeof(liters), DEFAULTSENDTRIES);
         break;
       case 'n':
         // return status
-        safeMeshWrite(&myStatus, 'n', sizeof(myStatus));
+        safeMeshWrite(&myStatus, 'n', sizeof(myStatus), DEFAULTSENDTRIES);
         break;
       default:
         break;
