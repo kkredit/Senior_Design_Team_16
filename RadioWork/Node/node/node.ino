@@ -32,7 +32,8 @@
 // mesh settings
 #define nodeID            02
 #define masterAddress     0
-#define DEFAULTSENDTRIES 5
+#define DEFAULTSENDTRIES  5
+#define RETRY_PERIOD      1000 // number of ms to wait before retrying to send a 
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +172,7 @@ bool safeMeshWrite(void* payload, char header, unsigned datasize, unsigned times
         if(timesToTry){
           // if succeeded, are reconnected and try again
           Serial.println(F("reconnected, trying again"));
-          delay(50);
+          delay(RETRY_PERIOD);
           return safeMeshWrite(payload, header, datasize, --timesToTry);
         }
         else{
@@ -186,7 +187,7 @@ bool safeMeshWrite(void* payload, char header, unsigned datasize, unsigned times
       if(timesToTry){
         // if send failed but are connected and have more tries, try again after 50 ms
         Serial.println(F("mesh connected, trying again"));
-        delay(50);
+        delay(RETRY_PERIOD);
         return safeMeshWrite(payload, header, datasize, --timesToTry);
       }
       else{
@@ -213,6 +214,10 @@ bool safeMeshWrite(void* payload, char header, unsigned datasize, unsigned times
 int setValve(bool setTo){
   // set valve
   valveState = setTo ? 1 : 0;
+
+  // reset accumulated water flow
+  if(valveState == false)
+    pulses = 0;
 
   // LEDY replicates valve state
   digitalWrite(LEDY, setTo);
@@ -338,9 +343,12 @@ void loop() {
         break;
       case 'r':
         // tell current flow rate
-        float liters;
-        liters = pulses/7.5/60.0; // TODO: make flowrate; currently is accumulated water
-        safeMeshWrite(&liters, 'r', sizeof(liters), DEFAULTSENDTRIES);
+        float beginLiters, flowrate;//endLiters, flowrate;
+        beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
+        delay(5000);                                        // wait 5 seconds
+        //endLiters = pulses/7.5/60.0;                      // is end amount of liters
+        flowrate = (pulses/7.5/60.0-beginLiters)/5*15.8503; // convert liters/sec to GPM
+        safeMeshWrite(&flowrate, 'r', sizeof(flowrate), DEFAULTSENDTRIES);
         break;
       case 'n':
         // return status
