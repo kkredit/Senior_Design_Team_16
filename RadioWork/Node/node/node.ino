@@ -17,6 +17,7 @@
 #include "RF24.h"
 #include "RF24Network.h"
 #include "RF24Mesh.h"
+//#include "RF24Mesh_config.h"
 #include <SPI.h>
 #include <EEPROM.h>
 #include <TimerOne.h>
@@ -30,7 +31,7 @@
 #define LEDR    5
 
 // mesh settings
-#define nodeID            02
+#define nodeID            03
 #define masterAddress     0
 #define DEFAULTSENDTRIES  5
 #define RETRY_PERIOD      1000 // number of ms to wait before retrying to send a 
@@ -323,8 +324,8 @@ void loop() {
     //void* payload = malloc(sizeof(float)); // float is largest possible size
     //network.read(header, payload, sizeof(payload));
     Serial.print(F("Received ")); Serial.print(char(header.type)); Serial.println(F(" type message."));
-    Serial.print(F("From [logical address]")); Serial.println(header.from_node);
-    Serial.print(F("From [converted to nodeID]")); Serial.println(mesh.getNodeID(header.from_node));
+    Serial.print(F("From [logical address]: ")); Serial.println(header.from_node);
+    Serial.print(F("From [converted to nodeID]: ")); Serial.println(mesh.getNodeID(header.from_node));
 
     switch(header.type){
     case 'V':
