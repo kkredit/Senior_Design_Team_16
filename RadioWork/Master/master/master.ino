@@ -184,9 +184,9 @@ void loop() {
     }
   }
   if (hadButtonPress){
-    networkRequestChar = 'n'; 
-    mesh.write(mesh.getAddress(KEVINID), &networkRequestChar, 'R', sizeof(networkRequestChar));
-    Serial.print("Sending the valve command: "); Serial.println(networkRequestChar);
+    mesh.write(mesh.getAddress(KEVINID), &dummyValveCommand, 'V', sizeof(dummyValveCommand));
+    Serial.print("Sending the valve command: "); Serial.println(dummyValveCommand);
+    dummyValveCommand = !dummyValveCommand;
     hadButtonPress = false;
   }
 //  if ( Serial.available() )

@@ -31,7 +31,7 @@
 #define LEDR    5
 
 // mesh settings
-#define nodeID            02
+#define nodeID            01
 #define masterAddress     0
 #define DEFAULTSENDTRIES  5
 #define RETRY_PERIOD      1000 // number of ms to wait before retrying to send a 
@@ -201,7 +201,7 @@ bool safeMeshWrite(void* payload, char header, unsigned datasize, unsigned times
   }
   else {
     // write succeeded
-    Serial.print(F("Send of type ")); Serial.print(char(header)); Serial.print(F(" success"));
+    Serial.print(F("Send of type ")); Serial.print(char(header)); Serial.println(F(" success"));
     //Serial.println(*payload); // cannot dereference void*, and do not know type...
     return true;
   }
@@ -249,10 +249,11 @@ void setup(){
   // begin mesh communication
   mesh.setNodeID(nodeID); // do manually
   Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
-  int temp = 0;
-  while (temp == 0){
-    temp = mesh.begin(12, RF24_250KBPS, 20000);
-  }
+  Serial.println(mesh.begin(12, RF24_250KBPS, 20000));
+//  int temp = 0;
+//  while (temp == 0){
+//    temp = mesh.begin(12, RF24_250KBPS, 20000);
+//  }
 
   // allow children to connect
   mesh.setChild(true);
