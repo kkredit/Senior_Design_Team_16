@@ -323,6 +323,8 @@ void loop() {
     //void* payload = malloc(sizeof(float)); // float is largest possible size
     //network.read(header, payload, sizeof(payload));
     Serial.print(F("Received ")); Serial.print(char(header.type)); Serial.println(F(" type message."));
+    Serial.print(F("From [logical address]")); Serial.println(header.from_node);
+    Serial.print(F("From [converted to nodeID]")); Serial.println(mesh.getNodeID(header.from_node));
 
     switch(header.type){
     case 'V':
