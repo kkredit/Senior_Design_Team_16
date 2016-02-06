@@ -127,6 +127,9 @@ void loop() {
   if(network.available()){
     RF24NetworkHeader header;
     network.peek(header);
+    Serial.print(F("Received ")); Serial.print(char(header.type)); Serial.println(F(" type message."));
+    Serial.print(F("From [logical address]: ")); Serial.println(header.from_node);
+    Serial.print(F("From [converted to nodeID]: ")); Serial.println(mesh.getNodeID(header.from_node));
     
     uint32_t dat=0;
     bool boolMessage;
@@ -267,5 +270,5 @@ void loop() {
 //  } else {
 //    Serial.println("Serial Not Available");
 //  }
-}
+//}
 }
