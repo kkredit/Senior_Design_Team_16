@@ -31,7 +31,7 @@
 #define LEDR    5
 
 // mesh settings
-#define nodeID            03
+#define nodeID            02
 #define masterAddress     0
 #define DEFAULTSENDTRIES  5
 #define RETRY_PERIOD      1000 // number of ms to wait before retrying to send a 
@@ -249,7 +249,10 @@ void setup(){
   // begin mesh communication
   mesh.setNodeID(nodeID); // do manually
   Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
-  Serial.println(mesh.begin(12, RF24_250KBPS, 20000));
+  int temp = 0;
+  while (temp == 0){
+    temp = mesh.begin(12, RF24_250KBPS, 20000);
+  }
 
   // allow children to connect
   mesh.setChild(true);
