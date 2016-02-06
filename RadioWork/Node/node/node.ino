@@ -250,6 +250,9 @@ void setup(){
   Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
   Serial.println(mesh.begin(12, RF24_250KBPS, 20000));
 
+  // allow children to connect
+  mesh.setChild(true);
+
   // "connected" light sequence
   digitalWrite(LEDY, LOW);
   digitalWrite(LEDR, HIGH);
