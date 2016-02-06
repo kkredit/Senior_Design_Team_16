@@ -146,7 +146,7 @@ void loop() {
           Serial.println("Something went terribly wrong with the flowSensorData...");
         } else {
           Serial.print(flowSensorData); 
-          Serial.println(" liters");
+          Serial.println(" GPM");
         }
         break;
       // read a valve response from one of the nodes

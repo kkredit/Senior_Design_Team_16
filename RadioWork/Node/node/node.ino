@@ -201,7 +201,7 @@ bool safeMeshWrite(void* payload, char header, unsigned datasize, unsigned times
   }
   else {
     // write succeeded
-    Serial.print(F("Send of type ")); Serial.print(header); Serial.print(F(" success"));
+    Serial.print(F("Send of type ")); Serial.print(char(header)); Serial.print(F(" success"));
     //Serial.println(*payload); // cannot dereference void*, and do not know type...
     return true;
   }
@@ -296,9 +296,13 @@ void loop() {
   // handle button presses--send 'r' type message
   // NOT FINAL CODE
   if(hadButtonPress){
-    // 'r' message sends the accumulated water flow, in liters
-    float liters = pulses/7.5/60.0;
-    safeMeshWrite(&liters, 'r', sizeof(float), DEFAULTSENDTRIES);
+    // tell current flow rate
+    float beginLiters, flowrate;//endLiters, flowrate;
+    beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
+    delay(5000);                                        // wait 5 seconds
+    //endLiters = pulses/7.5/60.0;                      // is end amount of liters
+    flowrate = (pulses/7.5/60.0-beginLiters)/5*15.8503; // convert liters/sec to GPM
+    safeMeshWrite(&flowrate, 'r', sizeof(flowrate), DEFAULTSENDTRIES);
 
     // reset flag
     hadButtonPress = false;
