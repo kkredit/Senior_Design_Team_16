@@ -21,6 +21,8 @@
 #include <SPI.h>
 #include <EEPROM.h>
 #include <TimerOne.h>
+#include "settings.h"
+//#include "SharedFunctions.h"
 
 // pins
 #define CE 7
@@ -32,10 +34,6 @@
 
 // mesh settings
 #define nodeID            01
-#define masterAddress     0
-#define DEFAULTSENDTRIES  5
-#define RETRY_PERIOD      1000 // number of ms to wait before retrying to send a 
-
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Globals     //////////////////////////////////
@@ -112,6 +110,65 @@ void printStatus(){
 }
 
 /*
+ * A function to do a mesh.write with automatic error handling
+ * @param void* payload: a pointer to the payload
+ * @param char header: the type of message
+ * @param unsigned datasize: the size of the payload in bytes (use the sizeof() function)
+ * @param unsigned timesToTry: the number of times to try to send the message if send fails
+ * @return bool: true if send success, false if send fail
+ */
+bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t datasize, uint8_t timesToTry){
+  // perform write
+  if (!mesh.write(destination, payload, header, datasize)) {
+    // if a write fails, check connectivity to the mesh network
+    Serial.print(F("Send fail... "));
+    if (!mesh.checkConnection() ) {
+      //refresh the network address
+      Serial.println(F("renewing Address... "));
+      if (!mesh.renewAddress()){
+        // if failed, connection is down
+        Serial.println(F("MESH CONNECTION DOWN"));
+        return false;
+      }
+      else{
+        if(timesToTry){
+          // if succeeded, are reconnected and try again
+          Serial.println(F("reconnected, trying again"));
+          delay(RETRY_PERIOD);
+          return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
+        }
+        else{
+          // out of tries; send failed
+          Serial.println(F("reconnected, but out of send tries: SEND FAIL"));
+          return false;
+        }
+        
+      }
+    } 
+    else {      
+      if(timesToTry){
+        // if send failed but are connected and have more tries, try again after 50 ms
+        Serial.println(F("mesh connected, trying again"));
+        delay(RETRY_PERIOD);
+        return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
+      }
+      else{
+        // out of tries; send failed
+        Serial.println(F("out of send tries: SEND FAIL"));
+        return false;
+      }
+    }    
+    //return false;
+  }
+  else {
+    // write succeeded
+    Serial.print(F("Send of type ")); Serial.print(header); Serial.println(F(" success"));
+    //Serial.println(*payload); // cannot dereference void*, and do not know type...
+    return true;
+  }
+}
+
+/*
  * Setup flow meter; borrowed function
  */
 SIGNAL(TIMER0_COMPA_vect){
@@ -145,65 +202,6 @@ void useInterrupt(boolean v) {
   } else {
     // do not call the interrupt function COMPA anymore
     TIMSK0 &= ~_BV(OCIE0A);
-  }
-}
-
-/*
- * A function to do a mesh.write with automatic error handling
- * @param void* payload: a pointer to the payload
- * @param char header: the type of message
- * @param unsigned datasize: the size of the payload in bytes (use the sizeof() function)
- * @param unsigned timesToTry: the number of times to try to send the message if send fails
- * @return bool: true if send success, false if send fail
- */
-bool safeMeshWrite(void* payload, char header, unsigned datasize, unsigned timesToTry){
-  // perform write
-  if (!mesh.write(masterAddress, payload, header, datasize)) {
-    // if a write fails, check connectivity to the mesh network
-    Serial.print(F("Send fail... "));
-    if (!mesh.checkConnection() ) {
-      //refresh the network address
-      Serial.println(F("renewing Address... "));
-      if (!mesh.renewAddress()){
-        // if failed, connection is down
-        Serial.println(F("MESH CONNECTION DOWN"));
-        return false;
-      }
-      else{
-        if(timesToTry){
-          // if succeeded, are reconnected and try again
-          Serial.println(F("reconnected, trying again"));
-          delay(RETRY_PERIOD);
-          return safeMeshWrite(payload, header, datasize, --timesToTry);
-        }
-        else{
-          // out of tries; send failed
-          Serial.println(F("reconnected, but out of send tries: SEND FAIL"));
-          return false;
-        }
-        
-      }
-    } 
-    else {      
-      if(timesToTry){
-        // if send failed but are connected and have more tries, try again after 50 ms
-        Serial.println(F("mesh connected, trying again"));
-        delay(RETRY_PERIOD);
-        return safeMeshWrite(payload, header, datasize, --timesToTry);
-      }
-      else{
-        // out of tries; send failed
-        Serial.println(F("out of send tries: SEND FAIL"));
-        return false;
-      }
-    }    
-    //return false;
-  }
-  else {
-    // write succeeded
-    Serial.print(F("Send of type ")); Serial.print(char(header)); Serial.println(F(" success"));
-    //Serial.println(*payload); // cannot dereference void*, and do not know type...
-    return true;
   }
 }
 
@@ -249,24 +247,23 @@ void setup(){
   // begin mesh communication
   mesh.setNodeID(nodeID); // do manually
   Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
-  Serial.println(mesh.begin(12, RF24_250KBPS, 20000));
-//  int temp = 0;
-//  while (temp == 0){
-//    temp = mesh.begin(12, RF24_250KBPS, 20000);
-//  }
-
-  // allow children to connect
-  mesh.setChild(true);
+  bool success = mesh.begin(COMMCHANNEL, DATARATE, CONNECTTIMEOUT);
+  Serial.println(success);
 
   // "connected" light sequence
   digitalWrite(LEDY, LOW);
-  digitalWrite(LEDR, HIGH);
-  delay(250);
+  if(success){
+    digitalWrite(LEDR, HIGH);
+    delay(250);
+    digitalWrite(LEDR, LOW);
+    delay(250);
+    digitalWrite(LEDR, HIGH);
+    delay(250);
+  }
   digitalWrite(LEDR, LOW);
-  delay(250);
-  digitalWrite(LEDR, HIGH);
-  delay(250);
-  digitalWrite(LEDR, LOW);
+
+  // allow children to connect
+  mesh.setChild(true);
 
   // init timer for serial communication printing
   Timer1.initialize(5000000);
@@ -303,7 +300,7 @@ void loop() {
     delay(5000);                                        // wait 5 seconds
     //endLiters = pulses/7.5/60.0;                      // is end amount of liters
     flowrate = (pulses/7.5/60.0-beginLiters)/5*15.8503; // convert liters/sec to GPM
-    safeMeshWrite(&flowrate, 'r', sizeof(flowrate), DEFAULTSENDTRIES);
+    safeMeshWrite(MASTER_ADDRESS, &flowrate, 'r', sizeof(flowrate), DEFAULTSENDTRIES);
 
     // reset flag
     hadButtonPress = false;
@@ -342,7 +339,7 @@ void loop() {
       bool onOrOff;
       network.read(header, &onOrOff, sizeof(onOrOff));
       setValve(onOrOff);
-      safeMeshWrite(&valveState, 'v', sizeof(valveState), DEFAULTSENDTRIES);
+      safeMeshWrite(MASTER_ADDRESS, &valveState, 'v', sizeof(valveState), DEFAULTSENDTRIES);
       break;
       
     case 'R':    
@@ -353,7 +350,7 @@ void loop() {
       switch( typeOfData ){
       case 'v':
         // tell current valve state
-        safeMeshWrite(&valveState, 'v', sizeof(valveState), DEFAULTSENDTRIES);
+        safeMeshWrite(MASTER_ADDRESS, &valveState, 'v', sizeof(valveState), DEFAULTSENDTRIES);
         break;
       case 'r':
         // tell current flow rate
@@ -362,11 +359,11 @@ void loop() {
         delay(5000);                                        // wait 5 seconds
         //endLiters = pulses/7.5/60.0;                      // is end amount of liters
         flowrate = (pulses/7.5/60.0-beginLiters)/5*15.8503; // convert liters/sec to GPM
-        safeMeshWrite(&flowrate, 'r', sizeof(flowrate), DEFAULTSENDTRIES);
+        safeMeshWrite(MASTER_ADDRESS, &flowrate, 'r', sizeof(flowrate), DEFAULTSENDTRIES);
         break;
       case 'n':
         // return status
-        safeMeshWrite(&myStatus, 'n', sizeof(myStatus), DEFAULTSENDTRIES);
+        safeMeshWrite(MASTER_ADDRESS, &myStatus, 'n', sizeof(myStatus), DEFAULTSENDTRIES);
         break;
       default:
         break;
