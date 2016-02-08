@@ -21,8 +21,8 @@
 #include <SPI.h>
 #include <EEPROM.h>
 #include <TimerOne.h>
-#include "settings.h"
-//#include "SharedFunctions.h"
+#include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\settings.h"
+//#include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\SharedFunctions.h"
 
 // pins
 #define CE 7
@@ -31,9 +31,10 @@
 #define BUTTON  3
 #define LEDY    6
 #define LEDR    5
-
-// mesh settings
-#define nodeID            01
+#define IDPIN_0 A0
+#define IDPIN_1 A1
+#define IDPIN_2 A2
+#define IDPIN_3 A3
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Globals     //////////////////////////////////
@@ -223,6 +224,9 @@ int setValve(bool setTo){
   return valveState;
 }
 
+uint8_t readMyID(){
+  return (!digitalRead(IDPIN_0))*1+(!digitalRead(IDPIN_1))*2+(!digitalRead(IDPIN_2))*4+(!digitalRead(IDPIN_3))*8;
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Setup       //////////////////////////////////
@@ -234,6 +238,12 @@ void setup(){
   pinMode(LEDY, OUTPUT);
   pinMode(LEDR, OUTPUT);
 
+  // init ID read pins
+  pinMode(IDPIN_0, INPUT_PULLUP);
+  pinMode(IDPIN_1, INPUT_PULLUP);
+  pinMode(IDPIN_2, INPUT_PULLUP);
+  pinMode(IDPIN_3, INPUT_PULLUP);
+
   // "power-on" light sequence
   digitalWrite(LEDY, LOW);
   digitalWrite(LEDR, HIGH);
@@ -242,12 +252,13 @@ void setup(){
   digitalWrite(LEDY, HIGH);
 
   // begin serial communication
-  Serial.begin(9600);
+  Serial.begin(BAUD_RATE);
 
   // begin mesh communication
-  mesh.setNodeID(nodeID); // do manually
+  mesh.setNodeID(readMyID()); // do manually
+  Serial.print(F("Booted... ID is ")); Serial.println(readMyID());
   Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
-  bool success = mesh.begin(COMMCHANNEL, DATARATE, CONNECTTIMEOUT);
+  bool success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
   Serial.println(success);
 
   // "connected" light sequence
@@ -266,7 +277,7 @@ void setup(){
   mesh.setChild(true);
 
   // init timer for serial communication printing
-  Timer1.initialize(5000000);
+  Timer1.initialize(TIMER1_PERIOD);
   Timer1.attachInterrupt(printStatus);
 
   // init flow sensor
@@ -297,10 +308,10 @@ void loop() {
     // tell current flow rate
     float beginLiters, flowrate;//endLiters, flowrate;
     beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
-    delay(5000);                                        // wait 5 seconds
+    delay(RATE_MEASURING_PERIOD);                                        // wait 5 seconds
     //endLiters = pulses/7.5/60.0;                      // is end amount of liters
     flowrate = (pulses/7.5/60.0-beginLiters)/5*15.8503; // convert liters/sec to GPM
-    safeMeshWrite(MASTER_ADDRESS, &flowrate, 'r', sizeof(flowrate), DEFAULTSENDTRIES);
+    safeMeshWrite(MASTER_ADDRESS, &flowrate, 'r', sizeof(flowrate), DEFAULT_SEND_TRIES);
 
     // reset flag
     hadButtonPress = false;
@@ -333,37 +344,37 @@ void loop() {
     Serial.print(F("From [converted to nodeID]: ")); Serial.println(mesh.getNodeID(header.from_node));
 
     switch(header.type){
-    case 'V':
+    case SET_VALVE_H:
       // Valve command, on or off; type is bool
       //  set the value and send return message
       bool onOrOff;
       network.read(header, &onOrOff, sizeof(onOrOff));
       setValve(onOrOff);
-      safeMeshWrite(MASTER_ADDRESS, &valveState, 'v', sizeof(valveState), DEFAULTSENDTRIES);
+      safeMeshWrite(MASTER_ADDRESS, &valveState, SEND_VALVE_H, sizeof(valveState), DEFAULT_SEND_TRIES);
       break;
       
-    case 'R':    
+    case INFO_REQUEST_H:    
       // Request; type is char
       char typeOfData;
       network.read(header, &typeOfData, sizeof(typeOfData));
       
       switch( typeOfData ){
-      case 'v':
+      case GET_VALVE_P:
         // tell current valve state
-        safeMeshWrite(MASTER_ADDRESS, &valveState, 'v', sizeof(valveState), DEFAULTSENDTRIES);
+        safeMeshWrite(MASTER_ADDRESS, &valveState, SEND_VALVE_H, sizeof(valveState), DEFAULT_SEND_TRIES);
         break;
-      case 'r':
+      case GET_FLOW_RATE_P:
         // tell current flow rate
         float beginLiters, flowrate;//endLiters, flowrate;
         beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
-        delay(5000);                                        // wait 5 seconds
+        delay(RATE_MEASURING_PERIOD);                       // wait 5 seconds (or whatever RATE_MEASURING_PERIOD in settings.h is)
         //endLiters = pulses/7.5/60.0;                      // is end amount of liters
         flowrate = (pulses/7.5/60.0-beginLiters)/5*15.8503; // convert liters/sec to GPM
-        safeMeshWrite(MASTER_ADDRESS, &flowrate, 'r', sizeof(flowrate), DEFAULTSENDTRIES);
+        safeMeshWrite(MASTER_ADDRESS, &flowrate, SEND_FLOW_RATE_H, sizeof(flowrate), DEFAULT_SEND_TRIES);
         break;
-      case 'n':
+      case GET_NODE_STATUS_P:
         // return status
-        safeMeshWrite(MASTER_ADDRESS, &myStatus, 'n', sizeof(myStatus), DEFAULTSENDTRIES);
+        safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
         break;
       default:
         break;
