@@ -58,11 +58,9 @@ bool changedPulseFlag = false; // interrupt is called once a millisecond, looks 
 // other
 uint32_t displayTimer = 0;
 volatile bool hadButtonPress = false;
-//bool LEDYstate = false;
-int valveState = false;
-bool LEDRstate = false;
-int myStatus = 1;
-unsigned statusCounter = 0;
+int8_t valveState = 0;
+uint8_t myStatus = 0;
+uint8_t statusCounter = 0;
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +105,7 @@ void printStatus(){
   Serial.println(mesh.getNodeID());
   // print address DOESN'T WORK
   //Serial.print("My address: ");
-  //Serial.println(mesh.getAddress(nodeID));
+  //Serial.println(mesh.getAddress(readMyID));
 }
 
 /*
