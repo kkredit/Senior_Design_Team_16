@@ -13,18 +13,13 @@
 //Include eeprom.h for AVR (Uno, Nano) etc. except ATTiny
 #include <EEPROM.h>
 #include <TimerOne.h>
+#include "/Users/charleskingston/Desktop/SeniorDesign/RadioWork/Shared/settings.h"
 
 /* Randos */
 bool dummyValveCommand = true;
 char networkRequestChar;
 int myNodeID = 0;
 int counter = 0;
-
-/***** Configure the chosen CE,CS pins *****/
-RF24 radio(9,10);
-RF24Network network(radio);
-RF24Mesh mesh(radio,network);
-/*******************************************/
 
 /********** MESH network vars **************/
 uint32_t displayTimer = 0;
@@ -39,8 +34,16 @@ bool defaultNetworkBlink = false;
 #define LEDR    4
 #define LEDG    5
 #define LEDY    6
+#define CE      9
+#define CS      10
 /*******************************************/
 #define KEVINID 2
+
+/***** Configure the chosen CE,CS pins *****/
+RF24 radio(CE,CS);
+RF24Network network(radio);
+RF24Mesh mesh(radio,network);
+/*******************************************/
 
 void setup() {
   pinMode(BUTTON, INPUT_PULLUP);
@@ -66,7 +69,7 @@ void setup() {
   Serial.println(mesh.getNodeID());
   // Connect to the mesh
   Serial.print("Output of mesh.begin(): ");
-  Serial.println(mesh.begin(12, RF24_250KBPS, 2000));
+  Serial.println(mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT));
   //mesh.requestAddress(0);
   mesh.setAddress('0'-48,0);
 
@@ -140,7 +143,7 @@ void loop() {
     
     switch(header.type){
       // valve flowrate sensor 
-      case 'r':
+      case SEND_FLOW_RATE_H:
         network.read(header,&flowSensorData,sizeof(flowSensorData));
         if (flowSensorData == float(-1)) {
           Serial.println("Something went terribly wrong with the flowSensorData...");
@@ -150,7 +153,7 @@ void loop() {
         }
         break;
       // read a valve response from one of the nodes
-      case 'v':
+      case SEND_VALVE_H:
         network.read(header, &valveResponse, sizeof(valveResponse));
         if (valveResponse == -1){
           Serial.println("The status is unknown");
@@ -162,7 +165,7 @@ void loop() {
           Serial.println("Something went terribly wrong with the valveResponse...");
         }
         break;
-      case 'n':
+      case SEND_NODE_STATUS_H:
         network.read(header, &networkStatusRequest, sizeof(networkStatusRequest));
         if (networkStatusRequest == 1){
           Serial.println("We're solid");
@@ -184,91 +187,9 @@ void loop() {
     }
   }
   if (hadButtonPress){
-    mesh.write(mesh.getAddress(KEVINID), &dummyValveCommand, 'V', sizeof(dummyValveCommand));
+    mesh.write(mesh.getAddress(KEVINID), &dummyValveCommand, SET_VALVE_H, sizeof(dummyValveCommand));
     Serial.print("Sending the valve command: "); Serial.println(dummyValveCommand);
     dummyValveCommand = !dummyValveCommand;
     hadButtonPress = false;
   }
-//  if ( Serial.available() )
-//  {
-//    Serial.println("-1");
-//    noInterrupts();
-//    Serial.println("0");
-//    char sendMessage = Serial.read();
-//    Serial.println("1");
-//    switch(sendMessage){
-//      case 'V':
-//        if (!mesh.write(&dummyValveCommand, 'V', sizeof(dummyValveCommand))) {
-//        // If a write fails, check connectivity to the mesh network
-//          if ( ! mesh.checkConnection() ) {
-//            //refresh the network address
-//            Serial.println("Renewing Address");
-//            mesh.renewAddress();
-//          } else {
-//            Serial.println("Send fail, Test OK");
-//          }
-//        } else {
-//          Serial.print("Sending the valve command: "); Serial.println(dummyValveCommand);
-//        }
-//        if (dummyValveCommand){
-//          dummyValveCommand = false;
-//        } else {
-//          dummyValveCommand = true;
-//        }
-//        break;
-//      // request a valve state 
-//      case'v':
-//        networkRequestChar = 'v'; 
-//        if (!mesh.write(&networkRequestChar, 'R', sizeof(networkRequestChar))) {
-//        // If a write fails, check connectivity to the mesh network
-//          if ( ! mesh.checkConnection() ) {
-//            //refresh the network address
-//            Serial.println("Renewing Address");
-//            mesh.renewAddress();
-//          } else {
-//            Serial.println("Send fail, Test OK");
-//          } 
-//        } else {
-//          Serial.print("Sending the valve command: "); Serial.println(networkRequestChar);
-//        }
-//        break;
-//      // request a flowrate state 
-//      case 'r':
-//        networkRequestChar = 'r'; 
-//        if (!mesh.write(&networkRequestChar, 'R', sizeof(networkRequestChar))) {
-//        // If a write fails, check connectivity to the mesh network
-//          if ( ! mesh.checkConnection() ) {
-//            //refresh the network address
-//            Serial.println("Renewing Address");
-//            mesh.renewAddress();
-//          } else {
-//            Serial.println("Send fail, Test OK");
-//          } 
-//        } else {
-//          Serial.print("Sending the valve command: "); Serial.println(networkRequestChar);
-//        }
-//        break;
-//      case 'n':
-//        networkRequestChar = 'n'; 
-//        if (!mesh.write(&networkRequestChar, 'R', sizeof(networkRequestChar))) {
-//        // If a write fails, check connectivity to the mesh network
-//          if ( ! mesh.checkConnection() ) {
-//            //refresh the network address
-//            Serial.println("Renewing Address");
-//            mesh.renewAddress();
-//          } else {
-//            Serial.println("Send fail, Test OK");
-//          } 
-//        } else {
-//          Serial.print("Sending the valve command: "); Serial.println(networkRequestChar);
-//        }
-//        break;
-//      default:
-//        break;
-//      }
-//    interrupts();
-//  } else {
-//    Serial.println("Serial Not Available");
-//  }
-//}
 }
