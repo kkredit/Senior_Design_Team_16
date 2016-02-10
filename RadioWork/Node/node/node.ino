@@ -35,6 +35,7 @@
 #define IDPIN_1 A1
 #define IDPIN_2 A2
 #define IDPIN_3 A3
+#define VALVE_0 A4
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Globals     //////////////////////////////////
@@ -212,6 +213,7 @@ void useInterrupt(boolean v) {
 int setValve(bool setTo){
   // set valve
   valveState = setTo ? 1 : 0;
+  digitalWrite(VALVE_0, setTo);
 
   // reset accumulated water flow
   if(valveState == false)
@@ -241,6 +243,12 @@ void setup(){
   pinMode(IDPIN_1, INPUT_PULLUP);
   pinMode(IDPIN_2, INPUT_PULLUP);
   pinMode(IDPIN_3, INPUT_PULLUP);
+
+  // init valve pin
+  pinMode(VALVE_0, OUTPUT);
+
+  // close valve
+  setValve(false);
 
   // "power-on" light sequence
   digitalWrite(LEDY, LOW);
@@ -283,9 +291,6 @@ void setup(){
   digitalWrite(FLOWSENSORPIN, HIGH);
   lastflowpinstate = digitalRead(FLOWSENSORPIN);
   useInterrupt(true);
-
-  // close valve
-  setValve(false);
 
   // attach interrupt to button
   attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
