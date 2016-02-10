@@ -93,10 +93,16 @@ void printStatus(){
   if(!mesh.checkConnection()){
     // if unconnected, try to reconnect
     Serial.println("Not connected... renewing address");
+    digitalWrite(LEDY, true);
     if(mesh.renewAddress() == -1)
       Serial.println("NOT CONNECTED");
-    else
+    else{
       Serial.println("Reconnected");
+      digitalWrite(LEDR, true);
+      delay(250);
+      digitalWrite(LEDR, false);
+    }
+    digitalWrite(LEDY, false);
   }
   else
     Serial.println("Connected");
@@ -262,7 +268,7 @@ void setup(){
 
   // begin mesh communication
   mesh.setNodeID(readMyID()); // do manually
-  Serial.print(F("Booted... ID is ")); Serial.println(readMyID());
+  Serial.print(F("\n/////////////////////////\nBooted: ID is ")); Serial.println(readMyID());
   Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
   bool success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
   Serial.println(success);
@@ -343,8 +349,7 @@ void loop() {
     //void* payload = malloc(sizeof(float)); // float is largest possible size
     //network.read(header, payload, sizeof(payload));
     Serial.print(F("Received ")); Serial.print(char(header.type)); Serial.println(F(" type message."));
-    Serial.print(F("From [logical address]: ")); Serial.println(header.from_node);
-    Serial.print(F("From [converted to nodeID]: ")); Serial.println(mesh.getNodeID(header.from_node));
+    Serial.print(F("From: ")); Serial.println(mesh.getNodeID(header.from_node));
 
     switch(header.type){
     case SET_VALVE_H:
@@ -352,6 +357,7 @@ void loop() {
       //  set the value and send return message
       bool onOrOff;
       network.read(header, &onOrOff, sizeof(onOrOff));
+      Serial.print(F("Command is to turn ")); onOrOff ? Serial.println("ON") : Serial.println("OFF");
       setValve(onOrOff);
       safeMeshWrite(MASTER_ADDRESS, &valveState, SEND_VALVE_H, sizeof(valveState), DEFAULT_SEND_TRIES);
       break;
@@ -364,19 +370,23 @@ void loop() {
       switch( typeOfData ){
       case GET_VALVE_P:
         // tell current valve state
-        safeMeshWrite(MASTER_ADDRESS, &valveState, SEND_VALVE_H, sizeof(valveState), DEFAULT_SEND_TRIES);
+        Serial.print(F("Command is to tell valve state, ")); Serial.println(valveState);
+        safeMeshWrite(MASTER_ADDRESS, &valveState, SEND_VALVE_H, sizeof(valveState), DEFAULT_SEND_TRIES);        
         break;
       case GET_FLOW_RATE_P:
         // tell current flow rate
+        Serial.print(F("Command is to current flow rate... "));
         float beginLiters, flowrate;//endLiters, flowrate;
         beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
         delay(RATE_MEASURING_PERIOD);                       // wait 5 seconds (or whatever RATE_MEASURING_PERIOD in settings.h is)
         //endLiters = pulses/7.5/60.0;                      // is end amount of liters
         flowrate = (pulses/7.5/60.0-beginLiters)/5*15.8503; // convert liters/sec to GPM
+        Serial.print(F("Flow rate is ")); Serial.print(flowrate); Serial.println(F("GPM"));
         safeMeshWrite(MASTER_ADDRESS, &flowrate, SEND_FLOW_RATE_H, sizeof(flowrate), DEFAULT_SEND_TRIES);
         break;
       case GET_NODE_STATUS_P:
         // return status
+        Serial.print(F("Command is to tell my status, ")); Serial.println(myStatus);
         safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
         break;
       default:
