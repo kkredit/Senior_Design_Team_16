@@ -29,7 +29,7 @@
 #define CS 8
 #define FLOWSENSORPIN 2
 #define BUTTON  3
-#define LEDY    6
+//l#define LEDY    6
 #define LEDR    5
 #define IDPIN_0 A0
 #define IDPIN_1 A1
@@ -93,16 +93,21 @@ void printStatus(){
   if(!mesh.checkConnection()){
     // if unconnected, try to reconnect
     Serial.println("Not connected... renewing address");
-    digitalWrite(LEDY, true);
+    digitalWrite(LEDR, true);
     if(mesh.renewAddress() == -1)
       Serial.println("NOT CONNECTED");
     else{
       Serial.println("Reconnected");
-      digitalWrite(LEDR, true);
+      delay(500);
+      digitalWrite(LEDR, HIGH);
       delay(250);
-      digitalWrite(LEDR, false);
+      digitalWrite(LEDR, LOW);
+      delay(250);
+      digitalWrite(LEDR, HIGH);
+      delay(250);
+      //digitalWrite(LEDR, false);
     }
-    digitalWrite(LEDY, false);
+    digitalWrite(LEDR, false);
   }
   else
     Serial.println("Connected");
@@ -226,7 +231,7 @@ int setValve(bool setTo){
     pulses = 0;
 
   // LEDY replicates valve state
-  digitalWrite(LEDY, setTo);
+  //digitalWrite(LEDY, setTo);
   return valveState;
 }
 
@@ -241,7 +246,7 @@ void setup(){
   // init LEDs and Button
   pinMode(BUTTON, INPUT_PULLUP);
   //attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
-  pinMode(LEDY, OUTPUT);
+  //pinMode(LEDY, OUTPUT);
   pinMode(LEDR, OUTPUT);
 
   // init ID read pins
@@ -257,11 +262,13 @@ void setup(){
   setValve(false);
 
   // "power-on" light sequence
-  digitalWrite(LEDY, LOW);
+  //digitalWrite(LEDY, LOW);
   digitalWrite(LEDR, HIGH);
   delay(500);
   digitalWrite(LEDR, LOW);
-  digitalWrite(LEDY, HIGH);
+  delay(250);
+  digitalWrite(LEDR, HIGH);
+  //digitalWrite(LEDY, HIGH);
 
   // begin serial communication
   Serial.begin(BAUD_RATE);
@@ -274,16 +281,17 @@ void setup(){
   Serial.println(success);
 
   // "connected" light sequence
-  digitalWrite(LEDY, LOW);
+  digitalWrite(LEDR, LOW);
   if(success){
+    delay(250);
     digitalWrite(LEDR, HIGH);
     delay(250);
     digitalWrite(LEDR, LOW);
     delay(250);
     digitalWrite(LEDR, HIGH);
     delay(250);
+    digitalWrite(LEDR, LOW);
   }
-  digitalWrite(LEDR, LOW);
 
   // allow children to connect
   mesh.setChild(true);
