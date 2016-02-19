@@ -24,7 +24,7 @@ class Schedule:
 			self.mySchedule[myDay].append(myEvent)
 			self.mySchedule[myDay].sort()
 		else:
-			print("Incorrect day was specified")
+			raise KeyError("That is an incorrect key for this structure")
 
 	def get_event_at_day(self, day):
 		if day in self.mySchedule.keys():
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 	testEvent6 = Event(7.00, 8.00)
 	testEvent7 = Event(2.00,10.50)
 	testEvent8 = Event(18.00, 19.60)
-	testEvent9 = Event(23.00,24.00)
+	testEvent9 = Event(23.00,23.59)
 	testEvent10 = Event(22.00, 22.15)
 	test.insert_event('Monday', testEvent)
 	test.insert_event('Monday', testEvent2)
