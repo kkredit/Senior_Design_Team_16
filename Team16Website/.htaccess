@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "Admin Access"
+AuthUserFile C:\Users\custom_default\Documents\Team16Website\.htpasswd
+Require valid-user
