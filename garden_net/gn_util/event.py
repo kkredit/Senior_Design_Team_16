@@ -1,5 +1,5 @@
 class Event:
-	def __init__(self, start, stop):
+	def __init__(self, start, stop, myDay):
 		if start > stop:
 			raise ValueError("Start time should be less than stop time")
 		if start > 23.59:
@@ -9,9 +9,16 @@ class Event:
 		else:
 			self._start_time = start
 			self._stop_time = stop
+		if myDay == 'Sunday' or myDay == 'Monday' or myDay == 'Tuesday' \
+				or myDay == 'Wednesday'or myDay == 'Thursday' or myDay == 'Friday' \
+				or myDay =='Saturday':
+			self._day = myDay
+		else:
+			raise ValueError("Specify a day of the week")
+
 
 	def __str__(self):
-		return "start_time: " + str(self.start_time) + " stop_time: " + str(self.stop_time)
+		return self.day + ": start_time: " + str(self.start_time) + " stop_time: " + str(self.stop_time)
 
 	def __lt__(self, other):
 		if self.start_time < other.start_time:
@@ -57,11 +64,24 @@ class Event:
 		else:
 			raise ValueError("stop_time should be greater than start_time")
 
+	@property
+	def day(self):
+		return self._day
+
+	@day.setter
+	def day(self,value):
+		if value == 'Sunday' or value == 'Monday' or value == 'Tuesday' \
+				or value == 'Wednesday'or value == 'Thursday' or value == 'Friday' \
+				or value =='Saturday':
+			self._day = value
+		else:
+			raise ValueError("Specify a day of the week")
 
 ########################## Testing for the event class ##########################
 if __name__ == "__main__":
-	event = Event(1.0,2.0)
-	event2 = Event(2.0,3.0)
+	event = Event(1.0,2.0, 'Thursday')
+	event2 = Event(2.0,3.0, 'Monday')
+	print(event)
 	assert (event2 > event)
 	assert (not(event2 < event))
 	try:
