@@ -1,6 +1,6 @@
 class Event:
 	def __init__(self, start, stop):
-		if start > stop:
+		if start > stop or start >= 23.59 or stop >= 23.59:
 			raise ValueError("Start time should be less than stop time")
 		else:
 			self._start_time = start
@@ -33,7 +33,7 @@ class Event:
 
 	@start_time.setter
 	def start_time(self, value):
-		if value < self.stop_time:
+		if value < self.stop_time and value < 24.0:
 			self._start_time = value
 		else:
 			raise ValueError("start_time should be less than  stop_time")
@@ -44,7 +44,7 @@ class Event:
 
 	@stop_time.setter
 	def stop_time(self, value):
-		if value > self.start_time:
+		if value > self.start_time and value < 24.0:
 			self._stop_time = value
 		else:
 			raise ValueError("stop_time should be greater than start_time")

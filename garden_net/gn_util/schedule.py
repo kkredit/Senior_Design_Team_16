@@ -1,5 +1,4 @@
 from garden_net.gn_util.event import Event
-import json
 
 class Schedule:
 	def __init__(self):
