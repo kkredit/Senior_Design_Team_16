@@ -1,4 +1,4 @@
-from event import Event
+from garden_net.gn_util.event import Event
 import json
 
 class Schedule:

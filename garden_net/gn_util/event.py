@@ -2,9 +2,9 @@ class Event:
 	def __init__(self, start, stop):
 		if start > stop:
 			raise ValueError("Start time should be less than stop time")
-
-		self._start_time = start
-		self._stop_time = stop
+		else:
+			self._start_time = start
+			self._stop_time = stop
 
 	def __str__(self):
 		return "start_time: " + str(self.start_time) + " stop_time: " + str(self.stop_time)

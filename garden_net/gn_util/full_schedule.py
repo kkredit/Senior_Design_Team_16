@@ -1,4 +1,5 @@
-from schedule import Schedule
+from garden_net.gn_util.schedule import Schedule
+from garden_net.gn_util.event import Event
 
 class FullSchedule:
 	def __init__(self):
