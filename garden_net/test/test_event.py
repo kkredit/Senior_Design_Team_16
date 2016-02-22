@@ -38,6 +38,44 @@ class TestEvent(unittest.TestCase):
 		with self.assertRaises(ValueError):
 			e.stop_time = 200.00
 
+	def test_greater_than_operator(self):
+		e1 = Event(5.0, 6.0, 'Monday')
+		e2 = Event(6.0, 7.0, 'Tuesday')
+		assert(e2 > e1)
+		assert(not(e1 > e2))
+		e2.start_time = 5.0
+		assert(not(e2 > e1))
+		assert(not(e1 > e2))
+
+	def test_less_than_operator(self):
+		e1 = Event(5.0, 6.0, 'Monday')
+		e2 = Event(6.0, 7.0, 'Tuesday')
+		assert(not(e2 < e1))
+		assert(e1 < e2)
+		e2.start_time = 5.0
+		assert(not(e2 < e1))
+		assert(not(e1 < e2))
+
+	def test_days(self):
+		e = Event(1.0, 2.0, 'Monday')
+		self.assertEqual(e.day, 'Monday')
+		e.day = 'Tuesday'
+		self.assertEqual(e.day, 'Tuesday')
+		e.day = 'Wednesday'
+		self.assertEqual(e.day, 'Wednesday')
+		e.day = 'Thursday'
+		self.assertEqual(e.day, 'Thursday')
+		e.day = 'Friday'
+		self.assertEqual(e.day, 'Friday')
+		e.day = 'Saturday'
+		self.assertEqual(e.day, 'Saturday')
+		e.day = 'Sunday'
+		self.assertEqual(e.day, 'Sunday')
+
+		with self.assertRaises(ValueError):
+			e.day = 'Funday'
+		self.assertEqual(e.day,'Sunday')
+
 	def tearDown(self):
 		pass
 

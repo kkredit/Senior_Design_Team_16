@@ -46,10 +46,10 @@ class Event:
 	def start_time(self, value):
 		if value < self.stop_time:
 			self._start_time = value
+		elif value > self.stop_time:
+			raise ValueError("start_time should be less than  stop_time")
 		if value > 24.00:
 			raise ValueError("start_time should be less than 24.00")
-		else:
-			raise ValueError("start_time should be less than  stop_time")
 
 	@property
 	def stop_time(self):
