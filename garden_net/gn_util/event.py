@@ -94,6 +94,13 @@ class Event(Base):
 	def owner(self):
 		return self._owner
 
+	@owner.setter
+	def owner(self, value):
+		if isinstance(value, int):
+			self._owner = value
+		else:
+			raise ValueError("The zone ownership should be and int")
+
 ########################## Testing for the event class ##########################
 if __name__ == "__main__":
 	event = Event(1.0,2.0, 'Thursday')

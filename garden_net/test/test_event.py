@@ -76,6 +76,17 @@ class TestEvent(unittest.TestCase):
 			e.day = 'Funday'
 		self.assertEqual(e.day,'Sunday')
 
+	def test_zone_ownership(self):
+		e = Event(1.0, 2.0, 'Monday', 1)
+		self.assertEqual(e.owner, 1)
+
+		e.owner = 2
+		self.assertEqual(e.owner, 2)
+
+		with self.assertRaises(ValueError):
+			e.owner = 'T'
+
+
 	def tearDown(self):
 		pass
 
