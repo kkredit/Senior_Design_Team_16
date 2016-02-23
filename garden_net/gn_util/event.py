@@ -101,18 +101,12 @@ class Event(Base):
 		else:
 			raise ValueError("The zone ownership should be and int")
 
-########################## Testing for the event class ##########################
-if __name__ == "__main__":
-	event = Event(1.0,2.0, 'Thursday')
-	event2 = Event(2.0,3.0, 'Monday')
-	print(event)
-	assert (event2 > event)
-	assert (not(event2 < event))
-	try:
-		event2.start_time = 5.0
-		print("not passed")
-		exit()
-	except ValueError:
-		pass
+	def to_JSON(self):
+		return "{\"start_time\" : \"" + str(self.start_time) + "\"" + ", \"stop_time\" : \"" + str(self.stop_time) + \
+			   ", \"day\" : \"" + str(self.day) + "\", \"zone_ID\" : \"" + str(self.owner) + "\"}"
 
-	print("passed")
+if __name__ == "__main__":
+	e = Event(1.0, 2.0, 'Monday', 1)
+
+	e_JSON = e.to_JSON()
+	print(e_JSON)

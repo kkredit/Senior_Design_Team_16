@@ -10,3 +10,11 @@ class Zone(Base):
 
 	id = Column(Integer, Sequence('zone_id_sequence'), primary_key=True)
 	_zone_id = Column(Integer)
+
+	def to_JSON(self):
+		return "\"zone" + str(self._zone_id) + "\":"
+
+if __name__ == "__main__":
+	z = Zone(1)
+	z_JSON = z.to_JSON()
+	print(z_JSON)
