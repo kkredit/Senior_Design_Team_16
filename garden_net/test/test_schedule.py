@@ -14,7 +14,7 @@ class TestSchedule(unittest.TestCase):
 
 	def test_insert_event_into_schedule(self):
 		s = Schedule()
-		e1 = Event(1.00, 2.00, 'Monday')
+		e1 = Event(1.00, 2.00, 'Monday', 1)
 		s.insert_event('Monday', e1)
 		self.assertEqual(len(s.mySchedule['Monday']),1)
 

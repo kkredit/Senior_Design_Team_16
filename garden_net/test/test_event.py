@@ -7,19 +7,19 @@ class TestEvent(unittest.TestCase):
 		pass
 
 	def test_create_event(self):
-		e = Event(1.0, 2.0, 'Monday')
+		e = Event(1.0, 2.0, 'Monday', 1)
 		self.assertEqual(e.start_time, 1.0)
 		self.assertEqual(e.stop_time, 2.0)
 		self.assertEqual(e.day, 'Monday')
 
 	def test_create_event_bad_initial_start_time(self):
 		with self.assertRaises(ValueError):
-			e = Event(3.0, 2.0, 'Sunday')
+			e = Event(3.0, 2.0, 'Sunday', 1)
 		with self.assertRaises(ValueError):
-			r = Event(24.0, 3.0, 'Sunday')
+			r = Event(24.0, 3.0, 'Sunday', 1)
 
 	def test_create_event_bad_changed_start_time(self):
-		e = Event(1.0, 2.0, 'Tuesday')
+		e = Event(1.0, 2.0, 'Tuesday', 1)
 		with self.assertRaises(ValueError):
 			e.start_time = 3.0
 		with self.assertRaises(ValueError):
@@ -27,20 +27,20 @@ class TestEvent(unittest.TestCase):
 
 	def test_create_event_bad_initial_end_time(self):
 		with self.assertRaises(ValueError):
-			e = Event(2.0,1.0, 'Wednesday')
+			e = Event(2.0,1.0, 'Wednesday', 1)
 		with self.assertRaises(ValueError):
-			r = Event(4.0,24.00, 'Thursday')
+			r = Event(4.0,24.00, 'Thursday', 1)
 
 	def test_create_event_with_bad_changed_end_time(self):
-		e = Event(2.0, 3.0, 'Friday')
+		e = Event(2.0, 3.0, 'Friday', 1)
 		with self.assertRaises(ValueError):
 			e.stop_time = 1.0
 		with self.assertRaises(ValueError):
 			e.stop_time = 200.00
 
 	def test_greater_than_operator(self):
-		e1 = Event(5.0, 6.0, 'Monday')
-		e2 = Event(6.0, 7.0, 'Tuesday')
+		e1 = Event(5.0, 6.0, 'Monday', 1)
+		e2 = Event(6.0, 7.0, 'Tuesday', 1)
 		assert(e2 > e1)
 		assert(not(e1 > e2))
 		e2.start_time = 5.0
@@ -48,8 +48,8 @@ class TestEvent(unittest.TestCase):
 		assert(not(e1 > e2))
 
 	def test_less_than_operator(self):
-		e1 = Event(5.0, 6.0, 'Monday')
-		e2 = Event(6.0, 7.0, 'Tuesday')
+		e1 = Event(5.0, 6.0, 'Monday', 1)
+		e2 = Event(6.0, 7.0, 'Tuesday', 1)
 		assert(not(e2 < e1))
 		assert(e1 < e2)
 		e2.start_time = 5.0
@@ -57,7 +57,7 @@ class TestEvent(unittest.TestCase):
 		assert(not(e1 < e2))
 
 	def test_days(self):
-		e = Event(1.0, 2.0, 'Monday')
+		e = Event(1.0, 2.0, 'Monday', 1)
 		self.assertEqual(e.day, 'Monday')
 		e.day = 'Tuesday'
 		self.assertEqual(e.day, 'Tuesday')

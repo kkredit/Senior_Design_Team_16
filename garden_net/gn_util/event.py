@@ -1,5 +1,17 @@
-class Event:
-	def __init__(self, start, stop, myDay):
+from garden_net.database.base import Base
+
+from sqlalchemy import Column, Float, String, Integer, ForeignKey
+
+class Event(Base):
+	__tablename__ = 'events'
+
+	id = Column(Integer, primary_key=True)
+	_start_time = Column(Float)
+	_stop_time = Column(Float)
+	_day = Column(String(10))
+	_owner = Column(Integer, ForeignKey('zones._zone_id'))
+
+	def __init__(self, start, stop, myDay, zone_owner):
 		if start > stop:
 			raise ValueError("Start time should be less than stop time")
 		if start > 23.59:
@@ -15,25 +27,26 @@ class Event:
 			self._day = myDay
 		else:
 			raise ValueError("Specify a day of the week")
-
+		self._owner = zone_owner
 
 	def __str__(self):
-		return self.day + ": start_time: " + str(self.start_time) + " stop_time: " + str(self.stop_time)
+		return self.day + ": start_time: " + str(self.start_time) + " stop_time: " + str(self.stop_time)\
+			   + " zoneID: " + str(self.owner)
 
 	def __lt__(self, other):
-		if self.start_time < other.start_time:
+		if self.start_time < other.start_time and self.owner == other.owner:
 			return True
 		else:
 			return False
 
 	def __gt__(self, other):
-		if self.start_time > other.start_time:
+		if self.start_time > other.start_time and self.owner == other.owner:
 			return True
 		else:
 			return False
 
 	def __eq__(self, other):
-		if self.start_time == other.start_time:
+		if self.start_time == other.start_time and self.owner == other.owner:
 			return True
 		else:
 			return False
@@ -76,6 +89,10 @@ class Event:
 			self._day = value
 		else:
 			raise ValueError("Specify a day of the week")
+
+	@property
+	def owner(self):
+		return self._owner
 
 ########################## Testing for the event class ##########################
 if __name__ == "__main__":
