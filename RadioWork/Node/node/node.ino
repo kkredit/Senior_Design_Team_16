@@ -3,8 +3,8 @@
  * 
  * This sketch is for nodes in the GardeNet system. Functions include:
  *    - Establishing and maintaining a mesh network
- *    - Controlling a valve
- *    - Controlling a flow meter (optionally)
+ *    - Controlling up to four valves
+ *    - Controlling up to three flow meters
  *    - Relaying information to the master
  */
 
@@ -18,31 +18,80 @@
 #include "RF24Network.h"
 #include "RF24Mesh.h"
 //#include "RF24Mesh_config.h"
-#include <SPI.h>
-#include <EEPROM.h>
+//#include <SPI.h>
+//#include <EEPROM.h>
 #include <TimerOne.h>
 #include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\settings.h"
 //#include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\SharedFunctions.h"
 
 // pins
-#define CE 7
-#define CS 8
-#define FLOWSENSORPIN 2
-#define BUTTON  3
-//l#define LEDY    6
-#define LEDR    5
-#define IDPIN_0 A0
-#define IDPIN_1 A1
-#define IDPIN_2 A2
-#define IDPIN_3 A3
-#define VALVE_0 A4
+#define BUTTON    2
+#define RF24_IRQ  3 // currently unused
+#define RESETPIN  4
+#define VALVE_1   5
+#define VALVE_2   6
+#define VALVE_3   7
+#define VALVE_4   8
+#define RF24_CE   9
+#define RF24_CS   10
+// RF24_MOSI        11  //predifined
+// RF24_MISO        12  //predifined
+// RF24_SCK         13  //predifined
+#define FRATE     A0
+#define LEDR      A1
+#define IDPIN_0   A2
+#define IDPIN_1   A3
+#define IDPIN_2   A4
+#define IDPIN_3   A5
+#define IDPIN_4   A6  //note: analog only
+#define IDPIN_5   A7  //note: analog only
+
+/*#define BUTTON    2
+#define RF24_IRQ  3
+#define IDPIN_0   4
+#define IDPIN_1   5
+#define IDPIN_2   6
+#define IDPIN_3   7
+#define IDPIN_4   8
+#define RF24_CE   9
+#define RF24_CS   10
+// RF24_MOSI        11  //predifined
+// RF24_MISO        12  //predifined
+// RF24_SCK         13  //predifined
+#define VALVE_1   A0
+#define VALVE_2   A1
+#define VALVE_3   A2
+#define VALVE_4   A3
+#define FRATE_1   A4
+#define FRATE_2   A5
+#define LEDR      A6  //note: analog only
+#define RESETPIN  A7  //note: analog only*/
+
+/*#define RESETPIN  4
+#define LEDR      5
+#define FRATE_1   6
+#define FRATE_2   7
+#define FRATE_3   8
+#define RF24_CE   9
+#define RF24_CS   10
+// RF24_MOSI        11  //predifined
+// RF24_MISO        12  //predifined
+// RF24_SCK         13  //predifined
+#define IDPIN_0   A0
+#define IDPIN_1   A1
+#define IDPIN_2   A2
+#define IDPIN_3   A3
+#define VALVE_1   A4
+#define VALVE_2   A5
+#define VALVE_3   A6  //note: analog only
+#define VALVE_4   A7  //note: analog only*/
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Globals     //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
 // mesh network
-RF24 radio(CE, CS);
+RF24 radio(RF24_CE, RF24_CS);
 RF24Network network(radio);
 RF24Mesh mesh(radio, network);
 
@@ -62,7 +111,7 @@ volatile bool hadButtonPress = false;
 int8_t valveState = 0;
 uint8_t myStatus = 0;
 uint8_t statusCounter = 0;
-
+bool connections[5] = {0, 0, 0, 0, 0};
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     ISRs        //////////////////////////////////
@@ -93,21 +142,20 @@ void printStatus(){
   if(!mesh.checkConnection()){
     // if unconnected, try to reconnect
     Serial.println("Not connected... renewing address");
-    digitalWrite(LEDR, true);
-    if(mesh.renewAddress() == -1)
+    //digitalWrite(LEDR, true);
+    setLEDR(DISCONNECTED);
+    if(mesh.renewAddress() == -1){
+      setValve(VALVE_1, false);
+      setValve(VALVE_2, false);
+      setValve(VALVE_3, false);
+      setValve(VALVE_4, false);
       Serial.println("NOT CONNECTED");
+    }
     else{
       Serial.println("Reconnected");
-      delay(500);
-      digitalWrite(LEDR, HIGH);
-      delay(250);
-      digitalWrite(LEDR, LOW);
-      delay(250);
-      digitalWrite(LEDR, HIGH);
-      delay(250);
-      //digitalWrite(LEDR, false);
+      setLEDR(CONNECTED_SEQUENCE);
     }
-    digitalWrite(LEDR, false);
+    //digitalWrite(LEDR, false);
   }
   else
     Serial.println("Connected");
@@ -183,7 +231,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
  * Setup flow meter; borrowed function
  */
 SIGNAL(TIMER0_COMPA_vect){
-  uint8_t x = digitalRead(FLOWSENSORPIN);
+  uint8_t x = digitalRead(FRATE);
   
   if (x == lastflowpinstate) {
     lastflowratetimer++;
@@ -203,8 +251,9 @@ SIGNAL(TIMER0_COMPA_vect){
 
 /*
  * Setup flow meter; borrowed function
+ * @param bool v: whether to use interrupts
  */
-void useInterrupt(boolean v) {
+void useInterrupt(bool v) {
   if (v) {
     // Timer0 is already used for millis() - we'll just interrupt somewhere
     // in the middle and call the "Compare A" function above
@@ -218,13 +267,17 @@ void useInterrupt(boolean v) {
 
 /*
  * Sets valve to desired state
+ * @param uint8_t whichValve: the valve to set; if not in range 1-4 or valve is not connected, returns -1
  * @param bool setTo: the desired state
- * @param int: the actual state it was set to
+ * @return int: the actual state it was set to
  */
-int setValve(bool setTo){
+int8_t setValve(uint8_t whichValve, bool setTo){
+  if(!(whichValve==VALVE_1 || whichValve==VALVE_2 || whichValve==VALVE_3 || whichValve==VALVE_4) || !connections[whichValve-VALVE_1]) return -1;
   // set valve
   valveState = setTo ? 1 : 0;
-  digitalWrite(VALVE_0, setTo);
+  //if(whichValve < VALVE_3)  digitalWrite(whichValve, setTo);
+  //else                      analogWrite(whichValve, setTo*255);
+  digitalWrite(whichValve, setTo);
 
   // reset accumulated water flow
   if(valveState == false)
@@ -235,63 +288,148 @@ int setValve(bool setTo){
   return valveState;
 }
 
+/*
+ * Reads the node's ID from IDPIN_0-4
+ * @return uint8_t: the node's ID
+ */
 uint8_t readMyID(){
-  return (!digitalRead(IDPIN_0))*1+(!digitalRead(IDPIN_1))*2+(!digitalRead(IDPIN_2))*4+(!digitalRead(IDPIN_3))*8;
+  return (!digitalRead(IDPIN_0))*1+(!digitalRead(IDPIN_1))*2
+              +(!digitalRead(IDPIN_2))*4+(!analogRead(IDPIN_3))*8
+              +(!(digitalRead(IDPIN_4)>300))*16+(!(digitalRead(IDPIN_5)>300))*32;
+}
+
+/*
+ * Resets the arduino by pressing its own "reset" button
+ */
+void hardReset(){
+  pinMode(RESETPIN, OUTPUT);
+  analogWrite(RESETPIN, 0); // is analog pin
+}
+
+/*
+ * Determines the node's connections--attached valves and flow meters--and populates bool connections[7]
+ */
+void readConnections(){
+  // valves first: read if connected (LOW=conn, HIGH=disc), then return to output
+  pinMode(VALVE_1, INPUT_PULLUP);
+  pinMode(VALVE_2, INPUT_PULLUP);
+  pinMode(VALVE_3, INPUT_PULLUP);
+  pinMode(VALVE_4, INPUT_PULLUP);
+  delay(50);
+  
+  connections[0] = !digitalRead(VALVE_1);
+  connections[1] = !digitalRead(VALVE_2);
+  connections[2] = !digitalRead(VALVE_3);
+  connections[3] = !digitalRead(VALVE_4);
+  
+  pinMode(VALVE_1, OUTPUT);
+  pinMode(VALVE_2, OUTPUT);
+  pinMode(VALVE_3, OUTPUT);
+  pinMode(VALVE_4, OUTPUT);
+
+  // if valve is disconnected, drive pin to 0
+  if(!connections[0]) digitalWrite(VALVE_1, LOW);
+  if(!connections[1]) digitalWrite(VALVE_2, LOW);
+  if(!connections[2]) digitalWrite(VALVE_3, LOW);
+  if(!connections[3]) digitalWrite(VALVE_4, LOW);
+
+  // flow meters second: read if connected (LOW=conn, HIGH=disc)
+  connections[4] = !digitalRead(FRATE);
+}
+
+
+/*
+ * Sets LEDR according to desired pattern
+ * @param uint8_t setTo: the pattern to set LEDR to
+ */
+void setLEDR(uint8_t setTo){
+  switch(setTo){
+  case LEDR_OFF:
+    digitalWrite(LEDR, LOW);
+    break;
+  case LEDR_ON:
+    digitalWrite(LEDR, HIGH);
+    break;
+  case TURN_ON_SEQUENCE:
+    digitalWrite(LEDR, HIGH);
+    delay(500);
+    digitalWrite(LEDR, LOW);
+    delay(250);
+    digitalWrite(LEDR, HIGH);
+    delay(250);
+    digitalWrite(LEDR, LOW);
+    break;
+  case CONNECTED_SEQUENCE:
+    digitalWrite(LEDR, HIGH);
+    delay(250);
+    digitalWrite(LEDR, LOW);
+    delay(250);
+    digitalWrite(LEDR, HIGH);
+    delay(250);
+    digitalWrite(LEDR, LOW);
+    break;
+  case DISCONNECTED:
+    digitalWrite(LEDR, HIGH);
+    break;
+  default:
+    break;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Setup       //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 void setup(){
-  // init LEDs and Button
-  pinMode(BUTTON, INPUT_PULLUP);
-  //attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
-  //pinMode(LEDY, OUTPUT);
+  
+  // begin serial communication
+  Serial.begin(BAUD_RATE);
+  
+  // init LED and Button
   pinMode(LEDR, OUTPUT);
+  pinMode(BUTTON, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
 
-  // init ID read pins
+  // "power-on" light sequence
+  setLEDR(TURN_ON_SEQUENCE);
+
+  // init ID pins
   pinMode(IDPIN_0, INPUT_PULLUP);
   pinMode(IDPIN_1, INPUT_PULLUP);
   pinMode(IDPIN_2, INPUT_PULLUP);
   pinMode(IDPIN_3, INPUT_PULLUP);
+  pinMode(IDPIN_4, INPUT_PULLUP);  
+  pinMode(IDPIN_5, INPUT_PULLUP);
 
-  // init valve pin
-  pinMode(VALVE_0, OUTPUT);
+  // init flow sensors
+  pinMode(FRATE, INPUT_PULLUP);
+  lastflowpinstate = digitalRead(FRATE);
+  useInterrupt(true);
 
-  // close valve
-  setValve(false);
+  // read attached valves, flow meters, and init their pins
+  readConnections();
 
-  // "power-on" light sequence
-  //digitalWrite(LEDY, LOW);
-  digitalWrite(LEDR, HIGH);
-  delay(500);
-  digitalWrite(LEDR, LOW);
-  delay(250);
-  digitalWrite(LEDR, HIGH);
-  //digitalWrite(LEDY, HIGH);
+  // print ID and number and location of connected valves and flow meters
+  Serial.print(F("\n/////////Booted//////////\nNodeID: ")); Serial.println(readMyID()+1);
+  Serial.print("Valve 1: "); connections[0] ? Serial.println("CONNECTED") : Serial.println("disconnected");
+  Serial.print("Valve 2: "); connections[1] ? Serial.println("CONNECTED") : Serial.println("disconnected");
+  Serial.print("Valve 3: "); connections[2] ? Serial.println("CONNECTED") : Serial.println("disconnected");
+  Serial.print("Valve 4: "); connections[3] ? Serial.println("CONNECTED") : Serial.println("disconnected");
+  Serial.print("FRate:   "); connections[4] ? Serial.println("CONNECTED") : Serial.println("disconnected\n");
 
-  // begin serial communication
-  Serial.begin(BAUD_RATE);
+  // close valves
+  setValve(VALVE_1, false);
+  setValve(VALVE_2, false);
+  setValve(VALVE_3, false);
+  setValve(VALVE_4, false);
 
   // begin mesh communication
-  mesh.setNodeID(readMyID()); // do manually
-  Serial.print(F("\n/////////////////////////\nBooted: ID is ")); Serial.println(readMyID());
+  mesh.setNodeID(readMyID()+1); // do manually
   Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
   bool success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
   Serial.println(success);
 
   // "connected" light sequence
-  digitalWrite(LEDR, LOW);
-  if(success){
-    delay(250);
-    digitalWrite(LEDR, HIGH);
-    delay(250);
-    digitalWrite(LEDR, LOW);
-    delay(250);
-    digitalWrite(LEDR, HIGH);
-    delay(250);
-    digitalWrite(LEDR, LOW);
-  }
+  if(success) setLEDR(CONNECTED_SEQUENCE);
 
   // allow children to connect
   mesh.setChild(true);
@@ -299,12 +437,6 @@ void setup(){
   // init timer for serial communication printing
   Timer1.initialize(TIMER1_PERIOD);
   Timer1.attachInterrupt(printStatus);
-
-  // init flow sensor
-  pinMode(FLOWSENSORPIN, INPUT);
-  digitalWrite(FLOWSENSORPIN, HIGH);
-  lastflowpinstate = digitalRead(FLOWSENSORPIN);
-  useInterrupt(true);
 
   // attach interrupt to button
   attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
@@ -323,15 +455,18 @@ void loop() {
   // NOT FINAL CODE
   if(hadButtonPress){
     // tell current flow rate
+    Serial.println("Measuring the current flowrate...");
     float beginLiters, flowrate;//endLiters, flowrate;
     beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
     delay(RATE_MEASURING_PERIOD);                                        // wait 5 seconds
     //endLiters = pulses/7.5/60.0;                      // is end amount of liters
     flowrate = (pulses/7.5/60.0-beginLiters)/5*15.8503; // convert liters/sec to GPM
-    safeMeshWrite(MASTER_ADDRESS, &flowrate, 'r', sizeof(flowrate), DEFAULT_SEND_TRIES);
-
+    safeMeshWrite(MASTER_ADDRESS, &flowrate, SEND_FLOW_RATE_H, sizeof(flowrate), DEFAULT_SEND_TRIES);
+    
     // reset flag
     hadButtonPress = false;
+
+    hardReset();
   }
 
   // handle flow meter pulses
@@ -351,7 +486,7 @@ void loop() {
   }
 
   // read in messages
-  while (network.available()){
+  while(network.available()){
     RF24NetworkHeader header;
     network.peek(header);
     //void* payload = malloc(sizeof(float)); // float is largest possible size
@@ -366,7 +501,7 @@ void loop() {
       bool onOrOff;
       network.read(header, &onOrOff, sizeof(onOrOff));
       Serial.print(F("Command is to turn ")); onOrOff ? Serial.println("ON") : Serial.println("OFF");
-      setValve(onOrOff);
+      setValve(VALVE_1, onOrOff); //TODO
       safeMeshWrite(MASTER_ADDRESS, &valveState, SEND_VALVE_H, sizeof(valveState), DEFAULT_SEND_TRIES);
       break;
       

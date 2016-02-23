@@ -28,7 +28,16 @@
 #define SEND_NODE_STATUS_H  'n'
 
 
+// LEDR settings
+#define LEDR_BRIGHTNESS       255     // 0-255; brightness of LEDR_BRIGHTNESS
+#define LEDR_OFF              0       // LEDR light pattern
+#define LEDR_ON               1       // LEDR light pattern
+#define TURN_ON_SEQUENCE      2       // LEDR light pattern
+#define CONNECTED_SEQUENCE    3       // LEDR light pattern
+#define DISCONNECTED          4       // LEDR light pattern
+
+
 // other settings
 #define BAUD_RATE             9600    // serial communication baud rate
-#define TIMER1_PERIOD         5000000 // timer period in microseconds (1000000 = 1 sec)
+#define TIMER1_PERIOD         30000000 // timer period in microseconds (1000000 = 1 sec)
 #define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data
