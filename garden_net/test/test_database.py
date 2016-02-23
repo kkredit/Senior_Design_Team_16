@@ -102,8 +102,8 @@ class TestDataBase(unittest.TestCase):
 			self.db.get_all_events_for_zone(2)
 
 		results = self.db.get_all_events_for_zone(3)
-		for event in results:
-			print(event)
+		# for event in results:
+		# 	print(event)
 
 	def test_get_events_for_a_certain_zone_and_day(self):
 		with self.assertRaises(ValueError):
