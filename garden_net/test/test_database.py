@@ -3,6 +3,7 @@ import unittest
 from garden_net.database.database import Database
 from garden_net.gn_util.zone import Zone
 from garden_net.gn_util.event import Event
+from garden_net.gn_util.JSON import JSON_Interface
 
 class TestDataBase(unittest.TestCase):
 	def setUp(self):
@@ -146,6 +147,13 @@ class TestDataBase(unittest.TestCase):
 		self.assertEqual(results0[1], test_event3)
 		self.assertEqual(results0[2], test_event2)
 		self.assertEqual(results0[3], test_event0)
+
+		f = open('test_JSON.txt', 'w')
+		toJSON = JSON_Interface()
+		string = toJSON.to_JSON(results0, z3)
+		print(string)
+		f.write(string)
+		f.close()
 
 		results1 = self.db.get_events_on_day_for_zone('Tuesday', 1)
 		self.assertEqual(results1[0], test_event5)
