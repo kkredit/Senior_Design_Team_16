@@ -148,16 +148,16 @@ class TestDataBase(unittest.TestCase):
 		self.assertEqual(results0[2], test_event2)
 		self.assertEqual(results0[3], test_event0)
 
+		results1 = self.db.get_events_on_day_for_zone('Tuesday', 1)
+		self.assertEqual(results1[0], test_event5)
+		self.assertEqual(results1[1], test_event6)
+
 		f = open('test_JSON.txt', 'w')
 		toJSON = JSON_Interface()
 		string = toJSON.to_JSON(results0, z3)
 		print(string)
 		f.write(string)
 		f.close()
-
-		results1 = self.db.get_events_on_day_for_zone('Tuesday', 1)
-		self.assertEqual(results1[0], test_event5)
-		self.assertEqual(results1[1], test_event6)
 
 		results2 = self.db.get_events_on_day_for_zone('Saturday', 1)
 		self.assertEqual(results2[0],test_event7)

@@ -103,7 +103,7 @@ class Event(Base):
 
 	def to_JSON(self):
 		return "{\"start_time\" : \"" + str(self.start_time) + "\"" + ", \"stop_time\" : \"" + str(self.stop_time) + \
-			   ", \"day\" : \"" + str(self.day) + "\", \"zone_ID\" : \"" + str(self.owner) + "\"}"
+			   "\", \"day\" : \"" + str(self.day) + "\", \"zone_ID\" : \"" + str(self.owner) + "\"}"
 
 if __name__ == "__main__":
 	e = Event(1.0, 2.0, 'Monday', 1)

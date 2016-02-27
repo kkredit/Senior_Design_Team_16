@@ -1,6 +1,14 @@
-{"zone3":
-	{"start_time" : "1.0", "stop_time" : "2.0, "day" : "Monday", "zone_ID" : "3"},
-	{"start_time" : "1.5", "stop_time" : "2.5, "day" : "Monday", "zone_ID" : "3"},
-	{"start_time" : "2.0", "stop_time" : "3.0, "day" : "Monday", "zone_ID" : "3"},
-	{"start_time" : "3.0", "stop_time" : "4.0, "day" : "Monday", "zone_ID" : "3"}
+{"zone3":[
+	{"event0":[
+		{"start_time" : "1.0", "stop_time" : "2.0", "day" : "Monday", "zone_ID" : "3"}
+	],
+	"event1":[
+		{"start_time" : "1.5", "stop_time" : "2.5", "day" : "Monday", "zone_ID" : "3"}
+	],
+	"event2":[
+		{"start_time" : "2.0", "stop_time" : "3.0", "day" : "Monday", "zone_ID" : "3"}
+	],
+	"event3":[
+		{"start_time" : "3.0", "stop_time" : "4.0", "day" : "Monday", "zone_ID" : "3"}
+	]}
 ]}
