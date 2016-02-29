@@ -139,6 +139,9 @@ class TestDataBase(unittest.TestCase):
 		self.db.add_event(test_event6)
 		self.db.add_event(test_event7)
 
+		# fakeResults = self.db.get_events_on_day_for_zone('Monday', 6)
+		# print(fakeResults)
+
 		with self.assertRaises(ValueError):
 			self.db.get_all_events_on_day('Friday')
 
@@ -152,12 +155,12 @@ class TestDataBase(unittest.TestCase):
 		self.assertEqual(results1[0], test_event5)
 		self.assertEqual(results1[1], test_event6)
 
-		f = open('test_JSON.txt', 'w')
-		toJSON = JSON_Interface()
-		string = toJSON.to_JSON(results0, z3)
-		print(string)
-		f.write(string)
-		f.close()
+		# f = open('test_JSON.txt', 'w')
+		# toJSON = JSON_Interface()
+		# string = toJSON.to_JSON(results0, z3)
+		# print(string)
+		# f.write(string)
+		# f.close()
 
 		results2 = self.db.get_events_on_day_for_zone('Saturday', 1)
 		self.assertEqual(results2[0],test_event7)

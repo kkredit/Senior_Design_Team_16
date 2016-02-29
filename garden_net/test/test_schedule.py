@@ -10,13 +10,13 @@ class TestSchedule(unittest.TestCase):
 	def test_constructor_empty_array_for_each_key(self):
 		s = Schedule()
 		for key in s.mySchedule.keys():
-			self.assertEqual(len(s.mySchedule[key]),0)
+			self.assertEqual(len(s.mySchedule[key]), 0)
 
 	def test_insert_event_into_schedule(self):
 		s = Schedule()
 		e1 = Event(1.00, 2.00, 'Monday', 1)
 		s.insert_event('Monday', e1)
-		self.assertEqual(len(s.mySchedule['Monday']),1)
+		self.assertEqual(len(s.mySchedule['Monday']), 1)
 
 	def tearDown(self):
 		pass

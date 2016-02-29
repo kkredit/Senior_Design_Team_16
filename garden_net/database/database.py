@@ -53,11 +53,16 @@ class Database:
 		else:
 			raise ValueError("That zone does not exist in the database")
 
-	def get_events_on_day_for_zone(self, day, zone):
+	def get_events_on_day_for_zone(self, day, zone: int):
 		if self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)):
 			return sort_event_list(self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)).all())
+		elif self.session.query(Event).filter(Event._owner == zone):
+			raise ValueError("No events on the day for the given zone")
+		elif self.session.query(Event).filter(Event._day == day):
+			raise ValueError("No events at zone for the given day")
+		# WE SHOULD NEVER GET HERE
 		else:
-			raise ValueError
+			raise ValueError("Something went terribly wrong...")
 
 
 def sort_event_list(event_list: list):
