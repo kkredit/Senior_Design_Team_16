@@ -72,40 +72,50 @@ class TestJSON(unittest.TestCase):
 		self.assertEqual(events_on_day[3].owner, 3)
 
 	def test_all_JSON_functionality(self):
-		event_list = []
-		event_list.append(Event(3.0, 4.0, 'Monday', 1))
-		event_list.append(Event(1.0, 2.0, 'Monday', 1))
-		event_list.append(Event(2.0, 3.0, 'Monday', 1))
-		event_list.append(Event(1.5, 2.5, 'Monday', 1))
-		event_list.append(Event(22.0, 23.59, 'Monday', 1))
-		event_list.append(Event(1.0, 2.0, 'Tuesday', 1))
-		event_list.append(Event(1.0, 3.0, 'Tuesday', 1))
-		event_list.append(Event(1.0, 2.0, 'Saturday', 1))
+		json = JSON_Interface()
+		string = json.from_JSON('test_input.txt')
+		json.create_events_from_JSON_string(string, self.db)
 
-		event_list.append(Event(3.0, 4.0, 'Monday', 2))
-		event_list.append(Event(1.0, 2.0, 'Monday', 2))
-		event_list.append(Event(2.0, 3.0, 'Monday', 2))
-		event_list.append(Event(1.5, 2.5, 'Monday', 2))
-		event_list.append(Event(22.0, 23.59, 'Monday', 2))
-		event_list.append(Event(1.0, 2.0, 'Tuesday', 2))
-		event_list.append(Event(1.0, 3.0, 'Tuesday', 2))
-		event_list.append(Event(1.0, 2.0, 'Saturday', 2))
+		convert = JSON_Interface()
 
-		event_list.append(Event(3.0, 4.0, 'Monday', 3))
-		event_list.append(Event(1.0, 2.0, 'Monday', 3))
-		event_list.append(Event(2.0, 3.0, 'Monday', 3))
-		event_list.append(Event(1.5, 2.5, 'Monday', 3))
-		event_list.append(Event(22.0, 23.59, 'Monday', 3))
-		event_list.append(Event(1.0, 2.0, 'Tuesday', 3))
-		event_list.append(Event(1.0, 3.0, 'Tuesday', 3))
-		event_list.append(Event(1.0, 2.0, 'Saturday', 3))
-
-		# print(event_list)
-		#
-		# convert = JSON_Interface()
-		#
-		# converted = convert.to_JSON(event_list, 3)
-		# print(converted)
+		converted = convert.all_events_from_DB_to_JSON(self.db)
+		f = open("test_output.txt", 'w')
+		f.write(converted)
+		f.close()
 
 if __name__ == "__main__":
 	unittest.main()
+
+
+
+
+		# event_list = []
+		# event_list.append(Event(3.0, 4.0, 'Sunday', 1))
+		# event_list.append(Event(1.0, 2.0, 'Monday', 1))
+		# event_list.append(Event(2.0, 3.0, 'Tuesday', 1))
+		# event_list.append(Event(1.5, 2.5, 'Wednesday', 1))
+		# event_list.append(Event(22.0, 23.59, 'Thursday', 1))
+		# event_list.append(Event(1.0, 2.0, 'Friday', 1))
+		# event_list.append(Event(1.0, 3.0, 'Saturday', 1))
+		# event_list.append(Event(1.0, 2.0, 'Saturday', 1))
+		#
+		# event_list.append(Event(3.0, 4.0, 'Monday', 2))
+		# event_list.append(Event(1.0, 2.0, 'Tuesday', 2))
+		# event_list.append(Event(2.0, 3.0, 'Wednesday', 2))
+		# event_list.append(Event(1.5, 2.5, 'Thursday', 2))
+		# event_list.append(Event(22.0, 23.59, 'Friday', 2))
+		# event_list.append(Event(1.0, 2.0, 'Sunday', 2))
+		# event_list.append(Event(1.0, 3.0, 'Tuesday', 2))
+		# event_list.append(Event(1.0, 2.0, 'Saturday', 2))
+		#
+		# event_list.append(Event(3.0, 4.0, 'Sunday', 3))
+		# event_list.append(Event(1.0, 2.0, 'Monday', 3))
+		# event_list.append(Event(2.0, 3.0, 'Tuesday', 3))
+		# event_list.append(Event(1.5, 2.5, 'Wednesday', 3))
+		# event_list.append(Event(22.0, 23.59, 'Thursday', 3))
+		# event_list.append(Event(1.0, 2.0, 'Friday', 3))
+		# event_list.append(Event(1.0, 3.0, 'Tuesday', 3))
+		# event_list.append(Event(1.0, 2.0, 'Saturday', 3))
+
+		# print(event_list)
+		#

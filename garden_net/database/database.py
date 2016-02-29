@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import and_
+from sqlalchemy import and_, exists
 
 
 from garden_net.database.base import Base, Meta
@@ -54,15 +54,18 @@ class Database:
 			raise ValueError("That zone does not exist in the database")
 
 	def get_events_on_day_for_zone(self, day, zone: int):
-		if self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)):
+		# for zone in zone_query:
+		# 	print(zone)
+		if self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)).all():
 			return sort_event_list(self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)).all())
-		elif self.session.query(Event).filter(Event._owner == zone):
-			raise ValueError("No events on the day for the given zone")
-		elif self.session.query(Event).filter(Event._day == day):
+		elif len(self.session.query(Event).filter(Event._owner == zone).all()) == 0:
+			raise KeyError("Zone does not exist")
+		elif len(self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)).all()) == 0:
 			raise ValueError("No events at zone for the given day")
 		# WE SHOULD NEVER GET HERE
 		else:
-			raise ValueError("Something went terribly wrong...")
+			raise OverflowError("Something went terribly wrong...")
+
 
 
 def sort_event_list(event_list: list):

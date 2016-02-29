@@ -14,6 +14,10 @@ class Zone(Base):
 	def to_JSON(self):
 		return "\"zone" + str(self._zone_id) + "\":"
 
+	@property
+	def zone_id(self):
+		return self._zone_id
+
 if __name__ == "__main__":
 	z = Zone(1)
 	z_JSON = z.to_JSON()

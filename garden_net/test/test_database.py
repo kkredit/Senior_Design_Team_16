@@ -139,8 +139,9 @@ class TestDataBase(unittest.TestCase):
 		self.db.add_event(test_event6)
 		self.db.add_event(test_event7)
 
-		# fakeResults = self.db.get_events_on_day_for_zone('Monday', 6)
-		# print(fakeResults)
+		fakeResults = self.db.get_events_on_day_for_zone('Monday', 2)
+		for event in fakeResults:
+			print(event)
 
 		with self.assertRaises(ValueError):
 			self.db.get_all_events_on_day('Friday')

@@ -11,8 +11,8 @@ class JSON_Interface:
 	def convert_to_JSON(self, event: Event, zone: Zone):
 		return "{" + str(zone.to_JSON()) + "[\n\t" + event.to_JSON() + "\n]}"
 
-	def to_JSON(self, event_list: list, zone: Zone):
-		temp = "{" + str(zone.to_JSON()) + ""
+	def to_JSON(self, event_list: list, zone: Zone, comma: bool):
+		temp = str(zone.to_JSON()) + ""
 		i = 0
 		for event in event_list:
 			if i == 0:
@@ -22,10 +22,12 @@ class JSON_Interface:
 			temp += "\n\t\t" + event.to_JSON()
 			if (i == (len(event_list)-1)):
 				temp += "\n\t}"
+				if comma:
+					temp += ","
 			else:
-				temp += "\n\t,"
+				temp += ","
 			i+=1
-		temp += "\n}"
+		temp += "\n"
 
 		return temp
 
@@ -34,7 +36,7 @@ class JSON_Interface:
 		temp = ""
 		for line in f.readlines():
 			temp += line
-
+		f.close()
 		return temp
 
 	def create_events_from_JSON_string(self, json_str: str, db: Database):
@@ -76,6 +78,52 @@ class JSON_Interface:
 				temp = False
 
 			i += 1
+
+	def all_events_from_DB_to_JSON(self, db:Database):
+		i = 1
+		temp = True
+		string = "{"
+		while(temp):
+			events= []
+			try:
+				try:
+					events = db.get_events_on_day_for_zone('Sunday', i)
+				except ValueError:
+					pass
+				try:
+					events += db.get_events_on_day_for_zone('Monday', i)
+				except ValueError:
+					pass
+				try:
+					events += db.get_events_on_day_for_zone('Tuesday', i)
+				except ValueError:
+					pass
+				try:
+					events += db.get_events_on_day_for_zone('Wednesday', i)
+				except ValueError:
+					pass
+				try:
+					events += db.get_events_on_day_for_zone('Thursday', i)
+				except ValueError:
+					pass
+				try:
+					events += db.get_events_on_day_for_zone('Friday', i)
+				except ValueError:
+					pass
+				try:
+					events += db.get_events_on_day_for_zone('Saturday', i)
+				except ValueError:
+					pass
+				try:
+					db.get_all_events_for_zone(i+1)
+					string += self.to_JSON(events, Zone(i), True)
+				except:
+					string += self.to_JSON(events, Zone(i), False)
+			except KeyError:
+				temp = False
+			i += 1
+		string += "}"
+		return string
 
 
 
