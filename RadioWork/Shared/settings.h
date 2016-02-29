@@ -29,7 +29,7 @@
 
 
 // LEDR settings
-#define LEDR_BRIGHTNESS       255     // 0-255; brightness of LEDR_BRIGHTNESS
+#define LEDR_BRIGHTNESS       150     // 0-255; brightness of LEDR_BRIGHTNESS
 #define LEDR_OFF              0       // LEDR light pattern
 #define LEDR_ON               1       // LEDR light pattern
 #define TURN_ON_SEQUENCE      2       // LEDR light pattern

@@ -43,48 +43,9 @@
 #define IDPIN_1   A3
 #define IDPIN_2   A4
 #define IDPIN_3   A5
-#define IDPIN_4   A6  //note: analog only
-#define IDPIN_5   A7  //note: analog only
+//#define IDPIN_4   A6  //note: analog only
+//#define IDPIN_5   A7  //note: analog only
 
-/*#define BUTTON    2
-#define RF24_IRQ  3
-#define IDPIN_0   4
-#define IDPIN_1   5
-#define IDPIN_2   6
-#define IDPIN_3   7
-#define IDPIN_4   8
-#define RF24_CE   9
-#define RF24_CS   10
-// RF24_MOSI        11  //predifined
-// RF24_MISO        12  //predifined
-// RF24_SCK         13  //predifined
-#define VALVE_1   A0
-#define VALVE_2   A1
-#define VALVE_3   A2
-#define VALVE_4   A3
-#define FRATE_1   A4
-#define FRATE_2   A5
-#define LEDR      A6  //note: analog only
-#define RESETPIN  A7  //note: analog only*/
-
-/*#define RESETPIN  4
-#define LEDR      5
-#define FRATE_1   6
-#define FRATE_2   7
-#define FRATE_3   8
-#define RF24_CE   9
-#define RF24_CS   10
-// RF24_MOSI        11  //predifined
-// RF24_MISO        12  //predifined
-// RF24_SCK         13  //predifined
-#define IDPIN_0   A0
-#define IDPIN_1   A1
-#define IDPIN_2   A2
-#define IDPIN_3   A3
-#define VALVE_1   A4
-#define VALVE_2   A5
-#define VALVE_3   A6  //note: analog only
-#define VALVE_4   A7  //note: analog only*/
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Globals     //////////////////////////////////
@@ -139,10 +100,9 @@ void printStatus(){
   Serial.print('\n'); Serial.println(statusCounter++);
 
   // check mesh connection and print status
-  if(!mesh.checkConnection()){
+  if(!mesh.checkConnection()){  //TODO program freezes everytime this check fails
     // if unconnected, try to reconnect
     Serial.println("Not connected... renewing address");
-    //digitalWrite(LEDR, true);
     setLEDR(DISCONNECTED);
     if(mesh.renewAddress() == -1){
       setValve(VALVE_1, false);
@@ -155,10 +115,11 @@ void printStatus(){
       Serial.println("Reconnected");
       setLEDR(CONNECTED_SEQUENCE);
     }
-    //digitalWrite(LEDR, false);
   }
-  else
+  else{
     Serial.println("Connected");
+    setLEDR(LEDR_OFF);
+  }
 
   // print node ID
   Serial.print("My ID:      ");
@@ -181,17 +142,20 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
   if (!mesh.write(destination, payload, header, datasize)) {
     // if a write fails, check connectivity to the mesh network
     Serial.print(F("Send fail... "));
-    if (!mesh.checkConnection() ) {
+    if (!mesh.checkConnection()){
       //refresh the network address
       Serial.println(F("renewing Address... "));
       if (!mesh.renewAddress()){
         // if failed, connection is down
         Serial.println(F("MESH CONNECTION DOWN"));
+        setLEDR(DISCONNECTED);
         return false;
       }
       else{
+        // if succeeded, are reconnected and try again
+        setLEDR(CONNECTED_SEQUENCE);
         if(timesToTry){
-          // if succeeded, are reconnected and try again
+          // more tries allowed; try again
           Serial.println(F("reconnected, trying again"));
           delay(RETRY_PERIOD);
           return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
@@ -200,8 +164,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
           // out of tries; send failed
           Serial.println(F("reconnected, but out of send tries: SEND FAIL"));
           return false;
-        }
-        
+        }        
       }
     } 
     else {      
@@ -293,9 +256,11 @@ int8_t setValve(uint8_t whichValve, bool setTo){
  * @return uint8_t: the node's ID
  */
 uint8_t readMyID(){
-  return (!digitalRead(IDPIN_0))*1+(!digitalRead(IDPIN_1))*2
-              +(!digitalRead(IDPIN_2))*4+(!analogRead(IDPIN_3))*8
-              +(!(digitalRead(IDPIN_4)>300))*16+(!(digitalRead(IDPIN_5)>300))*32;
+  uint8_t id = (!digitalRead(IDPIN_0))*1+(!digitalRead(IDPIN_1))*2
+              +(!digitalRead(IDPIN_2))*4+(!analogRead(IDPIN_3))*8;
+              //+(!(digitalRead(IDPIN_4)>300))*16+(!(digitalRead(IDPIN_5)>300))*32;
+  if(id==0) id = 16;
+  return id;
 }
 
 /*
@@ -348,28 +313,28 @@ void setLEDR(uint8_t setTo){
     digitalWrite(LEDR, LOW);
     break;
   case LEDR_ON:
-    digitalWrite(LEDR, HIGH);
+    analogWrite(LEDR, LEDR_BRIGHTNESS);
     break;
   case TURN_ON_SEQUENCE:
-    digitalWrite(LEDR, HIGH);
+    analogWrite(LEDR, LEDR_BRIGHTNESS);
     delay(500);
     digitalWrite(LEDR, LOW);
     delay(250);
-    digitalWrite(LEDR, HIGH);
+    analogWrite(LEDR, LEDR_BRIGHTNESS);
     delay(250);
     digitalWrite(LEDR, LOW);
     break;
   case CONNECTED_SEQUENCE:
-    digitalWrite(LEDR, HIGH);
+    analogWrite(LEDR, LEDR_BRIGHTNESS);
     delay(250);
     digitalWrite(LEDR, LOW);
     delay(250);
-    digitalWrite(LEDR, HIGH);
+    analogWrite(LEDR, LEDR_BRIGHTNESS);
     delay(250);
     digitalWrite(LEDR, LOW);
     break;
   case DISCONNECTED:
-    digitalWrite(LEDR, HIGH);
+    analogWrite(LEDR, LEDR_BRIGHTNESS);
     break;
   default:
     break;
@@ -397,8 +362,8 @@ void setup(){
   pinMode(IDPIN_1, INPUT_PULLUP);
   pinMode(IDPIN_2, INPUT_PULLUP);
   pinMode(IDPIN_3, INPUT_PULLUP);
-  pinMode(IDPIN_4, INPUT_PULLUP);  
-  pinMode(IDPIN_5, INPUT_PULLUP);
+  //pinMode(IDPIN_4, INPUT_PULLUP);  
+  //pinMode(IDPIN_5, INPUT_PULLUP);
 
   // init flow sensors
   pinMode(FRATE, INPUT_PULLUP);
@@ -409,7 +374,7 @@ void setup(){
   readConnections();
 
   // print ID and number and location of connected valves and flow meters
-  Serial.print(F("\n/////////Booted//////////\nNodeID: ")); Serial.println(readMyID()+1);
+  Serial.print(F("\n/////////Booted//////////\nNodeID: ")); Serial.println(readMyID());
   Serial.print("Valve 1: "); connections[0] ? Serial.println("CONNECTED") : Serial.println("disconnected");
   Serial.print("Valve 2: "); connections[1] ? Serial.println("CONNECTED") : Serial.println("disconnected");
   Serial.print("Valve 3: "); connections[2] ? Serial.println("CONNECTED") : Serial.println("disconnected");
@@ -423,13 +388,21 @@ void setup(){
   setValve(VALVE_4, false);
 
   // begin mesh communication
-  mesh.setNodeID(readMyID()+1); // do manually
+  mesh.setNodeID(readMyID()); // do manually
   Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
+  setLEDR(DISCONNECTED);
   bool success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
-  Serial.println(success);
+  success ? Serial.println("CONNECTED") : Serial.println("FAILED");
+
+  while(!success){
+    Serial.print(F("Failed, trying again: "));
+    success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
+    success ? Serial.println("CONNECTED") : Serial.println("FAILED");
+  }
 
   // "connected" light sequence
-  if(success) setLEDR(CONNECTED_SEQUENCE);
+  //if(success) setLEDR(CONNECTED_SEQUENCE);
+  setLEDR(CONNECTED_SEQUENCE);
 
   // allow children to connect
   mesh.setChild(true);
