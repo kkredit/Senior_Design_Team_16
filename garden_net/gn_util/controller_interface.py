@@ -22,21 +22,25 @@ print(host)
 
 soc.bind(('', port))
 soc.listen(5)
-
-client_sock, addr = soc.accept()
-print("Client (%s, %s) connected" % addr)
+x = 1
 
 while True:
-	data = client_sock.recv(4096)
-	if data:
-		msg = "Server Response: " + data.decode('utf-8')
-		print("Recieved: " + data.decode('utf-8'))
-		if data.decode('utf-8') == 'quit':
-			print("Closing connection with: " + str(addr))
-			client_sock.close()
+	client_sock, addr = soc.accept()
+	print("Client (%s, %s) connected" % addr)
+
+	while x == 1:
+		data = client_sock.recv(4096)
+		if data:
+			msg = "Server Response: " + data.decode('utf-8')
+			print("Recieved: " + data.decode('utf-8'))
+			if data.decode('utf-8') == 'quit':
+				print("Closing connection with: " + str(addr))
+				client_sock.close()
+				x = 0
+			else:
+				client_sock.send(msg.encode('utf-8'))
+			# interface.run("controller")
 		else:
-			client_sock.send(msg.encode('utf-8'))
-		# interface.run("controller")
-	else:
-		print("Connection Lost")
-		client_sock.close()
+			print("Connection Lost")
+			client_sock.close()
+	x = 1
