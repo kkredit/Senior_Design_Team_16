@@ -104,7 +104,7 @@ void printStatus(){
     // if unconnected, try to reconnect
     Serial.println("Not connected... renewing address");
     setLEDR(DISCONNECTED);
-    if(mesh.renewAddress() == -1){
+    if(mesh.renewAddress(RENEWAL_TIMEOUT) == -1){
       setValve(VALVE_1, false);
       setValve(VALVE_2, false);
       setValve(VALVE_3, false);
@@ -145,8 +145,8 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     if (!mesh.checkConnection()){
       //refresh the network address
       Serial.println(F("renewing Address... "));
-      if (!mesh.renewAddress()){
-        // if failed, connection is down
+      if (!mesh.renewAddress(RENEWAL_TIMEOUT)){
+        // if failed, connection is downr
         Serial.println(F("MESH CONNECTION DOWN"));
         setLEDR(DISCONNECTED);
         return false;
@@ -387,27 +387,36 @@ void setup(){
   setValve(VALVE_3, false);
   setValve(VALVE_4, false);
 
-  // begin mesh communication
+  // set NodeID and prep for mesh.begin()
   mesh.setNodeID(readMyID()); // do manually
-  Serial.print(F("Connecting to the mesh...\nOutput of mesh.begin(): "));
   setLEDR(DISCONNECTED);
-  bool success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
-  success ? Serial.println("CONNECTED") : Serial.println("FAILED");
 
-  while(!success){
-    Serial.print(F("Failed, trying again: "));
-    success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
-    success ? Serial.println("CONNECTED") : Serial.println("FAILED");
+  // while unconnected, try CONNECTION_TRIES (5) times consecutively every DISCONNECTED_SLEEP (15) minutes indefinitely
+  bool success = false;
+  while(!success) {
+    uint8_t attempt;
+    for(attempt=1; attempt<=CONNECTION_TRIES; attempt++){
+      Serial.print(F("Connecting to the mesh (attempt ")); Serial.print(attempt); Serial.print(")... ");
+      success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
+      if(success){
+        Serial.println("CONNECTED");
+        break;
+      }
+      else Serial.println("FAILED");
+    }
+    if(!success){
+      Serial.println("Trying again in 15 minutes. Else powerdown or reset.\n");
+      delay(DISCONNECTED_SLEEP);
+    }
   }
 
   // "connected" light sequence
-  //if(success) setLEDR(CONNECTED_SEQUENCE);
   setLEDR(CONNECTED_SEQUENCE);
 
   // allow children to connect
   mesh.setChild(true);
 
-  // init timer for serial communication printing
+  // init timer for regular system checks
   Timer1.initialize(TIMER1_PERIOD);
   Timer1.attachInterrupt(printStatus);
 

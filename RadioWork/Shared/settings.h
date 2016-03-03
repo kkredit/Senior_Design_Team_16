@@ -13,6 +13,9 @@
 #define CONNECT_TIMEOUT     20000         // time in ms before mesh.begin() times out
 #define DEFAULT_SEND_TRIES  5             // number of tries to send a message if send fails but are connected  
 #define RETRY_PERIOD        1000          // number of ms to wait before retrying to send a message
+#define RENEWAL_TIMEOUT     20000         // time in ms before mesh.renewAddress() times out
+#define CONNECTION_TRIES    5             // number of tries to connect before waiting going to sleep
+#define DISCONNECTED_SLEEP  (15*60000)    // (15 minutes) -- time to wait before trying to connect again
 
 
 // protocol settings -- _H stands for message Headers, _P stands for message Payloads
@@ -29,7 +32,7 @@
 
 
 // LEDR settings
-#define LEDR_BRIGHTNESS       150     // 0-255; brightness of LEDR_BRIGHTNESS
+#define LEDR_BRIGHTNESS       200     // 0-255; brightness of LEDR_BRIGHTNESS
 #define LEDR_OFF              0       // LEDR light pattern
 #define LEDR_ON               1       // LEDR light pattern
 #define TURN_ON_SEQUENCE      2       // LEDR light pattern
@@ -39,5 +42,5 @@
 
 // other settings
 #define BAUD_RATE             9600    // serial communication baud rate
-#define TIMER1_PERIOD         30000000 // timer period in microseconds (1000000 = 1 sec)
+#define TIMER1_PERIOD  /*60*/ 60000000 // timer period in microseconds (1000000 = 1 sec)
 #define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data
