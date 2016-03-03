@@ -1,0 +1,26 @@
+cloudCover : 0.87
+moonPhase : 0.02
+apparentTemperatureMin : 40.79
+time : 1457499600
+windSpeed : 6.07
+precipType : rain
+precipIntensityMax : 0.0521
+pressure : 1016.46
+temperatureMin : 44.76
+dewPoint : 45.74
+sunriseTime : 1457525130
+temperatureMax : 62.72
+summary : Light rain until afternoon, starting again overnight.
+temperatureMinTime : 1457582400
+windBearing : 313
+icon : rain
+precipProbability : 0.73
+ozone : 326.4
+humidity : 0.81
+precipIntensityMaxTime : 1457517600
+apparentTemperatureMax : 62.72
+precipIntensity : 0.0167
+apparentTemperatureMinTime : 1457582400
+temperatureMaxTime : 1457499600
+sunsetTime : 1457566985
+apparentTemperatureMaxTime : 1457499600

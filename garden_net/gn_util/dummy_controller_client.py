@@ -23,7 +23,7 @@ while x == 1:
 	#print(msg)
 	new = msg.encode('utf-8')
 	soc.send(new)
-	data = soc.recv(4096)
+	data = soc.recv(8192)
 	if data:
 		print(data.decode())
 	else:

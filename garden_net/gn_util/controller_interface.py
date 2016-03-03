@@ -29,7 +29,7 @@ while True:
 	print("Client (%s, %s) connected" % addr)
 
 	while x == 1:
-		data = client_sock.recv(4096)
+		data = client_sock.recv(8192)
 		if data:
 			msg = "Server Response: " + data.decode('utf-8')
 			print("Recieved: " + data.decode('utf-8'))
