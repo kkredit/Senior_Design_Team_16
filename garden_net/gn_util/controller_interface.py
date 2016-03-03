@@ -31,7 +31,11 @@ while True:
 	if data:
 		msg = "Server Response: " + data.decode('utf-8')
 		print("Recieved: " + data.decode('utf-8'))
-		client_sock.send(msg.encode('utf-8'))
+		if data.decode('utf-8') == 'quit':
+			print("Closing connection with: " + addr)
+			client_sock.close()
+		else:
+			client_sock.send(msg.encode('utf-8'))
 		# interface.run("controller")
 	else:
 		print("Connection Lost")
