@@ -15,6 +15,7 @@ except:
 	exit()
 
 print('Connected to remote host. You can start sending messages')
+print('Type quit to close the connection with the server')
 
 x = 1
 while x == 1:
