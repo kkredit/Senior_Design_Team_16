@@ -16,7 +16,8 @@ except:
 
 print('Connected to remote host. You can start sending messages')
 
-while 1:
+x = 1
+while x == 1:
 	msg = input("Client: ")
 	#print(msg)
 	new = msg.encode('utf-8')
@@ -25,7 +26,8 @@ while 1:
 	if data:
 		print(data.decode())
 	else:
-		print("idk what happened")
+		print("Connection with server closed")
 		soc.close()
+		x = 0
 
 
