@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <dwsync>
-<file name="init.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131001092260264194" remote="131001092260000000" Dst="1" />
-<file name="materialize.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131000318626026532" remote="131000323260000000" Dst="1" />
-<file name="materialize.min.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="130866580100000000" remote="130899132470000000" Dst="1" />
-<file name="duplicate_delete.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131001202044900798" remote="131001202050000000" Dst="1" />
-<file name="jquery.mousewheel.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="130784362290000000" remote="130997646250000000" Dst="1" />
-<file name="jquery.scrolltabs.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131000266097628643" remote="131000266740000000" Dst="1" />
-<file name="tab-select.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131000454483187175" remote="131000454490000000" Dst="1" />
-<file name="bootstrap.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="130928852600000000" remote="131001097910000000" Dst="1" />
+<file name="init.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131014196120000000" remote="131014196120000000" Dst="1" />
+<file name="materialize.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131000323260000000" remote="131000323260000000" Dst="1" />
+<file name="materialize.min.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131003852080000000" remote="131003852080000000" Dst="1" />
+<file name="duplicate_delete.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131016698390000000" remote="131016698390000000" Dst="1" />
+<file name="jquery.mousewheel.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="130997646250000000" remote="130997646250000000" Dst="1" />
+<file name="jquery.scrolltabs.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131000266740000000" remote="131000266740000000" Dst="1" />
+<file name="tab-select.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131000454490000000" remote="131000454490000000" Dst="1" />
+<file name="bootstrap.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131001097910000000" remote="131001097910000000" Dst="1" />
+<file name="picker.time.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131003825970000000" remote="131003825970000000" Dst="1" />
+<file name="jquery.timepicker.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131003832010000000" remote="131003832010000000" Dst="1" />
+<file name="materialize.clockpicker.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131012457900000000" remote="131012457900000000" Dst="1" />
+<file name="weather.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="130995084530000000" remote="130995084530000000" Dst="1" />
+<file name="jquery.scrollabletab.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="130997819610000000" remote="130997819610000000" Dst="1" />
+<file name="jquery.serializejson.js" server="upshot.calvin.edu//usr/local/apache/htdocs/academic/engr/2015-16-team16/" local="131012360950000000" remote="131012360950000000" Dst="1" />
 </dwsync>

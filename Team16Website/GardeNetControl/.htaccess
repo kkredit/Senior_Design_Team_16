@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "Admin Access"
+AuthUserFile /usr/local/apache/htdocs/academic/engr/2015-16-team16/GardeNetControl/.htpasswd
+Require valid-user
