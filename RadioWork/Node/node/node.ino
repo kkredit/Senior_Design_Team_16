@@ -69,6 +69,7 @@ bool changedPulseFlag = false; // interrupt is called once a millisecond, looks 
 // other
 uint32_t displayTimer = 0;
 volatile bool hadButtonPress = false;
+volatile bool getNodeStatusFlag = false;
 int8_t valveState = 0;
 uint8_t myStatus = 0;
 uint8_t statusCounter = 0;
@@ -95,16 +96,24 @@ void handleButton(){
 /*
  * Checks mesh connection, prints status
  */
-void printStatus(){
+void getNodeStatusISR(){
+  getNodeStatusFlag = true;
+}
+
+void getNodeStatus(){
+  // disable interrupts
+  //noInterrupts();
+  
   // print number of times executed
   Serial.print('\n'); Serial.println(statusCounter++);
 
   // check mesh connection and print status
   if(!mesh.checkConnection()){  //TODO program freezes everytime this check fails
     // if unconnected, try to reconnect
-    Serial.println("Not connected... renewing address");
+    Serial.println("Not connected, trying to reconnect...");
     setLEDR(DISCONNECTED);
-    if(mesh.renewAddress(RENEWAL_TIMEOUT) == -1){
+    //delay(2000);
+    if(!mesh.renewAddress(RENEWAL_TIMEOUT)){
       setValve(VALVE_1, false);
       setValve(VALVE_2, false);
       setValve(VALVE_3, false);
@@ -127,7 +136,11 @@ void printStatus(){
   // print address DOESN'T WORK
   //Serial.print("My address: ");
   //Serial.println(mesh.getAddress(readMyID));
+
+  // re-enable interrupts
+  //interrupts();
 }
+
 
 /*
  * A function to do a mesh.write with automatic error handling
@@ -138,17 +151,21 @@ void printStatus(){
  * @return bool: true if send success, false if send fail
  */
 bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t datasize, uint8_t timesToTry){
+  // disable interrupts in this function
+  noInterrupts();
+  
   // perform write
   if (!mesh.write(destination, payload, header, datasize)) {
     // if a write fails, check connectivity to the mesh network
     Serial.print(F("Send fail... "));
     if (!mesh.checkConnection()){
       //refresh the network address
-      Serial.println(F("renewing Address... "));
+      Serial.println(F("renewing address... "));
       if (!mesh.renewAddress(RENEWAL_TIMEOUT)){
-        // if failed, connection is downr
+        // if failed, connection is down
         Serial.println(F("MESH CONNECTION DOWN"));
         setLEDR(DISCONNECTED);
+        interrupts();
         return false;
       }
       else{
@@ -163,6 +180,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
         else{
           // out of tries; send failed
           Serial.println(F("reconnected, but out of send tries: SEND FAIL"));
+          interrupts();
           return false;
         }        
       }
@@ -177,6 +195,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
       else{
         // out of tries; send failed
         Serial.println(F("out of send tries: SEND FAIL"));
+        interrupts();
         return false;
       }
     }    
@@ -186,6 +205,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     // write succeeded
     Serial.print(F("Send of type ")); Serial.print(header); Serial.println(F(" success"));
     //Serial.println(*payload); // cannot dereference void*, and do not know type...
+    interrupts();
     return true;
   }
 }
@@ -280,7 +300,6 @@ void readConnections(){
   pinMode(VALVE_2, INPUT_PULLUP);
   pinMode(VALVE_3, INPUT_PULLUP);
   pinMode(VALVE_4, INPUT_PULLUP);
-  delay(50);
   
   connections[0] = !digitalRead(VALVE_1);
   connections[1] = !digitalRead(VALVE_2);
@@ -299,7 +318,7 @@ void readConnections(){
   if(!connections[3]) digitalWrite(VALVE_4, LOW);
 
   // flow meters second: read if connected (LOW=conn, HIGH=disc)
-  connections[4] = !digitalRead(FRATE);
+  connections[4] = digitalRead(FRATE);
 }
 
 
@@ -317,7 +336,7 @@ void setLEDR(uint8_t setTo){
     break;
   case TURN_ON_SEQUENCE:
     analogWrite(LEDR, LEDR_BRIGHTNESS);
-    delay(500);
+    delay(250);
     digitalWrite(LEDR, LOW);
     delay(250);
     analogWrite(LEDR, LEDR_BRIGHTNESS);
@@ -362,11 +381,11 @@ void setup(){
   pinMode(IDPIN_1, INPUT_PULLUP);
   pinMode(IDPIN_2, INPUT_PULLUP);
   pinMode(IDPIN_3, INPUT_PULLUP);
-  //pinMode(IDPIN_4, INPUT_PULLUP);  
+  //pinMode(IDPIN_4, INPUT_PULLUP);
   //pinMode(IDPIN_5, INPUT_PULLUP);
 
   // init flow sensors
-  pinMode(FRATE, INPUT_PULLUP);
+  pinMode(FRATE, INPUT);
   lastflowpinstate = digitalRead(FRATE);
   useInterrupt(true);
 
@@ -379,7 +398,7 @@ void setup(){
   Serial.print("Valve 2: "); connections[1] ? Serial.println("CONNECTED") : Serial.println("disconnected");
   Serial.print("Valve 3: "); connections[2] ? Serial.println("CONNECTED") : Serial.println("disconnected");
   Serial.print("Valve 4: "); connections[3] ? Serial.println("CONNECTED") : Serial.println("disconnected");
-  Serial.print("FRate:   "); connections[4] ? Serial.println("CONNECTED") : Serial.println("disconnected\n");
+  Serial.print("FRate:   "); connections[4] ? Serial.println("CONNECTED") : Serial.println("disconnected");
 
   // close valves
   setValve(VALVE_1, false);
@@ -396,7 +415,7 @@ void setup(){
   while(!success) {
     uint8_t attempt;
     for(attempt=1; attempt<=CONNECTION_TRIES; attempt++){
-      Serial.print(F("Connecting to the mesh (attempt ")); Serial.print(attempt); Serial.print(")... ");
+      Serial.print(F("\nConnecting to the mesh (attempt ")); Serial.print(attempt); Serial.print(")... ");
       success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
       if(success){
         Serial.println("CONNECTED");
@@ -418,7 +437,7 @@ void setup(){
 
   // init timer for regular system checks
   Timer1.initialize(TIMER1_PERIOD);
-  Timer1.attachInterrupt(printStatus);
+  Timer1.attachInterrupt(getNodeStatusISR);
 
   // attach interrupt to button
   attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
@@ -432,6 +451,12 @@ void loop() {
 
   // refresh the mesh
   mesh.update();
+
+  // update node status if necessary
+  if(getNodeStatusFlag){
+    getNodeStatus();
+    getNodeStatusFlag = false;
+  }
 
   // handle button presses--send 'r' type message
   // NOT FINAL CODE
@@ -516,9 +541,13 @@ void loop() {
         break;
       default:
         break;
-      }
-      
+      }      
       break;
+      
+    case FORCE_RESET:
+      hardReset();
+      break;
+      
     default:
       break;
     }

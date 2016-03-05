@@ -10,10 +10,10 @@
 #define MASTER_ADDRESS      0             // Address (nodeID) of the master
 #define COMM_CHANNEL        12            // Channel to use for communication
 #define DATA_RATE           RF24_250KBPS  // RF24 mesh communication data rate
-#define CONNECT_TIMEOUT     20000         // time in ms before mesh.begin() times out
+#define CONNECT_TIMEOUT     15000         // time in ms before mesh.begin() times out
 #define DEFAULT_SEND_TRIES  5             // number of tries to send a message if send fails but are connected  
 #define RETRY_PERIOD        1000          // number of ms to wait before retrying to send a message
-#define RENEWAL_TIMEOUT     20000         // time in ms before mesh.renewAddress() times out
+#define RENEWAL_TIMEOUT     15000         // time in ms before mesh.renewAddress() times out
 #define CONNECTION_TRIES    5             // number of tries to connect before waiting going to sleep
 #define DISCONNECTED_SLEEP  (15*60000)    // (15 minutes) -- time to wait before trying to connect again
 
@@ -25,6 +25,7 @@
 #define GET_VALVE_P         'v'
 #define GET_FLOW_RATE_P     'r'
 #define GET_NODE_STATUS_P   'n'
+#define FORCE_RESET         'F'
 // nodes to master
 #define SEND_VALVE_H        'v'
 #define SEND_FLOW_RATE_H    'r'
@@ -32,7 +33,7 @@
 
 
 // LEDR settings
-#define LEDR_BRIGHTNESS       200     // 0-255; brightness of LEDR_BRIGHTNESS
+#define LEDR_BRIGHTNESS       255     // 0-255; brightness of LEDR_BRIGHTNESS
 #define LEDR_OFF              0       // LEDR light pattern
 #define LEDR_ON               1       // LEDR light pattern
 #define TURN_ON_SEQUENCE      2       // LEDR light pattern
