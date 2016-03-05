@@ -7,7 +7,7 @@
  */
  
 // mesh settings
-#define MASTER_ADDRESS      0             // Address (nodeID) of the master
+#define MASTER_ADDRESS      0             // Address (and nodeID) of the master
 #define COMM_CHANNEL        12            // Channel to use for communication
 #define DATA_RATE           RF24_250KBPS  // RF24 mesh communication data rate
 #define CONNECT_TIMEOUT     15000         // time in ms before mesh.begin() times out
@@ -18,18 +18,26 @@
 #define DISCONNECTED_SLEEP  (15*60000)    // (15 minutes) -- time to wait before trying to connect again
 
 
-// protocol settings -- _H stands for message Headers, _P stands for message Payloads
+// communication protocol settings -- _H stands for message Headers, _P stands for message Payloads
 // master to nodes
 #define SET_VALVE_H         'V'
 #define INFO_REQUEST_H      'R'
 #define GET_VALVE_P         'v'
 #define GET_FLOW_RATE_P     'r'
 #define GET_NODE_STATUS_P   'n'
-#define FORCE_RESET         'F'
+#define FORCE_RESET_H       'F'
 // nodes to master
 #define SEND_VALVE_H        'v'
 #define SEND_FLOW_RATE_H    'r'
 #define SEND_NODE_STATUS_H  'n'
+
+
+// node states
+#define NODE_OK                 0
+#define NODE_DISCONNECTED       1
+#define NODE_VALVE_ERROR        2
+#define NODE_LOW_BATTERY        3
+#define NODE_IS_MASTER          4
 
 
 // LEDR settings

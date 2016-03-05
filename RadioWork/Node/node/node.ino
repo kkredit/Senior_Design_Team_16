@@ -71,7 +71,7 @@ uint32_t displayTimer = 0;
 volatile bool hadButtonPress = false;
 volatile bool getNodeStatusFlag = false;
 int8_t valveState = 0;
-uint8_t myStatus = 0;
+uint8_t myStatus = NODE_OK;
 uint8_t statusCounter = 0;
 bool connections[5] = {0, 0, 0, 0, 0};
 
@@ -130,12 +130,9 @@ void getNodeStatus(){
     setLEDR(LEDR_OFF);
   }
 
-  // print node ID
-  Serial.print("My ID:      ");
-  Serial.println(mesh.getNodeID());
-  // print address DOESN'T WORK
-  //Serial.print("My address: ");
-  //Serial.println(mesh.getAddress(readMyID));
+  // print node ID and address
+  Serial.print("My ID:      "); Serial.println(mesh.getNodeID());
+  Serial.print("My address: "); Serial.println(mesh.getAddress(readMyID()));
 
   // re-enable interrupts
   //interrupts();
@@ -398,7 +395,7 @@ void setup(){
   Serial.print("Valve 2: "); connections[1] ? Serial.println("CONNECTED") : Serial.println("disconnected");
   Serial.print("Valve 3: "); connections[2] ? Serial.println("CONNECTED") : Serial.println("disconnected");
   Serial.print("Valve 4: "); connections[3] ? Serial.println("CONNECTED") : Serial.println("disconnected");
-  Serial.print("FRate:   "); connections[4] ? Serial.println("CONNECTED") : Serial.println("disconnected");
+  Serial.print("FRate:   "); connections[4] ? Serial.println("CONNECTED\n") : Serial.println("disconnected\n");
 
   // close valves
   setValve(VALVE_1, false);
@@ -412,10 +409,10 @@ void setup(){
 
   // while unconnected, try CONNECTION_TRIES (5) times consecutively every DISCONNECTED_SLEEP (15) minutes indefinitely
   bool success = false;
-  while(!success) {
+  while(!success){
     uint8_t attempt;
     for(attempt=1; attempt<=CONNECTION_TRIES; attempt++){
-      Serial.print(F("\nConnecting to the mesh (attempt ")); Serial.print(attempt); Serial.print(")... ");
+      Serial.print(F("Connecting to the mesh (attempt ")); Serial.print(attempt); Serial.print(")... ");
       success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
       if(success){
         Serial.println("CONNECTED");
@@ -544,7 +541,7 @@ void loop() {
       }      
       break;
       
-    case FORCE_RESET:
+    case FORCE_RESET_H:
       hardReset();
       break;
       
