@@ -19,11 +19,7 @@ SOCKET_LIST = []
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host = socket.gethostname()
-<<<<<<< HEAD
 port = 5530
-=======
-port = 5528
->>>>>>> 3b406e046e963e3e2a79f1248b0dc30e71e10117
 print("The server hostname is: " + host)
 
 server_socket.bind(('', port))
@@ -42,11 +38,8 @@ while True:
 			SOCKET_LIST.append(client_sock)
 			print("Client (%s, %s) connected" % addr)
 		else:
-<<<<<<< HEAD
 			print("Connection Lost")
 			client_sock.close()
-	x = 1
-=======
 			try:
 				data = sock.recv(RECV_BUFFER)
 				if data:
@@ -90,5 +83,3 @@ while True:
 	# 		client_sock.close()
 	# x = 1
 
-
->>>>>>> 3b406e046e963e3e2a79f1248b0dc30e71e10117

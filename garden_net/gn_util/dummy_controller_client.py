@@ -2,12 +2,12 @@ import socket
 
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
-port = 5526
+port = 5530
 print("My local hostname: " + host)
 
 
 try:
-	soc.connect((host, port))
+	soc.connect(('gardenet.ddns.net', port))
 	#soc = socket.create_connection(('153.106.112.199', port))
 	#socket.create_connection((host, port))
 except:
