@@ -8,7 +8,7 @@ interface = Interface()
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host = socket.gethostname()
-port = 5510
+port = 80
 
 soc.bind((host, port))
 

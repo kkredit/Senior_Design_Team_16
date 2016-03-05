@@ -3,9 +3,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_, exists
 
 
-from garden_net.database.base import Base, Meta
-from garden_net.gn_util.zone import Zone
-from garden_net.gn_util.event import Event
+from base import Base, Meta
+from zone import Zone
+from event import Event
 
 
 class Database:

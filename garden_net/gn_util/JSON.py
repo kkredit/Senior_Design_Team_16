@@ -1,8 +1,8 @@
 import json
 
-from garden_net.gn_util.event import Event
-from garden_net.gn_util.zone import Zone
-from garden_net.database.database import Database
+from event import Event
+from zone import Zone
+from database import Database
 
 class JSON_Interface:
 	def __init__(self):
