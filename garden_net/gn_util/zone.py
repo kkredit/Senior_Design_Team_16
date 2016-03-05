@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, Sequence
 
-from garden_net.database.base import Base
+from base import Base
 
 class Zone(Base):
 	__tablename__ = 'zones'

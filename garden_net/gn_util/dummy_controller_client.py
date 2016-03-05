@@ -2,13 +2,13 @@ import socket
 
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
-port = 5522
+port = 5526
 print("My local hostname: " + host)
 
 
 try:
-	#soc.connect((host, port))
-	soc = socket.create_connection(('153.106.112.199', port))
+	soc.connect((host, port))
+	#soc = socket.create_connection(('153.106.112.199', port))
 	#socket.create_connection((host, port))
 except:
 	print("Unable to connect")
@@ -23,12 +23,15 @@ while x == 1:
 	#print(msg)
 	new = msg.encode('utf-8')
 	soc.send(new)
-	data = soc.recv(8192)
-	if data:
-		print(data.decode())
-	else:
-		print("Connection with server closed")
-		soc.close()
-		x = 0
+	try:
+		data = soc.recv(8192,)
+		if data:
+			print(data.decode())
+		else:
+			print("Connection with server closed")
+			soc.close()
+			x = 0
+	except:
+		continue
 
 

@@ -1,4 +1,4 @@
-from garden_net.database.base import Base
+from base import Base
 
 from sqlalchemy import Column, Float, String, Integer, ForeignKey
 
