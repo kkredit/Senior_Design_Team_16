@@ -30,7 +30,10 @@ SOCKET_LIST.append(server_socket)
 x = 1
 
 while True:
-	ready_to_read, ready_to_write, in_error = select.select(SOCKET_LIST, [], [], 0)
+	try:
+		ready_to_read, ready_to_write, in_error = select.select(SOCKET_LIST, [], [], 0)
+	except:
+		continue
 
 	for sock in ready_to_read:
 		if sock == server_socket:
