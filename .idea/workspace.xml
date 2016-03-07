@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="bc106674-867e-4d05-bad2-d0592623c4cb" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/garden_net/gn_util/controller_interface.py" afterPath="$PROJECT_DIR$/garden_net/gn_util/controller_interface.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/garden_net/gn_util/dummy_controller_client.py" afterPath="$PROJECT_DIR$/garden_net/gn_util/dummy_controller_client.py" />
     </list>
     <ignored path="SeniorDesign.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -28,10 +27,10 @@
         <entry file="file://$PROJECT_DIR$/garden_net/gn_util/controller_interface.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.25462964">
-              <caret line="22" column="61" selection-start-line="22" selection-start-column="61" selection-end-line="22" selection-end-column="61" />
+              <caret line="22" column="66" selection-start-line="22" selection-start-column="66" selection-end-line="22" selection-end-column="66" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
-                <marker date="1457365750000" expanded="true" signature="962:1016" placeholder="..." />
+                <marker date="1457365819000" expanded="true" signature="967:1021" placeholder="..." />
               </folding>
             </state>
           </provider>
@@ -824,10 +823,10 @@
     <entry file="file://$PROJECT_DIR$/garden_net/gn_util/controller_interface.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.25462964">
-          <caret line="22" column="61" selection-start-line="22" selection-start-column="61" selection-end-line="22" selection-end-column="61" />
+          <caret line="22" column="66" selection-start-line="22" selection-start-column="66" selection-end-line="22" selection-end-column="66" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <marker date="1457365750000" expanded="true" signature="962:1016" placeholder="..." />
+            <marker date="1457365819000" expanded="true" signature="967:1021" placeholder="..." />
           </folding>
         </state>
       </provider>
