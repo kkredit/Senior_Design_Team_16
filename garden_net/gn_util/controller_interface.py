@@ -41,8 +41,8 @@ while True:
 			SOCKET_LIST.append(client_sock)
 			print("Client (%s, %s) connected" % addr)
 		else:
-			print("Connection Lost")
-			client_sock.close()
+			# print("Connection Lost")
+			# client_sock.close()
 			try:
 				data = sock.recv(RECV_BUFFER)
 				if data:
