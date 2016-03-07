@@ -7,8 +7,8 @@ print("My local hostname: " + host)
 
 
 try:
-	soc = socket.create_connection((host, port))
-	#soc = socket.connect(('gardenet.ddns.net', port))
+	#soc = socket.create_connection((host, port))
+	soc = socket.connect(('gardenet.ddns.net', port))
 	#soc = socket.create_connection(('153.106.112.199', port))
 	#socket.create_connection((host, port))
 except:
