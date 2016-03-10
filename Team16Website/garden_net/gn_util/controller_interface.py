@@ -42,6 +42,8 @@ while True:
 			client_sock, addr = server_socket.accept()
 			SOCKET_LIST.append(client_sock)
 			print("Client (%s, %s) connected" % addr)
+			send_msg = "Welcome to the GardeNet Controller Server"
+			client_sock(send_msg.encode('utf-8'))
 		else:
 			# print("Connection Lost")
 			# client_sock.close()
