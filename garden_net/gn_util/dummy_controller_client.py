@@ -7,8 +7,8 @@ print("My local hostname: " + host)
 
 
 try:
-	#soc = socket.create_connection((host, port))
-	soc = socket.create_connection(('gardenet.ddns.net', port))
+	soc = socket.create_connection((host, port))
+	#soc = socket.create_connection(('gardenet.ddns.net', port))
 	#soc = socket.create_connection(('153.106.112.199', port))
 	#socket.create_connection((host, port))
 except:
@@ -25,7 +25,7 @@ while x == 1:
 	new = msg.encode('utf-8')
 	soc.send(new)
 	try:
-		data = soc.recv(8192,)
+		data = soc.recv(8192)
 		if data:
 			print(data.decode())
 		else:

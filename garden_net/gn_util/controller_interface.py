@@ -1,4 +1,3 @@
-import socket
 import select
 import socket
 
@@ -27,6 +26,9 @@ server_socket.listen(5)
 
 SOCKET_LIST.append(server_socket)
 
+local_ip = socket.gethostbyname(socket.gethostname())
+print(local_ip)
+
 x = 1
 
 while True:
@@ -48,10 +50,11 @@ while True:
 				if data:
 					msg = "Server Response: " + data.decode('utf-8')
 					print("Received: " + data.decode('utf-8'))
-					temp_host = socket.gethostname()
+					temp_host, temp_port = sock.getsockname()
 					print(temp_host)
-					# if sock.gethostname() == host:
-					# 	print("Socket is on the same host")
+					if temp_host == local_ip:
+						print("Socket is on the same host")
+						sock.send(msg.encode('utf-8'))
 					if data.decode('utf-8') == 'quit':
 						print("Closing connection with: " + str(sock))
 						sock.close()
