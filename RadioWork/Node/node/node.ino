@@ -27,7 +27,7 @@
 // pins
 #define BUTTON    2
 #define RF24_IRQ  3 // currently unused
-#define RESETPIN  4
+#define RESET_PIN 4
 #define VALVE_1   5
 #define VALVE_2   6
 #define VALVE_3   7
@@ -39,12 +39,12 @@
 // RF24_SCK         13  //predifined
 #define FRATE     A0
 #define LEDR      A1
-#define IDPIN_0   A2
-#define IDPIN_1   A3
-#define IDPIN_2   A4
-#define IDPIN_3   A5
-//#define IDPIN_4   A6  //note: analog only
-//#define IDPIN_5   A7  //note: analog only
+#define RESET_GND A2
+// UNUSED         A3  // UNUSED
+#define IDPIN_0   A4
+#define IDPIN_1   A5
+#define IDPIN_2   A6  //note: analog input only
+#define IDPIN_3   A7  //note: analog input only
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -82,23 +82,23 @@ bool connections[5] = {0, 0, 0, 0, 0};
  * Triggered by button press on pin BUTTON
  * Sets flag, prints to serial port, and exits
  */
-void handleButton(){
-    if(statusCounter > 2){   // gets rid of startup false positive by ignoring for 2 seconds after startup
-      hadButtonPress = true; 
-      Serial.println(F("Detected buttonpress"));
-    }
+void handleButtonISR(){
+  if(statusCounter > 1){   // gets rid of startup false positive by ignoring for 2 seconds after startup
+    hadButtonPress = true; 
+    //Serial.println(F("Detected buttonpress"));
+  }
 }
 
-
-//////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////// Helper Functions//////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
 /*
- * Checks mesh connection, prints status
+ * Checks mesh connection
  */
 void getNodeStatusISR(){
   getNodeStatusFlag = true;
 }
+
+//////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////// Helper Functions//////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
 void getNodeStatus(){
   // disable interrupts
@@ -274,18 +274,10 @@ int8_t setValve(uint8_t whichValve, bool setTo){
  */
 uint8_t readMyID(){
   uint8_t id = (!digitalRead(IDPIN_0))*1+(!digitalRead(IDPIN_1))*2
-              +(!digitalRead(IDPIN_2))*4+(!analogRead(IDPIN_3))*8;
-              //+(!(digitalRead(IDPIN_4)>300))*16+(!(digitalRead(IDPIN_5)>300))*32;
+              +(!(analogRead(IDPIN_2)>300))*4+(!(analogRead(IDPIN_3)>300))*8;
+              //+(!(analogRead(IDPIN_4)>300))*16+(!(analogRead(IDPIN_5)>300))*32;
   if(id==0) id = 16;
   return id;
-}
-
-/*
- * Resets the arduino by pressing its own "reset" button
- */
-void hardReset(){
-  pinMode(RESETPIN, OUTPUT);
-  analogWrite(RESETPIN, 0); // is analog pin
 }
 
 /*
@@ -357,10 +349,33 @@ void setLEDR(uint8_t setTo){
   }
 }
 
+/*
+ * Resets the arduino by pressing its own "reset" button
+ */
+void hardReset(){
+  pinMode(RESET_PIN, OUTPUT);
+  digitalWrite(RESET_PIN, HIGH);
+  delay(1000);
+  // arduino resets here
+}
+
+void refreshReset(){
+  pinMode(RESET_PIN, OUTPUT);  
+  digitalWrite(RESET_PIN, LOW);
+  delay(50); // 95% charged: 3*tau = 3*RC = 3*200*47*10^-6 = 28 ms
+  //digitalWrite(RESETPIN, LOW); // to turn off internal pullup
+  pinMode(RESET_PIN, INPUT);
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Setup       //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 void setup(){
+  // set RESET_PIN and RESET_GND to low immediately to prevent reset cycle
+  digitalWrite(RESET_PIN, LOW);
+  pinMode(RESET_GND, OUTPUT);
+  digitalWrite(RESET_GND, LOW);
+  //delay(50); // 95% charged: 3*tau = 3*RC = 3*200*47*10^-6 = 28 ms
   
   // begin serial communication
   Serial.begin(BAUD_RATE);
@@ -368,7 +383,6 @@ void setup(){
   // init LED and Button
   pinMode(LEDR, OUTPUT);
   pinMode(BUTTON, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
 
   // "power-on" light sequence
   setLEDR(TURN_ON_SEQUENCE);
@@ -437,7 +451,11 @@ void setup(){
   Timer1.attachInterrupt(getNodeStatusISR);
 
   // attach interrupt to button
-  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButtonISR, FALLING);
+
+  // start hardware resetting ability (capacitor starts discharging)
+  //digitalWrite(RESETPIN, LOW); // to turn off internal pullup
+  pinMode(RESETPIN, INPUT);
 }
 
 
@@ -445,6 +463,8 @@ void setup(){
 ///////////////////////////////     Loop        //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 void loop() {
+  // refresh the reset
+  refreshReset();
 
   // refresh the mesh
   mesh.update();
@@ -459,7 +479,8 @@ void loop() {
   // NOT FINAL CODE
   if(hadButtonPress){
     // tell current flow rate
-    Serial.println("Measuring the current flowrate...");
+    Serial.println(F("Detected buttonpress"));
+    Serial.println(F("Measuring the current flowrate..."));
     float beginLiters, flowrate;//endLiters, flowrate;
     beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
     delay(RATE_MEASURING_PERIOD);                                        // wait 5 seconds
@@ -470,6 +491,7 @@ void loop() {
     // reset flag
     hadButtonPress = false;
 
+    // for test
     hardReset();
   }
 
