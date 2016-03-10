@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bc106674-867e-4d05-bad2-d0592623c4cb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/new_website_interface.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="SeniorDesign.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -43,14 +44,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="controller_interface.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="controller_interface.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6481481">
-              <caret line="52" column="72" selection-start-line="52" selection-start-column="72" selection-end-line="52" selection-end-column="72" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="39" column="30" selection-start-line="39" selection-start-column="30" selection-end-line="39" selection-end-column="30" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="new_website_interface.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/new_website_interface.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.06944445">
+              <caret line="3" column="21" selection-start-line="3" selection-start-column="21" selection-end-line="3" selection-end-column="21" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -96,6 +107,7 @@
         <option value="$PROJECT_DIR$/garden_net/gn_util/dummy_controller_client.py" />
         <option value="$PROJECT_DIR$/garden_net/gn_util/controller_interface.py" />
         <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py" />
+        <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/new_website_interface.py" />
       </list>
     </option>
   </component>
@@ -532,11 +544,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6481481">
-          <caret line="52" column="72" selection-start-line="52" selection-start-column="72" selection-end-line="52" selection-end-column="72" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="39" column="30" selection-start-line="39" selection-start-column="30" selection-end-line="39" selection-end-column="30" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/new_website_interface.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.06944445">
+          <caret line="3" column="21" selection-start-line="3" selection-start-column="21" selection-end-line="3" selection-end-column="21" />
+          <folding />
         </state>
       </provider>
     </entry>
