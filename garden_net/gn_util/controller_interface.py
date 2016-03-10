@@ -18,7 +18,7 @@ SOCKET_LIST = []
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host = socket.gethostname()
-port = 5531
+port = 5532
 print("The server hostname is: " + host + " on port: " + str(port))
 
 server_socket.bind(('', port))
