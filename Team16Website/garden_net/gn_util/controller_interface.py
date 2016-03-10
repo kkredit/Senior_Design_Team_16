@@ -50,7 +50,7 @@ while True:
 				if data:
 					msg = "Server Response: " + data.decode('utf-8')
 					temp_host, temp_port = sock.getsockname()
-					print("Received: " + data.decode('utf-8') + " the socket's host is: " + temp_host)
+					print("Received: " + data.decode('utf-8') + " , and the socket's host is: " + temp_host)
 					if temp_host == local_ip:
 						print("Socket is on the same host")
 						sock.send(msg.encode('utf-8'))
