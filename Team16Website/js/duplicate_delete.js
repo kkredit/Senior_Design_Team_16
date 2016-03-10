@@ -56,14 +56,33 @@ function deleteTabs()
 
 
 }
-
 function submit(){
-	var myForm = $('#myForm.active').serializeJSON();
+	var myForm = $("#myForm").serializeJSON();
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
 
 	$.ajax({
-		url: "savejson.php",
+		url: "../savejson.php",
+		cache: false,
+		contentType: "application/json",
+		type: 'POST',
+		data:{ myForm: myForm},
+		success: function(data) {
+			alert('The Data is Posted.');
+		}
+
+	});
+
+}
+
+
+function submit1(){
+	var myForm = $("div.active :input").serializeJSON();
+	var jsonString = JSON.stringify(myForm);
+	console.log(jsonString);
+
+	$.ajax({
+		url: "../savejson.php",
 		cache: false,
 		contentType: "application/json",
 		type: 'POST',
@@ -93,8 +112,22 @@ function addEvent1(){
 function switchCheck(){
 
 	var checkbox = $('#mySwitch').prop('checked');
+	var string = JSON.stringify(checkbox);
 	console.log(checkbox);	
-	alert('checkbox value: '+ checkbox);
+	//alert('checkbox value: '+ checkbox);
+	$.ajax({
+		type: 'POST',
+		url: "../saveJSON.php",
+		dataType: "text",
+        data: {checks: string}, //passing some input here
+        success: function(response){
+        	output = response;
+        	alert(output);
+        }
+    }).done(function(data){
+    	console.log(data);
+    	alert(data);
+    });
 
-	
+
 }

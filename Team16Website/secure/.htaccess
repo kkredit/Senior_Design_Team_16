@@ -1,4 +1,0 @@
-AuthType Basic
-AuthName "Admin Access"
-AuthUserFile C:\xampp\htdocs\registration_tutorial\.htpasswd
-Require valid-user
