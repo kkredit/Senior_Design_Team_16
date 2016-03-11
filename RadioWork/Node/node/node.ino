@@ -371,10 +371,9 @@ void refreshReset(){
 ///////////////////////////////     Setup       //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 void setup(){
-  // set RESET_PIN and RESET_GND to low immediately to prevent reset cycle
+  // set RESET_PIN to low immediately to prevent reset cycle
+  pinMode(RESET_PIN, OUTPUT);
   digitalWrite(RESET_PIN, LOW);
-  pinMode(RESET_GND, OUTPUT);
-  digitalWrite(RESET_GND, LOW);
   //delay(50); // 95% charged: 3*tau = 3*RC = 3*200*47*10^-6 = 28 ms
   
   // begin serial communication
@@ -455,7 +454,11 @@ void setup(){
 
   // start hardware resetting ability (capacitor starts discharging)
   //digitalWrite(RESETPIN, LOW); // to turn off internal pullup
-  pinMode(RESETPIN, INPUT);
+  delay(50);  // allow capacitor to discharge if was previously charged before enabling autoreset again
+              //  95% = 3*tau = 3*RC = 3*200*47*10^-6 = 28ms
+  pinMode(RESET_PIN, INPUT);  
+  pinMode(RESET_GND, OUTPUT);
+  digitalWrite(RESET_GND, LOW);
 }
 
 
