@@ -455,7 +455,8 @@ void setup(){
   // start hardware resetting ability (capacitor starts discharging)
   //digitalWrite(RESETPIN, LOW); // to turn off internal pullup
   delay(50);  // allow capacitor to discharge if was previously charged before enabling autoreset again
-              //  95% = 3*tau = 3*RC = 3*200*47*10^-6 = 28ms
+              // 95% = 3*tau = 3*RC = 3*200*100*10^-6 = 60ms -- but never gets fully charged, and has
+              //    been dicharging during previous setup, so 50ms is sufficient
   pinMode(RESET_PIN, INPUT);  
   pinMode(RESET_GND, OUTPUT);
   digitalWrite(RESET_GND, LOW);
