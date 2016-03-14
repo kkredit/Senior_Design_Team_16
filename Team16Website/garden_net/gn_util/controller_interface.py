@@ -40,10 +40,10 @@ while True:
 	for sock in ready_to_read:
 		if sock == server_socket:
 			client_sock, addr = server_socket.accept()
-			SOCKET_LIST.append(client_sock)
-			print("Client (%s, %s) connected" % addr)
 			send_msg = "Welcome to the GardeNet Controller Server"
 			client_sock.send(send_msg.encode('utf-8'))
+			SOCKET_LIST.append(client_sock)
+			print("Client (%s, %s) connected" % addr)
 		else:
 			# print("Connection Lost")
 			# client_sock.close()
