@@ -47,6 +47,7 @@
 #define TURN_ON_SEQUENCE      2       // LEDR light pattern
 #define CONNECTED_SEQUENCE    3       // LEDR light pattern
 #define DISCONNECTED          4       // LEDR light pattern
+#define SPECIAL_BOOT          5       // LEDR light pattern
 
 
 // other settings

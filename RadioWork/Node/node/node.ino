@@ -344,6 +344,15 @@ void setLEDR(uint8_t setTo){
   case DISCONNECTED:
     analogWrite(LEDR, LEDR_BRIGHTNESS);
     break;
+  case SPECIAL_BOOT:
+    int i;
+    for(i=0; i<4; i++){
+      analogWrite(LEDR, LEDR_BRIGHTNESS);
+      delay(100);
+      digitalWrite(LEDR, LOW);
+      delay(100);
+    }
+    break;
   default:
     break;
   }
@@ -382,6 +391,12 @@ void setup(){
   // init LED and Button
   pinMode(LEDR, OUTPUT);
   pinMode(BUTTON, INPUT_PULLUP);
+
+  // check if button is being pressed; if so, do special startup
+  if(digitalRead(BUTTON) == 0){
+    // do special stuff
+    setLEDR(SPECIAL_BOOT);
+  }
 
   // "power-on" light sequence
   setLEDR(TURN_ON_SEQUENCE);
