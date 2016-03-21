@@ -5,6 +5,7 @@ from interface import Interface
 
 interface = Interface()
 SOCKET_LIST = []
+ADDR_LIST = []
 RECV_BUFFER = 8192
 # soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # host = socket.gethostname()
@@ -51,8 +52,8 @@ while True:
 				data = sock.recv(RECV_BUFFER)
 				if data:
 					msg = "Server Response: " + data.decode('utf-8')
-					temp_host, temp_port = sock.getsockname()
-					print("Received: " + data.decode('utf-8') + " , and the socket's host is: " + temp_host)
+					temp_host = ""
+					print("Received: " + data.decode('utf-8') + " , and the socket's host is: " + str(socket.gethostname()))
 					if temp_host == local_ip:
 						print("Socket is on the same host")
 						sock.send(msg.encode('utf-8'))
@@ -65,28 +66,3 @@ while True:
 
 			except:
 				continue
-
-
-
-
-
-	# client_sock, addr = soc.accept()
-	# print("Client (%s, %s) connected" % addr)
-	#
-	# while x == 1:
-	# 	data = client_sock.recv(8192)
-	# 	if data:
-	# 		msg = "Server Response: " + data.decode('utf-8')
-	# 		print("Recieved: " + data.decode('utf-8'))
-	# 		if data.decode('utf-8') == 'quit':
-	# 			print("Closing connection with: " + str(addr))
-	# 			client_sock.close()
-	# 			x = 0
-	# 		else:
-	# 			client_sock.send(msg.encode('utf-8'))
-	# 		# interface.run("controller")
-	# 	else:
-	# 		print("Connection Lost")
-	# 		client_sock.close()
-	# x = 1
-
