@@ -77,7 +77,7 @@ while True:
 				data = sock.recv(RECV_BUFFER)
 				if data:
 					msg = "Server Response: " + data.decode('utf-8')
-					print("Received: " + data.decode('utf-8') + " , and the socket's host is: " + str(temp_host))
+					print("Received: " + data.decode('utf-8'))
 					if data.decode('utf-8') == 'quit':
 						print("Closing connection with: " + str(sock))
 						sock.close()
