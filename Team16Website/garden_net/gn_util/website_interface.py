@@ -13,5 +13,6 @@ try:
 	interface.run('website')
 except:
 	print("ERROR")
+	print("The data that was received was: ", str(data))
 
 
