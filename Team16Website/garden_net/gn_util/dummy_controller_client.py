@@ -21,26 +21,15 @@ print('Type quit to close the connection with the server')
 i = 0
 x = 1
 while x == 1:
-	if i == 0:
-		try:
-			welcome_message = soc.recv(8192)
-			i = 1
-		except:
-			continue
-	else:
-		msg = input("Client: ")
-		#print(msg)
-		new = msg.encode('utf-8')
-		soc.send(new)
-		try:
-			data = soc.recv(8192)
-			if data:
-				print(data.decode())
-			else:
-				print("Connection with server closed")
-				soc.close()
-				x = 0
-		except:
-			continue
+	try:
+		data = soc.recv(8192)
+		if data:
+			print(data.decode())
+		else:
+			print("Connection with server closed")
+			soc.close()
+			x = 0
+	except:
+		continue
 
 
