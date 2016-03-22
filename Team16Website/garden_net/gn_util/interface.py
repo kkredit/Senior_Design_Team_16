@@ -13,7 +13,7 @@ class Interface:
 		if connection == 'website':
 			soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			host = socket.gethostname()
-			port = 5539
+			port = 5540
 			print("My local hostname: " + host)
 			try:
 				#soc = socket.create_connection((host, port))
