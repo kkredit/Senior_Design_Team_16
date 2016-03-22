@@ -20,15 +20,13 @@ class Interface:
 				soc = socket.create_connection(('localhost', port))
 				#soc = socket.create_connection(('153.106.112.199', port))
 				#socket.create_connection((host, port))
+				print('Connected to the local host for IPC communication on port ', port, '.')
+				soc.close()
+				print('Socket was closed.')
 			except:
 				print("Unable to connect")
 				exit()
 
-				print('Connected to the local host for IPC communication on port ', port, '.')
-
-				soc.close()
-
-			print('Socket was closed.')
 		elif connection == 'controller':
 			print("Got a connection from the controller on port 5555")
 		else:

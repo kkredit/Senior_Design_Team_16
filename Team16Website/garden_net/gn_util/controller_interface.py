@@ -69,6 +69,7 @@ while True:
 			for line in f:
 				file_data += line
 			print(file_data)
+			f.close()
 			broadcast(file_data)
 		else:
 			# print("Connection Lost")
