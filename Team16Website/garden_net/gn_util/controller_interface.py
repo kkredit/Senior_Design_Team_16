@@ -3,10 +3,16 @@ import socket
 
 from interface import Interface
 
+def broadcast(message: str):
+	for s in SOCKET_LIST:
+		if s != server_socket and s != ipc_socket:
+			s.send(message)
+
 interface = Interface()
 SOCKET_LIST = []
 RECV_BUFFER = 8192
 ipc_file = "ipc_file.txt"
+file_data = ""
 # soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # host = socket.gethostname()
 # print(host)
@@ -63,8 +69,7 @@ while True:
 			for line in f:
 				file_data += line
 			print(file_data)
-			for s in SOCKET_LIST:
-				s.send(file_data.encode('utf-8'))
+			broadcast(file_data)
 		else:
 			# print("Connection Lost")
 			# client_sock.close()
