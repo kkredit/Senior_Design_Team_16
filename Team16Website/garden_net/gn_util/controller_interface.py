@@ -6,7 +6,7 @@ from interface import Interface
 def broadcast(message: str):
 	for s in SOCKET_LIST:
 		if s != server_socket and s != ipc_socket:
-			s.send(message)
+			s.send(message.encode('utf-8'))
 
 interface = Interface()
 SOCKET_LIST = []
