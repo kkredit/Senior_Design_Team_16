@@ -7,6 +7,7 @@ interface = Interface()
 try:
 	data = sys.argv[1]
 	if data:
+		print("PENIS")
 		f = open('ipc_file.txt', 'w')
 		f.write(data)
 		f.close()
