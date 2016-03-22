@@ -19,7 +19,7 @@
 #include "RF24Mesh.h"
 //#include "RF24Mesh_config.h"
 //#include <SPI.h>
-//#include <EEPROM.h>
+#include <EEPROM.h>
 #include <TimerOne.h>
 #include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\settings.h"
 //#include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\SharedFunctions.h"
@@ -40,11 +40,11 @@
 #define FRATE     A0
 #define LEDR      A1
 #define RESET_GND A2
-// UNUSED         A3  // UNUSED
-#define IDPIN_0   A4
-#define IDPIN_1   A5
-#define IDPIN_2   A6  //note: analog input only
-#define IDPIN_3   A7  //note: analog input only
+#define IDPIN_0   A3
+#define IDPIN_1   A4
+#define IDPIN_2   A5
+#define IDPIN_3   A6  //note: analog input only
+#define VIN_REF   A7  //note: analog input only
 
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -72,6 +72,7 @@ volatile bool hadButtonPress = false;
 volatile bool getNodeStatusFlag = false;
 int8_t valveState = 0;
 uint8_t myStatus = NODE_OK;
+uint16_t measuredVIN = 0;
 uint8_t statusCounter = 0;
 bool connections[5] = {0, 0, 0, 0, 0};
 
@@ -134,6 +135,36 @@ void getNodeStatus(){
   Serial.print("My ID:      "); Serial.println(mesh.getNodeID());
   Serial.print("My address: "); Serial.println(mesh.getAddress(readMyID()));
 
+  // check input voltage TODO will have to manage statuses better
+  if(analogRead(VIN_REF) > measuredVIN*1.1)
+    myStatus = NODE_HIGH_VOLTAGE;
+  else if (analogRead(VIN_REF) < measuredVIN*0.9)
+    myStatus = NODE_LOW_VOLTAGE;
+  else if(myStatus == NODE_HIGH_VOLTAGE || myStatus == NODE_LOW_VOLTAGE)
+    myStatus = NODE_OK;
+
+  // print current status
+  switch(myStatus){
+  case NODE_OK:
+    Serial.println("NODE_OK");
+    break;
+  case NODE_DISCONNECTED:
+    Serial.println("NODE_DISCONNECTED");
+    break;
+  case NODE_VALVE_ERROR:
+    Serial.println("NODE_VALVE_ERROR");
+    break;
+  case NODE_LOW_VOLTAGE:
+    Serial.println("NODE_LOW_VOLTAGE");
+    break;
+  case NODE_HIGH_VOLTAGE:
+    Serial.println("NODE_HIGH_VOLTAGE");
+    break;
+  default:
+    Serial.println("Unknown state");
+    break;
+  }
+  
   // re-enable interrupts
   //interrupts();
 }
@@ -394,9 +425,23 @@ void setup(){
 
   // check if button is being pressed; if so, do special startup
   if(digitalRead(BUTTON) == 0){
-    // do special stuff
     setLEDR(SPECIAL_BOOT);
+
+    // do special stuff
+    Serial.println("\n/////Special boot sequence//////");
+
+    // store VIN value in EEPROM
+    Serial.print("Reading voltage source: "); Serial.println(analogRead(VIN_REF));
+    measuredVIN = analogRead(VIN_REF);
+    EEPROM.write(VIN_EEPROM_ADDR, measuredVIN%256);
+    EEPROM.write(VIN_EEPROM_ADDR+1, measuredVIN>>8);
+
+    Serial.println("\n");
   }
+
+  // read measuredVIN from EEPROM
+  measuredVIN = EEPROM.read(VIN_EEPROM_ADDR) + EEPROM.read(VIN_EEPROM_ADDR+1)<<8;
+  Serial.println(measuredVIN);
 
   // "power-on" light sequence
   setLEDR(TURN_ON_SEQUENCE);
@@ -419,6 +464,13 @@ void setup(){
 
   // print ID and number and location of connected valves and flow meters
   Serial.print(F("\n/////////Booted//////////\nNodeID: ")); Serial.println(readMyID());
+  Serial.print(F("Voltage source: ")); Serial.print(analogRead(VIN_REF))*3*5/1024; Serial.print("V, ");
+  if(analogRead(VIN_REF) > measuredVIN*1.1)
+    Serial.println("HI VOLTAGE WARNING");
+  else if (analogRead(VIN_REF) < measuredVIN*0.9)
+    Serial.println("LOW VOLTAGE WARNING");
+  else
+    Serial.println("within expected range");
   Serial.print("Valve 1: "); connections[0] ? Serial.println("CONNECTED") : Serial.println("disconnected");
   Serial.print("Valve 2: "); connections[1] ? Serial.println("CONNECTED") : Serial.println("disconnected");
   Serial.print("Valve 3: "); connections[2] ? Serial.println("CONNECTED") : Serial.println("disconnected");

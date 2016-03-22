@@ -32,12 +32,13 @@
 #define SEND_NODE_STATUS_H  'n'
 
 
-// node states
+// node states -- apply equally to "node" proper and to master
 #define NODE_OK                 0
 #define NODE_DISCONNECTED       1
 #define NODE_VALVE_ERROR        2
-#define NODE_LOW_BATTERY        3
-#define NODE_IS_MASTER          4
+#define NODE_LOW_VOLTAGE        3
+#define NODE_HIGH_VOLTAGE       4
+#define NODE_IS_MASTER          5
 
 
 // LEDR settings
@@ -54,3 +55,4 @@
 #define BAUD_RATE             9600    // serial communication baud rate
 #define TIMER1_PERIOD  /*60*/ 60000000 // timer period in microseconds (1000000 = 1 sec)
 #define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data
+#define VIN_EEPROM_ADDR       0       // address of the input voltage reading in EEPROM
