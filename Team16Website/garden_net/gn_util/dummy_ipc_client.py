@@ -15,12 +15,8 @@ except:
 	print("Unable to connect")
 	exit()
 
-print('Connected to remote host. You can start sending messages')
-print('Type quit to close the connection with the server')
+print('Connected to the local host for IPC communication on port ', port, '.')
 
-#msg = input("Client: ")
-#print(msg)
-msg = "Ello Server!"
-new = msg.encode('utf-8')
-soc.send(new)
 soc.close()
+
+print('Socket was closed.')

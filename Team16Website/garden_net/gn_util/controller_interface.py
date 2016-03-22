@@ -5,7 +5,6 @@ from interface import Interface
 
 interface = Interface()
 SOCKET_LIST = []
-ADDR_LIST = []
 RECV_BUFFER = 8192
 ipc_file = "ipc_file.txt"
 # soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,10 +29,10 @@ SOCKET_LIST.append(server_socket)
 
 ipc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-port = 5538
-
-ipc_socket.bind(('localhost', port))
+ipc_port = 5538
+ipc_socket.bind(('localhost', ipc_port))
 ipc_socket.listen(5)
+print("The localhost port number for IPC communication is ", + ipc_port)
 
 SOCKET_LIST.append(ipc_socket)
 
@@ -51,8 +50,6 @@ while True:
 	for sock in ready_to_read:
 		if sock == server_socket:
 			client_sock, addr = server_socket.accept()
-			send_msg = "Welcome to the GardeNet Controller Server"
-			client_sock.send(send_msg.encode('utf-8'))
 			SOCKET_LIST.append(client_sock)
 			print("Client (%s, %s) connected" % addr)
 		elif sock == ipc_socket:
