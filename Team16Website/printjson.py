@@ -1,18 +1,19 @@
-import socket
-import json
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((socket.gethostname(), 80))
-s.listen(5)
+import sys, json
 
+# Load the data that PHP sent us
+try:
+    data = sys.argv[1]
+except:
+    print "ERROR"
+    sys.exit(1)
 
-while 1:
-	# try:
-	ns, na = s.accept()
-	data = ns.recv(8192)
-	# except:
-	# 	ns.close()
-	# 	s.close()
-	# 	break
+# Generate some data to send to PHP
+result = {'status': 'Yes!'}
 
-	data = json.loads(data)
-	print(data)
+# Send it to stdout (to PHP)
+if data == "true" :
+	print "The data came back true"
+elif data == "false":
+	print "The data came back false"
+else : 
+	print data

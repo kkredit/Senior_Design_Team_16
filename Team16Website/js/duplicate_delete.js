@@ -59,16 +59,16 @@ function deleteTabs()
 function submit(){
 	var myForm = $("#myForm").serializeJSON();
 	var jsonString = JSON.stringify(myForm);
-	console.log(jsonString);
+	//console.log(jsonString);
 
 	$.ajax({
 		url: "../savejson.php",
 		cache: false,
 		contentType: "application/json",
-		type: 'POST',
-		data:{ myForm: myForm},
+		type: 'GET',
+		data: ({items: jsonString}),
 		success: function(data) {
-			alert('The Data is Posted.');
+			alert(data);
 		}
 
 	});
@@ -77,18 +77,18 @@ function submit(){
 
 
 function submit1(){
-	var myForm = $("div.active :input").serializeJSON();
+	var myForm = $("div.active :input").not(value="").serializeJSON();
 	var jsonString = JSON.stringify(myForm);
-	console.log(jsonString);
+	//console.log(jsonString);
 
 	$.ajax({
 		url: "../savejson.php",
 		cache: false,
 		contentType: "application/json",
-		type: 'POST',
-		data:{ myForm: myForm},
-		success: function(data) {
-			alert('The Data is Posted.');
+		type: 'GET',
+		data: ({items: jsonString}),
+		success: function(response) {
+			alert(response);
 		}
 
 	});
@@ -113,21 +113,18 @@ function switchCheck(){
 
 	var checkbox = $('#mySwitch').prop('checked');
 	var string = JSON.stringify(checkbox);
-	console.log(checkbox);	
+	console.log(string);	
 	//alert('checkbox value: '+ checkbox);
 	$.ajax({
-		type: 'POST',
-		url: "../saveJSON.php",
-		dataType: "text",
-        data: {checks: string}, //passing some input here
-        success: function(response){
-        	output = response;
-        	alert(output);
-        }
-    }).done(function(data){
-    	console.log(data);
-    	alert(data);
-    });
+		url: "../savejson.php",
+		cache: false,
+		contentType: "application/json",
+		type: 'GET',
+		data: ({items: string}),
+		success: function(response) {
+			alert(response);
+		}
 
+	});
 
 }
