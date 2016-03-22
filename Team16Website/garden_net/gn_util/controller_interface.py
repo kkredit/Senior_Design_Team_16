@@ -25,7 +25,7 @@ SOCKET_LIST = []
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host = socket.gethostname()
-port = 5533
+port = 5530
 print("The server hostname is: " + host + " on port: " + str(port))
 
 server_socket.bind(('', port))
@@ -35,7 +35,7 @@ SOCKET_LIST.append(server_socket)
 
 ipc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-ipc_port = 5539
+ipc_port = 5540
 ipc_socket.bind(('localhost', ipc_port))
 ipc_socket.listen(5)
 print("The localhost port number for IPC communication is ", + ipc_port)
