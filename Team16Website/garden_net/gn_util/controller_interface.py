@@ -7,6 +7,7 @@ interface = Interface()
 SOCKET_LIST = []
 ADDR_LIST = []
 RECV_BUFFER = 8192
+ipc_file = "ipc_file.txt"
 # soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # host = socket.gethostname()
 # print(host)
@@ -19,13 +20,22 @@ SOCKET_LIST = []
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host = socket.gethostname()
-port = 5531
+port = 5532
 print("The server hostname is: " + host + " on port: " + str(port))
 
 server_socket.bind(('', port))
 server_socket.listen(5)
 
 SOCKET_LIST.append(server_socket)
+
+ipc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+port = 5538
+
+ipc_socket.bind(('localhost', port))
+ipc_socket.listen(5)
+
+SOCKET_LIST.append(ipc_socket)
 
 local_ip = socket.gethostbyname(socket.gethostname())
 print(local_ip)
@@ -45,6 +55,19 @@ while True:
 			client_sock.send(send_msg.encode('utf-8'))
 			SOCKET_LIST.append(client_sock)
 			print("Client (%s, %s) connected" % addr)
+		elif sock == ipc_socket:
+			print("Got a connection from myself")
+			ipc, addr = ipc_socket.accept()
+			print("Accepted the socket")
+			ipc.close()
+			print("Closed the socket")
+			f = open(ipc_file, 'r')
+			file_data = ""
+			for line in f:
+				file_data += line
+			print(file_data)
+			for s in SOCKET_LIST:
+				s.send(file_data.encode('utf-8'))
 		else:
 			# print("Connection Lost")
 			# client_sock.close()
