@@ -14,7 +14,7 @@ try:
 	f.close()
 	interface.run('website')
 except:
-	print("ERROR")
+	print("ERROR: ", sys.exc_info()[0])
 	print("The data that was received was: ", str(data))
 
 
