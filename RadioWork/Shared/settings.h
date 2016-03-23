@@ -56,3 +56,4 @@
 #define TIMER1_PERIOD  /*60*/ 60000000 // timer period in microseconds (1000000 = 1 sec)
 #define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data
 #define VIN_EEPROM_ADDR       0       // address of the input voltage reading in EEPROM
+#define OK_VIN_RANGE          0.15    // amount that VIN can vary without generating an error

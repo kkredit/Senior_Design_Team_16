@@ -72,7 +72,8 @@ volatile bool hadButtonPress = false;
 volatile bool getNodeStatusFlag = false;
 int8_t valveState = 0;
 uint8_t myStatus = NODE_OK;
-uint16_t measuredVIN = 0;
+//uint16_t measuredVIN = 0;
+uint8_t measuredVIN = 0;
 uint8_t statusCounter = 0;
 bool connections[5] = {0, 0, 0, 0, 0};
 
@@ -136,9 +137,9 @@ void getNodeStatus(){
   Serial.print("My address: "); Serial.println(mesh.getAddress(readMyID()));
 
   // check input voltage TODO will have to manage statuses better
-  if(analogRead(VIN_REF) > measuredVIN*1.1)
+  if(analogRead(VIN_REF)>>2 > measuredVIN*(1+OK_VIN_RANGE))
     myStatus = NODE_HIGH_VOLTAGE;
-  else if (analogRead(VIN_REF) < measuredVIN*0.9)
+  else if (analogRead(VIN_REF)>>2 < measuredVIN*(1-OK_VIN_RANGE))
     myStatus = NODE_LOW_VOLTAGE;
   else if(myStatus == NODE_HIGH_VOLTAGE || myStatus == NODE_LOW_VOLTAGE)
     myStatus = NODE_OK;
@@ -428,19 +429,22 @@ void setup(){
     setLEDR(SPECIAL_BOOT);
 
     // do special stuff
-    Serial.println("\n/////Special boot sequence//////");
+    Serial.println("\n\n////Special boot sequence////");
 
     // store VIN value in EEPROM
-    Serial.print("Reading voltage source: "); Serial.println(analogRead(VIN_REF));
-    measuredVIN = analogRead(VIN_REF);
-    EEPROM.write(VIN_EEPROM_ADDR, measuredVIN%256);
-    EEPROM.write(VIN_EEPROM_ADDR+1, measuredVIN>>8);
+    Serial.print("Reading voltage source: "); Serial.print(analogRead(VIN_REF)*3*4.63/1023.0); Serial.println("V");
+    //measuredVIN = analogRead(VIN_REF);
+    //EEPROM.write(VIN_EEPROM_ADDR, measuredVIN%256);   // lower byte
+    //EEPROM.write(VIN_EEPROM_ADDR+1, measuredVIN>>8);  // upper byte
+    measuredVIN = analogRead(VIN_REF)>>2; // shave off the last two bits to fit in one byte
+    EEPROM.write(VIN_EEPROM_ADDR, measuredVIN);
 
     Serial.println("\n");
   }
 
-  // read measuredVIN from EEPROM
-  measuredVIN = EEPROM.read(VIN_EEPROM_ADDR) + EEPROM.read(VIN_EEPROM_ADDR+1)<<8;
+  // read measuredVIN from EEPROM (two reads because one byte at a time)
+  //measuredVIN = EEPROM.read(VIN_EEPROM_ADDR) + EEPROM.read(VIN_EEPROM_ADDR+1)<<8;
+  measuredVIN = EEPROM.read(VIN_EEPROM_ADDR);
   Serial.println(measuredVIN);
 
   // "power-on" light sequence
@@ -464,10 +468,10 @@ void setup(){
 
   // print ID and number and location of connected valves and flow meters
   Serial.print(F("\n/////////Booted//////////\nNodeID: ")); Serial.println(readMyID());
-  Serial.print(F("Voltage source: ")); Serial.print(analogRead(VIN_REF))*3*5/1024; Serial.print("V, ");
-  if(analogRead(VIN_REF) > measuredVIN*1.1)
+  Serial.print(F("Voltage source: ")); Serial.print(analogRead(VIN_REF)*3*5/1023.0); Serial.print("V, ");
+  if(analogRead(VIN_REF)>>2 > measuredVIN*(1+OK_VIN_RANGE))
     Serial.println("HI VOLTAGE WARNING");
-  else if (analogRead(VIN_REF) < measuredVIN*0.9)
+  else if (analogRead(VIN_REF)>>2 < measuredVIN*(1-OK_VIN_RANGE))
     Serial.println("LOW VOLTAGE WARNING");
   else
     Serial.println("within expected range");
