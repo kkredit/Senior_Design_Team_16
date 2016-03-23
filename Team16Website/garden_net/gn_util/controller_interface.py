@@ -23,9 +23,9 @@ file_data = ""
 
 SOCKET_LIST = []
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host = socket.gethostname()
-port = 5532
+port = 5533
 print("The server hostname is: " + host + " on port: " + str(port))
 
 server_socket.bind(('', port))
@@ -34,7 +34,7 @@ server_socket.listen(5)
 SOCKET_LIST.append(server_socket)
 
 ipc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#soc.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+ipc_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 ipc_port = 5538
 ipc_socket.bind(('localhost', ipc_port))
 ipc_socket.listen(5)
