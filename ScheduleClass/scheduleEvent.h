@@ -8,29 +8,23 @@
 #ifndef SCHEDULEEVENT_H_
 #define SCHEDULEEVENT_H_
 
-class ScheduleEvent {
+class scheduleEvent {
 public:
-	ScheduleEvent();
-	ScheduleEvent(int userNodeID, int userStartHour, int userStartMin, int userEndHour, int userEndMin);
+	scheduleEvent();
+	scheduleEvent(int userNodeID, float userStartTime, float userEndTime);
 	int getNodeID();
-	int getStartHour();
-	int getStartMin();
-	int getEndHour();
-	int getEndMin();
+	float getStartTime();
+	float getEndTime();
 	void setNodeID(int id);
-	void setStartHour(int time);
-	void setStartMin(int time);
-	void setEndHour(int time);
-	void setEndMin(int time);
-	bool operator<(const ScheduleEvent& ScheduleEvent2) const;
-	bool operator>(const ScheduleEvent& ScheduleEvent2) const;
-	bool operator==(const ScheduleEvent& ScheduleEvent2) const;
+	void setStartTime(float time);
+	void setEndTime(float time);
+	bool operator<(const scheduleEvent& scheduleEvent2) const;
+	bool operator>(const scheduleEvent& scheduleEvent2) const;
+	bool operator==(const scheduleEvent& scheduleEvent2) const;
 private:
 	int nodeID;
-	int startHour;
-	int startMin;
-	int endHour;
-	int endMin;
+	float startTime;
+	float endTime;
 };
 
 #endif /* SCHEDULEEVENT_H_ */

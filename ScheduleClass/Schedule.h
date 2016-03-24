@@ -15,11 +15,11 @@ using namespace std;
 class Schedule {
 public:
 	Schedule();
-	void insert(int day, ScheduleEvent event);
+	void insert(int day, scheduleEvent event);
 	void deleteDaysSchedule(int day);
-	ScheduleEvent popFrontStartTime(int day);
+	scheduleEvent popFrontStartTime(int day);
 private:
-	list<ScheduleEvent> days[7];
+	list<scheduleEvent> days[7];
 	friend class ScheduleTester;
 };
 
