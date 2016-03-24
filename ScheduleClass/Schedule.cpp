@@ -20,7 +20,7 @@ Schedule::Schedule() {
  * upon the operators defined in the schedule class, with
  * the earliest start times first
  */
-void Schedule::insert(int day, scheduleEvent event) {
+void Schedule::insert(int day, ScheduleEvent event) {
 	days[day].push_front(event);
 	days[day].sort();
 }
@@ -32,7 +32,7 @@ void Schedule::insert(int day, scheduleEvent event) {
  * passed in by the user
  */
 void Schedule::deleteDaysSchedule(int day){
-		days[day].erase(days[day].begin(),days[day].end());
+	days[day].erase(days[day].begin(),days[day].end());
 }
 
 /*
@@ -42,8 +42,8 @@ void Schedule::deleteDaysSchedule(int day){
  * at the specified day and deletes that item. This function
  * can be compared to pop() for a stack
  */
-scheduleEvent Schedule::popFrontStartTime(int day){
-	scheduleEvent tempEvent = days[day].front();
+ScheduleEvent Schedule::popFrontStartTime(int day){
+	ScheduleEvent tempEvent = days[day].front();
 	days[day].pop_front();
 	return tempEvent;
 }

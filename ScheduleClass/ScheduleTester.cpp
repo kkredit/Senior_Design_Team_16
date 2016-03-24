@@ -23,51 +23,67 @@ void ScheduleTester::runTests(){
 
 void ScheduleTester::testScheduleEvents () {
 	cout << "\nBeginning to test the ScheduleEvents..." << endl;
-	scheduleEvent test0;
+	ScheduleEvent test0;
 	cout << "test0 .............................";
 	assert (test0.getNodeID() == 0);
-	assert (test0.getStartTime() == 0);
-	assert (test0.getEndTime() == 0);
+	assert (test0.getStartHour() == 0);
+	assert (test0.getStartMin() == 0);
+	assert (test0.getEndHour() == 0);
+	assert (test0.getEndMin() == 0);
 	test0.setNodeID(1);
-	test0.setStartTime(02.00);
-	test0.setEndTime(03.00);
+	test0.setStartHour(2);
+	test0.setEndHour(3);
 	assert (test0.getNodeID() == 1);
-	assert (test0.getStartTime() == 02.00);
-	assert (test0.getEndTime() == 03.00);
+	assert (test0.getStartHour() == 2);
+	assert (test0.getStartMin() == 0);
+	assert (test0.getEndHour() == 3);
+	assert (test0.getEndMin() == 0);
 	cout << "passed" << endl;
 
-	scheduleEvent test1;
+	ScheduleEvent test1;
 	cout << "test1 .............................";
 	assert (test1.getNodeID() == 0);
-	assert (test1.getStartTime() == 0);
-	assert (test1.getEndTime() == 0);
+	assert (test1.getStartHour() == 0);
+	assert (test1.getStartMin() == 0);
+	assert (test1.getEndHour() == 0);
+	assert (test1.getEndMin() == 0);
 	test1.setNodeID(1);
-	test1.setStartTime(12.00);
-	test1.setEndTime(15.00);
+	test1.setStartHour(2);
+	test1.setStartMin(12);
+	test1.setEndHour(3);
+	test1.setEndMin(15);
 	assert (test1.getNodeID() == 1);
-	assert (test1.getStartTime() == 12.00);
-	assert (test1.getEndTime() == 15.00);
+	assert (test1.getStartHour() == 2);
+	assert (test1.getStartMin() == 12);
+	assert (test1.getEndHour() == 3);
+	assert (test1.getEndMin() == 15);
 	cout << "passed" << endl;
 
-	scheduleEvent test2;
+	ScheduleEvent test2;
 	cout << "test2 .............................";
 	assert (test2.getNodeID() == 0);
-	assert (test2.getStartTime() == 0);
-	assert (test2.getEndTime() == 0);
+	assert(test2.getStartHour() == 0);
+	assert(test2.getStartMin() == 0);
+	assert(test2.getEndHour() == 0);
+	assert(test2.getEndMin() == 0);
 	test2.setNodeID(5);
-	test2.setStartTime(2.00);
-	test2.setEndTime(15.00);
+	test2.setStartHour(2);
+	test2.setStartMin(12);
+	test2.setEndHour(3);
+	test2.setEndMin(15);
 	assert (test2.getNodeID() == 5);
-	assert (test2.getStartTime() == 2.00);
-	assert (test2.getEndTime() == 15.00);
+	assert(test2.getStartHour() == 2);
+	assert(test2.getStartMin() == 12);
+	assert(test2.getEndHour() == 3);
+	assert(test2.getEndMin() == 15);
 	cout << "passed" << endl;
 
 	cout << "test3 .............................";
 	assert (test0 < test1);
-	assert (test0 == test2);
-	assert (!(test0 == test1));
-	assert (!(test0 < test2));
-	cout << "passed" << endl;
+	assert (test2 == test1);
+	assert (!(test0 == test2));
+	assert (!(test0 > test2));
+	cout << "passed" << endl; 
 
 	cout << "scheduleEvent class passed all tests!" << endl;
 }
@@ -77,62 +93,64 @@ void ScheduleTester::testInsert(){
 
 	cout << "test0 .............................";
 	Schedule test0;
-	scheduleEvent event0(6,.20,5.00);
+	ScheduleEvent event0(0, 3, 10, 5, 20);
 	test0.insert(0,event0);
-	scheduleEvent event1(1,1.00,2.00);
+	ScheduleEvent event1(1, 12, 30, 15, 45);
 	test0.insert(0,event1);
-	scheduleEvent event2(1,1.00,2.00);
+	ScheduleEvent event2(2, 3, 23, 6, 45);
 	test0.insert(0,event2);
-	scheduleEvent event3(1,.5,1.00);
+	ScheduleEvent event3(3, 16, 55, 21, 45);
 	test0.insert(0,event3);
 	assert(test0.days[0].size() == 4);
 	assert(test0.popFrontStartTime(0) == event0);
 	assert(test0.days[0].size()  == 3);
-	assert(test0.popFrontStartTime(0) == event3);
+	assert(test0.popFrontStartTime(0) == event2);
 	assert(test0.days[0].size()  == 2);
 	assert(test0.popFrontStartTime(0) == event1);
 	assert(test0.days[0].size()  == 1);
-	assert(test0.popFrontStartTime(0) == event2);
+	assert(test0.popFrontStartTime(0) == event3);
 	assert(test0.days[0].size()  == 0);
 	cout << "passed" << endl;
 
 	cout << "test1 .............................";
 	Schedule test1;
-	scheduleEvent event4(6,5.20,5.00);
+	ScheduleEvent event4(3, 0, 0, 2, 25);
 	test1.insert(1,event4);
-	scheduleEvent event5(1,5.00,2.00);
+	ScheduleEvent event5(1, 23, 0, 23, 45);
 	test1.insert(1,event5);
-	scheduleEvent event6(1,4.45,2.00);
+	ScheduleEvent event6(1, 4, 15, 8, 20);
 	test1.insert(1,event6);
-	scheduleEvent event7(1,4.30,1.00);
+	ScheduleEvent event7(1, 4, 0, 8, 56);
 	test1.insert(1,event7);
 	assert(test1.days[1].size() == 4);
-	assert(test1.popFrontStartTime(1) == event7);
-	assert(test1.days[1].size() == 3);
-	assert(test1.popFrontStartTime(1) == event6);
-	assert(test1.days[1].size() == 2);
-	assert(test1.popFrontStartTime(1) == event5);
-	assert(test1.days[1].size() == 1);
 	assert(test1.popFrontStartTime(1) == event4);
+	assert(test1.days[1].size() == 3);
+	assert(test1.popFrontStartTime(1) == event7);
+	assert(test1.days[1].size() == 2);
+	assert(test1.popFrontStartTime(1) == event6);
+	assert(test1.days[1].size() == 1);
+	assert(test1.popFrontStartTime(1) == event5);
 	assert(test1.days[1].size() == 0);
 	cout << "passed" << endl;
 
 	cout << "test2 .............................";
 	Schedule test2;
-	scheduleEvent event8(2,1.00,2.00);
+	ScheduleEvent event8(2, 1, 0, 2, 0);
 	for (unsigned i=0; i<=6; i++){
 		test2.insert(i,event8);
 	}
 	for (unsigned i=0; i<=6; i++){
 		assert(test2.days[i].size() == 1);
 	}
-	scheduleEvent tempEvent;
+	ScheduleEvent tempEvent;
 	cout << endl;
 	for (unsigned i = 0; i <= 6; i++){
 		tempEvent = test2.popFrontStartTime(i);
-		cout << "Schedule for day " << i << " contains a nodeID:" << tempEvent.getNodeID() << " startTime: " << tempEvent.getStartTime() << " endTime: " << tempEvent.getEndTime() << endl;
+		cout << "Schedule for day " << i << " contains a nodeID:" << tempEvent.getNodeID() << " startTime: " \
+			 << tempEvent.getStartHour() << ":" << tempEvent.getStartMin() <<" endTime: " << tempEvent.getEndHour() \
+			 << ":" << tempEvent.getEndMin() << endl;
 	}
-	cout << "passed" << endl;
+ 	cout << "passed" << endl; 
 
-	cout << "Schedule Class passed all tests!" << endl;
+	cout << "Schedule Class passed all tests!" << endl; 
 }

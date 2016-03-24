@@ -60,7 +60,7 @@
 //#define NL_SW_1xRTT_S     // Sprint 2G Modem - CE910-DUAL
 //#define NL_SW_1xRTT_A     // Aeris 2G Modem - CE910-DUAL
 //#define NL_SW_GPRS        // AT&T/T-Mobile 2G Modem
-//#define NL_SW_EVDO_V	    // Verizon 3G Modem
+#define NL_SW_EVDO_V	    // Verizon 3G Modem
 //#define NL_SW_EVDO_A	    // Aeris 3G Modem
 //#define NL_SW_HSPAP	      // AT&T/T-Mobile 3G Modem
 //#define NL_SW_HSPAPG	    // AT&T/T-Mobile 3G Modem w/ GPS
