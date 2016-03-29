@@ -1,4 +1,6 @@
+Redirect 301 /GardeNetControl/Admin/index.html /GardeNetControl/Admin/admin.html
 AuthType Basic
 AuthName "GardeNet Access Required"
 AuthUserFile /etc/apache2/.htpasswd
 Require valid-user
+
