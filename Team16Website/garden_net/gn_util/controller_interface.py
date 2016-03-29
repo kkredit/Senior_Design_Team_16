@@ -84,6 +84,7 @@ while True:
 						sock.close()
 						SOCKET_LIST.remove(sock)
 					else:
+						sock.setdefaulttimeout(1)
 						sock.send(msg.encode('utf-8'))
 
 			except:

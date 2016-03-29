@@ -2,7 +2,7 @@ import socket
 
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
-port = 5531
+port = 5533
 print("My local hostname: " + host)
 
 
