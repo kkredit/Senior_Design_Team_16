@@ -3,10 +3,14 @@ import socket
 
 from interface import Interface
 
-def broadcast(message: str):
-	for s in SOCKET_LIST:
+def broadcast(message: str, soc_list: list):
+	for s in soc_list:
 		if s != server_socket and s != ipc_socket:
-			s.send(message.encode('utf-8'))
+			try:
+				s.send(message.encode('utf-8'))
+			except TimeoutError:
+				soc_list.remove(s)
+
 
 interface = Interface()
 SOCKET_LIST = []
@@ -70,7 +74,7 @@ while True:
 				file_data += line
 			print(file_data)
 			f.close()
-			broadcast(file_data)
+			broadcast(file_data, SOCKET_LIST)
 		else:
 			# print("Connection Lost")
 			# client_sock.close()
@@ -84,8 +88,7 @@ while True:
 						sock.close()
 						SOCKET_LIST.remove(sock)
 					else:
-						sock.setdefaulttimeout(1)
-						sock.send(msg.encode('utf-8'))
+						sock.send(msg)
 
 			except:
 				continue
