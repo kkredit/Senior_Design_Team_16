@@ -36,6 +36,7 @@ server_socket.bind(('', port))
 server_socket.listen(5)
 
 SOCKET_LIST.append(server_socket)
+server_socket.settimeout(1)
 
 ipc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 ipc_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -61,6 +62,7 @@ while True:
 		if sock == server_socket:
 			client_sock, addr = server_socket.accept()
 			SOCKET_LIST.append(client_sock)
+			client_sock.settimeout(1)
 			print("Client (%s, %s) connected" % addr)
 		elif sock == ipc_socket:
 			print("Got a connection from myself")
