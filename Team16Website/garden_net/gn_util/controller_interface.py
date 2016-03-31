@@ -75,17 +75,21 @@ while True:
 				file_data += line
 			print(file_data)
 			f.close()
-			db.clear_database()
-			json_conversion.create_events_from_JSON_string(file_data, db)
 
-			convert = JSON_Interface()
-			converted = convert.all_events_from_DB_to_JSON(db)
+			if file_data == "true" or file_data == "false":
+				broadcast(file_data, SOCKET_LIST)
+			else:
+				db.clear_database()
+				json_conversion.create_events_from_JSON_string(file_data, db)
 
-			f2 = open("current_schedule_in_db.txt", 'w')
-			f2.write(converted)
-			f2.close()
+				convert = JSON_Interface()
+				converted = convert.all_events_from_DB_to_JSON(db)
 
-			broadcast(file_data, SOCKET_LIST)
+				f2 = open("current_schedule_in_db.txt", 'w')
+				f2.write(converted)
+				f2.close()
+
+				broadcast(file_data, SOCKET_LIST)
 			try:
 				data = sock.recv(RECV_BUFFER)
 				if data:
