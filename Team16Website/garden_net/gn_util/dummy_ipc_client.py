@@ -5,7 +5,6 @@ host = socket.gethostname()
 port = 5538
 print("My local hostname: " + host)
 
-
 try:
 	#soc = socket.create_connection((host, port))
 	soc = socket.create_connection(('localhost', port))

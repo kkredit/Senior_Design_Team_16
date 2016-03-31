@@ -10,7 +10,7 @@ from event import Event
 
 class Database:
 	def __init__(self):
-		self.engine = create_engine('sqlite://')
+		self.engine = create_engine('sqlite:///database.db')
 
 		self.meta = Meta
 		self.base = Base
@@ -23,6 +23,11 @@ class Database:
 		create_session = sessionmaker()
 		create_session.configure(bind=self.engine)
 		self.session = create_session()
+
+	def clear_database(self):
+		self.meta.drop_all()
+		self.meta.create_all()
+		self.session.commit()
 
 	def add_zone(self, zone: Zone):
 		if self.session.query(Zone).filter(Zone._zone_id == zone._zone_id).all():
@@ -62,7 +67,7 @@ class Database:
 			raise KeyError("Zone does not exist")
 		elif len(self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)).all()) == 0:
 			raise ValueError("No events at zone for the given day")
-		# WE SHOULD NEVER GET HERE
+		# WE SHOULD NEVER EVER GET HERE
 		else:
 			raise OverflowError("Something went terribly wrong...")
 
@@ -71,3 +76,43 @@ class Database:
 def sort_event_list(event_list: list):
 	event_list.sort()
 	return event_list
+
+if __name__ == "__main__":
+	db = Database()
+
+	z = Zone(1)
+	z2 = Zone(2)
+	z3 = Zone(3)
+
+	db.add_zone(z)
+	db.add_zone(z2)
+	db.add_zone(z3)
+
+	test_event0 = Event(3.0, 4.0, 'Monday', 3)
+	test_event1 = Event(1.0, 2.0, 'Monday', 3)
+	test_event2 = Event(2.0, 3.0, 'Monday', 3)
+	test_event3 = Event(1.5, 2.5, 'Monday', 3)
+	test_event4 = Event(22.0, 23.59, 'Monday', 3)
+	test_event5 = Event(1.0, 2.0, 'Tuesday', 1)
+	test_event6 = Event(1.0, 3.0, 'Tuesday', 3)
+	test_event7 = Event(1.0, 2.0, 'Saturday', 1)
+
+	db.add_event(test_event0)
+	db.add_event(test_event1)
+	db.add_event(test_event2)
+	db.add_event(test_event3)
+	db.add_event(test_event4)
+	db.add_event(test_event5)
+	db.add_event(test_event6)
+	db.add_event(test_event7)
+
+	results = db.get_all_events_for_zone(1)
+
+	assert (results != [])
+
+	db.clear_database()
+
+	try:
+		results = db.get_all_events_for_zone(1)
+	except ValueError:
+		print("The DB is empty")
