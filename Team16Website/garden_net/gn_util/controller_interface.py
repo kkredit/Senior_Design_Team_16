@@ -1,5 +1,7 @@
 import select
 import socket
+from JSON import JSON_Interface
+from database import Database
 
 from interface import Interface
 
@@ -17,13 +19,10 @@ SOCKET_LIST = []
 RECV_BUFFER = 8192
 ipc_file = "ipc_file.txt"
 file_data = ""
-# soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# host = socket.gethostname()
-# print(host)
-# port = 5555
-# print(port)
-# soc.listen(5)
-# soc.bind((host, port))
+db = Database()
+json_conversion = JSON_Interface()
+
+
 
 SOCKET_LIST = []
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -76,10 +75,17 @@ while True:
 				file_data += line
 			print(file_data)
 			f.close()
+			db.clear_database()
+			json_conversion.create_events_from_JSON_string(file_data, db)
+
+			convert = JSON_Interface()
+			converted = convert.all_events_from_DB_to_JSON(db)
+
+			f2 = open("current_schedule_in_db.txt", 'w')
+			f2.write(converted)
+			f2.close()
+
 			broadcast(file_data, SOCKET_LIST)
-		else:
-			# print("Connection Lost")
-			# client_sock.close()
 			try:
 				data = sock.recv(RECV_BUFFER)
 				if data:
