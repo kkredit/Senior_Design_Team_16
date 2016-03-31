@@ -15,7 +15,7 @@
 	$('ul.tabs').tabs();
 	$('.parallax').parallax();
 	$(".dropdown-button").dropdown();
-	$('select').material_select();
+
 	
 
 	

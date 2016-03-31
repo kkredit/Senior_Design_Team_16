@@ -57,6 +57,7 @@ function deleteTabs()
 
 }
 function submit(){
+	
 	var myForm = $("#myForm").serializeJSON();
 	var jsonString = JSON.stringify(myForm);
 	//console.log(jsonString);
@@ -64,12 +65,13 @@ function submit(){
 	$.ajax({
 		url: "../savejson.php",
 		cache: false,
-		contentType: "application/json",
-		type: 'GET',
-		data: ({items: jsonString}),
+		dataType: "text",
+		type: 'POST',
+		data: {jsonString: jsonString},
 		success: function(data) {
 			alert(data);
 		}
+		
 
 	});
 
@@ -85,7 +87,7 @@ function submit1(){
 		url: "../savejson.php",
 		cache: false,
 		contentType: "application/json",
-		type: 'GET',
+		type: 'POST',
 		data: ({items: jsonString}),
 		success: function(response) {
 			alert(response);
@@ -118,13 +120,25 @@ function switchCheck(){
 	$.ajax({
 		url: "../savejson.php",
 		cache: false,
-		contentType: "application/json",
-		type: 'GET',
-		data: ({items: string}),
-		success: function(response) {
-			alert(response);
+		dataType: "text",
+		type: 'POST',
+		data: {string: string},
+		success: function(data) {
+			alert(data);
 		}
+		
 
 	});
 
 }
+
+
+
+function populate(frm, data) {
+  
+}
+
+
+
+
+

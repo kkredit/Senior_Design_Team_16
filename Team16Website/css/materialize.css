@@ -5055,7 +5055,9 @@ nav ul a span.badge {
 .container {
   margin: 0 auto;
   max-width: 1280px;
-  width: 90%; }
+  width: 90%;
+  overflow: visible;
+  }
 
 @media only screen and (min-width : 601px) {
   .container {
@@ -5575,7 +5577,7 @@ small {
 
 .card {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   margin: 0.5rem 0 1rem 0;
   background-color: #fff;
   transition: box-shadow .25s;
@@ -5589,9 +5591,9 @@ small {
   .card.small, .card.medium, .card.large {
     position: relative; }
     .card.small .card-image, .card.medium .card-image, .card.large .card-image {
-      overflow: hidden; }
+      overflow: visible; }
     .card.small .card-content, .card.medium .card-content, .card.large .card-content {
-      overflow: hidden; }
+      overflow: visible; }
     .card.small .card-action, .card.medium .card-action, .card.large .card-action {
       position: absolute;
       bottom: 0;
@@ -8003,7 +8005,7 @@ select {
    ========================================================================== */
 .picker__box {
   border-radius: 2px;
-  overflow: hidden; }
+  overflow: visible; }
 
 .picker__date-display {
   text-align: center;
