@@ -86,10 +86,10 @@ while True:
 				converted = convert.all_events_from_DB_to_JSON(db)
 
 				f2 = open("current_schedule_in_db.txt", 'w')
-				f2.write(converted)
+				f2.write(file_data)
 				f2.close()
 
-				broadcast(file_data, SOCKET_LIST)
+				broadcast(converted, SOCKET_LIST)
 			try:
 				data = sock.recv(RECV_BUFFER)
 				if data:
