@@ -25,7 +25,7 @@
 #include <TimerOne.h>
 // Modify protocol header file directory as needed
 //#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/settings.h"
-#include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\settings.h"
+#include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\SharedDefinitions.h"
 
 /******************************************************************************
 ***************************** Global Variables ********************************
@@ -48,6 +48,10 @@ bool defaultNetworkBlink = false;
 #define LEDG          5
 #define CE            7
 #define CS            8
+
+#define RESET_PIN A1////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define RESET_GND A0////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /******************************* Node IDs **************************************/
 #define KEVINID 1
 
@@ -64,16 +68,45 @@ void resetAllNodes(){
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+ * Resets the arduino by pressing its own "reset" button
+ */
+void hardReset(){
+  pinMode(RESET_PIN, OUTPUT);
+  digitalWrite(RESET_PIN, HIGH);
+  delay(1000);
+  // arduino resets here
+}
+
+void refreshReset(){
+  pinMode(RESET_PIN, OUTPUT);  
+  digitalWrite(RESET_PIN, LOW);
+  delay(50); // 95% charged: 3*tau = 3*RC = 3*200*47*10^-6 = 28 ms
+  //digitalWrite(RESETPIN, LOW); // to turn off internal pullup
+  pinMode(RESET_PIN, INPUT);
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 /* the setup function configures and initializes the I/O devices: LEDs, push button, serial port, 
  * and 3G Modem
 */
 void setup() {
+
+  // RESET_PIN -- set to low immediately to discharge capacitor////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  pinMode(RESET_PIN, OUTPUT);////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  digitalWrite(RESET_PIN, LOW);////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   // setup pin modes
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(LEDR, OUTPUT);
   pinMode(LEDG, OUTPUT);
   //while(BUTTON);    // wait for a button press to continue
-  delay(5000);
   // attach interrup to push button
   attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);  
   digitalWrite(LEDR, LOW);
@@ -89,7 +122,7 @@ void setup() {
 
   // initialize serial debug port
   Serial.begin(9600);
-  while (!Serial);
+  //while (!Serial);
 
   // initialize 3G Modem
   // setupModem();
@@ -113,9 +146,9 @@ void setup() {
   //mesh.requestAddress(0);
   mesh.setAddress(0,0);
 
-  Serial.print("Resetting all nodes...");
+  /*Serial.print("Resetting all nodes...");
   resetAllNodes();
-  Serial.println(" done.");
+  Serial.println(" done.");*/
 
   // flash LEDR three at this point in the setup process
 //  digitalWrite(LEDR, HIGH);
@@ -133,9 +166,26 @@ void setup() {
   // attach interrupt to the function that prints out current network status
   Timer1.initialize(5000000);
   Timer1.attachInterrupt(updateStatusISR);
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // enable self-resetting ability
+  delay(50);  // allow capacitor to discharge if was previously charged before enabling autoreset again
+              // 95% = 3*tau = 3*RC = 3*200*100*10^-6 = 60ms -- but never gets fully charged, and has
+              //    been dicharging during previous setup, so 50ms is sufficient
+  pinMode(RESET_PIN, INPUT);
+  pinMode(RESET_GND, OUTPUT);
+  digitalWrite(RESET_GND, LOW);
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 void loop(){
+  // refresh the reset////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  refreshReset();////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   // Call mesh.update to keep the network updated
   mesh.update();
   
@@ -206,10 +256,11 @@ void loop(){
   }
   
   if (hadButtonPress){
-    mesh.write(mesh.getAddress(KEVINID), &dummyValveCommand, SET_VALVE_H, sizeof(dummyValveCommand));
+    //mesh.write(mesh.getAddress(KEVINID), &dummyValveCommand, SET_VALVE_H, sizeof(dummyValveCommand));
     Serial.print("Sending the valve command: "); Serial.println(dummyValveCommand);
     dummyValveCommand = !dummyValveCommand;
     hadButtonPress = false;
+    //hardReset();
   }
 
   if(updateStatusFlag){
@@ -224,14 +275,14 @@ void loop(){
 void handleButton(){
   if (counter > 0){
     hadButtonPress = true;
-    //Serial.println(F("Deteceted Button Press"));
+    Serial.println(F("Detected Button Press"));
   } else {
     counter++;
   }
 }
 
 uint8_t getNodeStatus(uint8_t nodeID){
-  return NODE_OK;
+  return 0;
 //  if(nodeID == MASTER_ADDRESS) return NODE_IS_MASTER;
 //  
 //  char payload = GET_NODE_STATUS_P;
@@ -266,7 +317,7 @@ void updateStatus(){
     Serial.print(" RF24Network Address: 0");
     Serial.println(mesh.addrList[i].address);
     Serial.print("   ");
-    switch(getNodeStatus(mesh.addrList[i].nodeID)){
+    /*switch(getNodeStatus(mesh.addrList[i].nodeID)){
     case NODE_IS_MASTER:
       //Serial.println(myStatus);
       Serial.println("Me, the gateway");
@@ -285,7 +336,7 @@ void updateStatus(){
       break;
     default:
       break;
-    }
+    }*/
  }
   Serial.println(F("**********************************"));
 }

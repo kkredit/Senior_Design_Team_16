@@ -60,7 +60,7 @@ volatile uint16_t pulses = 0; // count how many pulses
 volatile uint8_t lastflowpinstate; // track the state of the pulse pin
 volatile uint32_t lastflowratetimer = 0; // you can try to keep time of how long it is between pulses
 volatile float flowrate; // and use that to calculate a flow rate
-bool changedPulseFlag = false; // interrupt is called once a millisecond, looks for any pulses from the sensor
+//bool changedPulseFlag = false; // interrupt is called once a millisecond, looks for any pulses from the sensor
 
 // structs
 //struct Valve_Status{
@@ -309,7 +309,7 @@ SIGNAL(TIMER0_COMPA_vect){
   if (x == HIGH) {
     //low to high transition!
     pulses++;
-    changedPulseFlag = true;
+    //changedPulseFlag = true;
   }
   
   lastflowpinstate = x;
@@ -771,13 +771,13 @@ void loop() {
     hadButtonPress = false;
 
     // for test
-    hardReset();
+    //hardReset();
   }
 
   // handle flow meter pulses
-  if (changedPulseFlag == true){
-    Serial.print("Freq: "); Serial.println(flowrate);
-    Serial.print("Pulses: "); Serial.println(pulses, DEC);
+  /*if (changedPulseFlag == true){
+    //Serial.print("Freq: "); Serial.println(flowrate);
+    //Serial.print("Pulses: "); Serial.println(pulses, DEC);
     // if a plastic sensor use the following calculation
     // Sensor Frequency (Hz) = 7.5 * Q (Liters/min)
     // Liters = Q * time elapsed (seconds) / 60 (seconds/minute)
@@ -787,8 +787,8 @@ void loop() {
     float liters = pulses/7.5/60.0;
     //liters /= 7.5;
     //liters /= 60.0;
-    Serial.print(liters); Serial.println(" Liters");
-  }
+    //Serial.print(liters); Serial.println(" Liters");
+  }*/
 
   // read in messages
   while(network.available()){
