@@ -23,6 +23,7 @@ struct Valve_Status{
 
 // Node_Status struct
 struct Node_Status{
+  bool isAwake; // TODO note: is master's duty to check for node being asleep
   uint8_t storedVIN;
   uint8_t voltageState;
   bool hasFlowRateMeter;
@@ -66,6 +67,7 @@ struct Node_Status{
 #define SEND_VALVE_H        'v'
 #define SEND_FLOW_RATE_H    'r'
 #define SEND_NODE_STATUS_H  'n'
+#define SEND_NODE_SLEEP_H   's'
 
 
 // node states -- apply equally to "node" proper and to master
@@ -87,13 +89,18 @@ struct Node_Status{
 
 
 // LEDR settings
-#define LED_BRIGHTNESS       255     // 0-255; brightness of LEDR_BRIGHTNESS
-#define LED_OFF              0       // LEDR light pattern
-#define LED_ON               1       // LEDR light pattern
+#define LED_BRIGHTNESS        255     // 0-255; brightness of LEDR_BRIGHTNESS
+#define LED_OFF               0       // LEDR light pattern
+#define LED_ON                1       // LEDR light pattern
 #define TURN_ON_SEQUENCE      2       // LEDR light pattern
 #define CONNECTED_SEQUENCE    3       // LEDR light pattern
 #define DISCONNECTED_SEQUENCE 4       // LEDR light pattern
 #define SPECIAL_BOOT_SEQUENCE 5       // LEDR light pattern
+
+
+// valve command errors
+#define NO_VALVE_ERROR        -1      // when no valve connected in given slot
+#define NODE_IS_ASLEEP_ERROR  -2      // when node is asleep
 
 
 // other settings

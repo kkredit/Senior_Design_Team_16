@@ -1,4 +1,4 @@
-/**
+/* 
  * node.ino
  * 
  * This sketch is for nodes in the GardeNet system. Functions include:
@@ -6,10 +6,10 @@
  *    - Controlling up to four valves
  *    - Controlling up one flow meter
  *    - Relaying information to the master
- *    
- * Written by Kevin Kredit for Engr 340 at Calvin College, 2016
+ * 
+ * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
+ * Last Modified: 4/1/16
  */
-
 
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////  Preprocessor   //////////////////////////////////
@@ -60,37 +60,12 @@ volatile uint16_t pulses = 0; // count how many pulses
 volatile uint8_t lastflowpinstate; // track the state of the pulse pin
 volatile uint32_t lastflowratetimer = 0; // you can try to keep time of how long it is between pulses
 volatile float flowrate; // and use that to calculate a flow rate
-//bool changedPulseFlag = false; // interrupt is called once a millisecond, looks for any pulses from the sensor
-
-// structs
-//struct Valve_Status{
-//  bool isConnected;
-//  bool state;
-//};
-
-//struct Node_Status{
-//  uint8_t storedVIN;
-//  uint8_t voltageState;
-//  bool hasFlowRateMeter;
-//  float currentFlowRate;
-//  uint8_t flowState;
-//  uint8_t numConnectedValves;
-//  Valve_Status valveState1;
-//  Valve_Status valveState2;
-//  Valve_Status valveState3;
-//  Valve_Status valveState4;
-//  uint8_t meshState;
-//  uint8_t nodeID;
-//  int16_t nodeMeshAddress;
-//};
 
 // flags
 volatile bool hadButtonPress = false;
 volatile bool updateNodeStatusFlag = false;
 
 // other
-//int8_t valveState = 0;
-//uint8_t myStatus = NODE_OK;
 Node_Status myStatus;
 uint8_t statusCounter = 0;
 
@@ -334,40 +309,40 @@ void useInterrupt(bool v) {
 }
 
 /*
- * setValve();
+ * setValve()
  * 
  * Sets valve to desired state
  * 
  * @param uint8_t whichValve: the valve to set; if not in range 1-4 or valve is not connected, returns -1
  * @param bool setTo: the desired state
- * @return int8_t: the actual state it was set to; -1 if valve is not connected
+ * @return int8_t: the actual state it was set to; NO_VALVE_ERROR if valve is not connected
  */
 int8_t setValve(uint8_t whichValve, bool setTo){
   // check if valve is connected, then open/close and set state
   switch(whichValve){
   case 1:
-    if(myStatus.valveState1.isConnected == false) return -1;
+    if(myStatus.valveState1.isConnected == false) return NO_VALVE_ERROR;
     else{
       digitalWrite(VALVE_1, setTo);
       myStatus.valveState1.state = setTo;
     }
     break;
   case 2:
-    if(myStatus.valveState2.isConnected == false) return -1;
+    if(myStatus.valveState2.isConnected == false) return NO_VALVE_ERROR;
     else{
       digitalWrite(VALVE_2, setTo);
       myStatus.valveState2.state = setTo;
     }
     break;
   case 3:
-    if(myStatus.valveState3.isConnected == false) return -1;
+    if(myStatus.valveState3.isConnected == false) return NO_VALVE_ERROR;
     else{
       digitalWrite(VALVE_3, setTo);
       myStatus.valveState3.state = setTo;
     }
     break;
   case 4:
-    if(myStatus.valveState4.isConnected == false) return -1;
+    if(myStatus.valveState4.isConnected == false) return NO_VALVE_ERROR;
     else{
       digitalWrite(VALVE_4, setTo);
       myStatus.valveState4.state = setTo;
@@ -485,7 +460,6 @@ void refreshReset(){
 }
 
 void initPins(){
-
   // BUTTON
   pinMode(BUTTON, INPUT_PULLUP);
 
@@ -519,6 +493,9 @@ void initPins(){
 }
 
 void initStatus(){
+  // isAwake
+  myStatus.isAwake = true;
+  
   // storedVIN
   myStatus.storedVIN = EEPROM.read(VIN_EEPROM_ADDR);
 
@@ -602,6 +579,8 @@ void initStatus(){
 void printNodeStatus(){
   // print number of times executed
   Serial.print('\n'); Serial.println(statusCounter++);
+
+  if(myStatus.isAwake == false) Serial.println("NODE IS IN STANDBY");
 
   Serial.print("Input voltage     : ");
   Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.6/1023.0); Serial.print(" V  : ");
@@ -757,38 +736,25 @@ void loop() {
     updateNodeStatusFlag = false;
   }
 
-  // handle button presses--send 'r' type message
-  // NOT FINAL CODE
+  // toggle between awake and asleep
   if(hadButtonPress){
-    // tell current flow rate
-    Serial.println(F("Detected buttonpress"));
-    Serial.println(F("Measuring the current flowrate..."));
-    float beginLiters, flowrate;//endLiters, flowrate;
-    updateFlowRate();
-    safeMeshWrite(MASTER_ADDRESS, &myStatus.currentFlowRate, SEND_FLOW_RATE_H, sizeof(myStatus.currentFlowRate), DEFAULT_SEND_TRIES);
+    // toggle states between asleep and awake
+    myStatus.isAwake = !myStatus.isAwake;
+
+    // if asleep, close valves
+    if(myStatus.isAwake == false){
+      setValve(1, OFF);
+      setValve(2, OFF);
+      setValve(3, OFF);
+      setValve(4, OFF);
+    }
+
+    // let the master know
+    safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NODE_SLEEP_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
     
     // reset flag
     hadButtonPress = false;
-
-    // for test
-    //hardReset();
   }
-
-  // handle flow meter pulses
-  /*if (changedPulseFlag == true){
-    //Serial.print("Freq: "); Serial.println(flowrate);
-    //Serial.print("Pulses: "); Serial.println(pulses, DEC);
-    // if a plastic sensor use the following calculation
-    // Sensor Frequency (Hz) = 7.5 * Q (Liters/min)
-    // Liters = Q * time elapsed (seconds) / 60 (seconds/minute)
-    // Liters = (Frequency (Pulses/second) / 7.5) * time elapsed (seconds) / 60
-    // Liters = Pulses / (7.5 * 60)
-    changedPulseFlag = false;
-    float liters = pulses/7.5/60.0;
-    //liters /= 7.5;
-    //liters /= 60.0;
-    //Serial.print(liters); Serial.println(" Liters");
-  }*/
 
   // read in messages
   while(network.available()){
@@ -803,10 +769,15 @@ void loop() {
     case SET_VALVE_H:
       // Valve command, on or off; type is bool
       //  set the value and send return message
+      int8_t result;
+      if(myStatus.isAwake == false){
+        result = NODE_IS_ASLEEP_ERROR;
+        safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
+      }
       Valve_Command vc;
       network.read(header, &vc, sizeof(vc));
       Serial.print(F("Command is to turn valve ")); Serial.print(vc.whichValve); Serial.print(" "); vc.onOrOff ? Serial.println("ON") : Serial.println("OFF");
-      int8_t result;
+      
       result = setValve(vc.whichValve, vc.onOrOff);
       safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
       break;
@@ -853,6 +824,7 @@ void loop() {
 
     case IS_NEW_DAY_H:
       resetAccumulatedFlow();
+      myStatus.isAwake = true;
       break;
       
     default:
