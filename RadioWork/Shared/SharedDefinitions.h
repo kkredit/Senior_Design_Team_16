@@ -90,12 +90,14 @@ struct Node_Status{
 
 // LEDR settings
 #define LED_BRIGHTNESS        255     // 0-255; brightness of LEDR_BRIGHTNESS
-#define LED_OFF               0       // LEDR light pattern
-#define LED_ON                1       // LEDR light pattern
-#define TURN_ON_SEQUENCE      2       // LEDR light pattern
-#define CONNECTED_SEQUENCE    3       // LEDR light pattern
-#define DISCONNECTED_SEQUENCE 4       // LEDR light pattern
-#define SPECIAL_BOOT_SEQUENCE 5       // LEDR light pattern
+#define LED_OFF               0
+#define LED_ON                1
+#define TURN_ON_SEQUENCE      2
+#define CONNECTED_SEQUENCE    3
+#define DISCONNECTED_SEQUENCE 4
+#define SPECIAL_BOOT_SEQUENCE 5
+#define GO_TO_SLEEP_SEQUENCE  6
+#define AWAKE_SEQUENCE        7
 
 
 // valve command errors
@@ -106,6 +108,7 @@ struct Node_Status{
 // other settings
 #define ON                    1
 #define OFF                   0
+#define ALL_VALVES            5
 #define BAUD_RATE             9600    // serial communication baud rate
 #define TIMER1_PERIOD         10000000 /* 10s */ // timer period in microseconds (1000000 = 1 sec)
 #define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data

@@ -56,7 +56,7 @@ RF24Network network(radio);
 RF24Mesh mesh(radio, network);
 
 // flow sensor
-volatile uint16_t pulses = 0; // count how many pulses
+volatile uint32_t pulses = 0; // count how many pulses
 volatile uint8_t lastflowpinstate; // track the state of the pulse pin
 volatile uint32_t lastflowratetimer = 0; // you can try to keep time of how long it is between pulses
 volatile float flowrate; // and use that to calculate a flow rate
@@ -80,7 +80,7 @@ uint8_t statusCounter = 0;
  * Sets flag alterting main loop of buttonpress
  */
 void handleButtonISR(){
-  if(statusCounter > 1){   // gets rid of startup false positive by ignoring for 2 seconds after startup
+  if(statusCounter > 0){   // gets rid of startup false positive by ignoring for 2 seconds after startup
     hadButtonPress = true; 
     //Serial.println(F("Detected buttonpress"));
   }
@@ -348,6 +348,24 @@ int8_t setValve(uint8_t whichValve, bool setTo){
       myStatus.valveState4.state = setTo;
     }
     break;
+  case ALL_VALVES:
+    if(myStatus.valveState1.isConnected){
+      digitalWrite(VALVE_1, setTo);
+      myStatus.valveState1.state = setTo;
+    }
+    if(myStatus.valveState2.isConnected){
+      digitalWrite(VALVE_2, setTo);
+      myStatus.valveState2.state = setTo;
+    }
+    if(myStatus.valveState3.isConnected){
+      digitalWrite(VALVE_3, setTo);
+      myStatus.valveState3.state = setTo;
+    }
+    if(myStatus.valveState4.isConnected){
+      digitalWrite(VALVE_4, setTo);
+      myStatus.valveState4.state = setTo;
+    }
+    break;
   default:
     break;
   }
@@ -366,7 +384,7 @@ void updateFlowRate(){
     float beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
     delay(RATE_MEASURING_PERIOD);                                        // wait 5 seconds
     //endLiters = pulses/7.5/60.0;                      // is end amount of liters
-    myStatus.currentFlowRate = (pulses/7.5/60.0-beginLiters)/RATE_MEASURING_PERIOD*15.8503; // convert liters/sec to GPM //TODO something is wrong with this
+    myStatus.currentFlowRate = (pulses/7.5/60.0-beginLiters)*(1000*60/RATE_MEASURING_PERIOD)*15.8503; // convert liters/sec to GPM //TODO something is wrong with this
     if(myStatus.currentFlowRate > MAX_MEASUREABLE_GPM) 
       myStatus.maxedOutFlowMeter = true;
     myStatus.accumulatedFlow += pulses/7.5/60.0*0.264172;  //  end amount in gallons
@@ -436,6 +454,28 @@ void setLED(uint8_t setTo){
       delay(100);
     }
     break;
+  case GO_TO_SLEEP_SEQUENCE:
+    analogWrite(LED, LED_BRIGHTNESS);
+    delay(125);
+    digitalWrite(LED, LOW);
+    delay(125);
+    analogWrite(LED, LED_BRIGHTNESS);
+    delay(500);
+    digitalWrite(LED, LOW);
+    break;
+  case AWAKE_SEQUENCE:
+    analogWrite(LED, LED_BRIGHTNESS);
+    delay(500);
+    digitalWrite(LED, LOW);
+    delay(125);
+    analogWrite(LED, LED_BRIGHTNESS);
+    delay(125);
+    digitalWrite(LED, LOW);
+    delay(125);
+    analogWrite(LED, LED_BRIGHTNESS);
+    delay(125);
+    digitalWrite(LED, LOW);
+    break;
   default:
     break;
   }
@@ -495,6 +535,7 @@ void initPins(){
 void initStatus(){
   // isAwake
   myStatus.isAwake = true;
+  setLED(AWAKE_SEQUENCE);
   
   // storedVIN
   myStatus.storedVIN = EEPROM.read(VIN_EEPROM_ADDR);
@@ -583,7 +624,7 @@ void printNodeStatus(){
   if(myStatus.isAwake == false) Serial.println("NODE IS IN STANDBY");
 
   Serial.print("Input voltage     : ");
-  Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.6/1023.0); Serial.print(" V  : ");
+  Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.print(" V  : ");
   if(myStatus.voltageState == GOOD_VOLTAGE) Serial.println("good");
   else if(myStatus.voltageState == HIGH_VOLTAGE) Serial.println("HIGH INPUT VOLTAGE!");
   else if(myStatus.voltageState == LOW_VOLTAGE) Serial.println("LOW INPUT VOLTAGE!");
@@ -625,6 +666,7 @@ void printNodeStatus(){
   else if(myStatus.meshState == MESH_DISCONNECTED) Serial.println("DISCONNECTED!");
 }
 
+
 //////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////     Setup       //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -643,7 +685,7 @@ void setup(){
     Serial.println("\n\n////Special boot sequence////");
 
     // store VIN value in EEPROM
-    Serial.print("Reading voltage source: "); Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.6/1023.0); Serial.println("V\n");
+    Serial.print("Reading voltage source: "); Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.println("V\n");
     myStatus.storedVIN = analogRead(VIN_REF)>>2; // shave off the last two bits to fit in one byte
     EEPROM.write(VIN_EEPROM_ADDR, myStatus.storedVIN);
   }
@@ -656,7 +698,7 @@ void setup(){
   //printNodeStatus();
   // print ID and number and location of connected valves and flow meters
   Serial.print(F("\n/////////Booted//////////\nNodeID: ")); Serial.println(readMyID());
-  Serial.print(F("Voltage source: ")); Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.6/1023.0); Serial.print("V, ");
+  Serial.print(F("Voltage source: ")); Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.print("V, ");
   if(analogRead(VIN_REF)>>2 > myStatus.storedVIN*(1+OK_VIN_RANGE))
     Serial.println("HI VOLTAGE WARNING");
   else if (analogRead(VIN_REF)>>2 < myStatus.storedVIN*(1-OK_VIN_RANGE))
@@ -715,7 +757,7 @@ void setup(){
               //    been dicharging during previous setup, so 50ms is sufficient
   pinMode(RESET_PIN, INPUT);
   pinMode(RESET_GND, OUTPUT);
-  digitalWrite(RESET_GND, LOW);
+  digitalWrite(RESET_GND, LOW); 
 }
 
 
@@ -723,6 +765,8 @@ void setup(){
 ///////////////////////////////     Loop        //////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 void loop() {
+  
+  
   // refresh the reset
   refreshReset();
 
@@ -747,6 +791,10 @@ void loop() {
       setValve(2, OFF);
       setValve(3, OFF);
       setValve(4, OFF);
+      setLED(GO_TO_SLEEP_SEQUENCE);
+    }
+    else{
+      setLED(AWAKE_SEQUENCE);
     }
 
     // let the master know
@@ -825,6 +873,7 @@ void loop() {
     case IS_NEW_DAY_H:
       resetAccumulatedFlow();
       myStatus.isAwake = true;
+      setLED(AWAKE_SEQUENCE);
       break;
       
     default:
