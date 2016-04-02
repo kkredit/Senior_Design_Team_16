@@ -37,15 +37,15 @@
  /* Headers */
  
  // -- Beginning of file --
- /* 
-  * [filename.filetype]
-  * 
-  * Descriptive sentence explaining what the file contains, its purpose, and its role in the overall
-  * system. Split accross multiple lines if necessary.
-  * 
-  * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
-  * Last Modified: [datelastmodified]
-  */
+/* 
+ * [filename.filetype]
+ * 
+ * Descriptive sentence explaining what the file contains, its purpose, and its role in the overall
+ * system. Split accross multiple lines if necessary.
+ * 
+ * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
+ * Last Modified: [datelastmodified]
+ */
 
 // -- Functions --
 /* 

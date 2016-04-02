@@ -8,13 +8,12 @@
  *    - Relaying information to the master
  * 
  * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
- * Last Modified: 4/1/16
+ * Last Modified: 4/2/16
  */
 
-//////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////  Preprocessor   //////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////  Preprocessor   ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // includes
 #include "RF24.h"
 #include "RF24Network.h"
@@ -42,13 +41,13 @@
 #define IDPIN_0   A3
 #define IDPIN_1   A4
 #define IDPIN_2   A5
-#define IDPIN_3   A6  //note: analog input only--has external pullup
-#define VIN_REF   A7  //note: analog input only--no external pullup
+#define IDPIN_3   A6  //note: analog input only, no internal pullup--has external pullup
+#define VIN_REF   A7  //note: analog input only, no internal pullup--no external pullup
 
 
-//////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////     Globals     //////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////     Globals     ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // mesh network
 RF24 radio(RF24_CE, RF24_CS);
@@ -56,10 +55,11 @@ RF24Network network(radio);
 RF24Mesh mesh(radio, network);
 
 // flow sensor
-volatile uint32_t pulses = 0; // count how many pulses
+//volatile uint16_t pulses = 0; // count how many pulses
 volatile uint8_t lastflowpinstate; // track the state of the pulse pin
 volatile uint32_t lastflowratetimer = 0; // you can try to keep time of how long it is between pulses
-volatile float flowrate; // and use that to calculate a flow rate
+volatile float flowRates[FLOW_RATE_SAMPLE_SIZE] = {0}; // and use that to calculate a flow rate
+volatile uint16_t flowRatePos = 0;
 
 // flags
 volatile bool hadButtonPress = false;
@@ -70,9 +70,9 @@ Node_Status myStatus;
 uint8_t statusCounter = 0;
 
 
-//////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////     ISRs        //////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////     ISRs        ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 /*
  * handleButtonISR()
  * 
@@ -96,9 +96,46 @@ void getNodeStatusISR(){
   updateNodeStatusFlag = true;
 }
 
-//////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////// Helper Functions//////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
+/*
+ * Setup flow meter; borrowed function
+ */
+SIGNAL(TIMER0_COMPA_vect){
+  uint8_t x = digitalRead(FRATE);
+
+  // if no flow since last check
+  if (x == lastflowpinstate){
+    lastflowratetimer++;
+    //myStatus.currentFlowRate = 60.0*2.0*0.264172/lastflowratetimer;
+  }
+
+  myStatus.currentFlowRate -= flowRates[flowRatePos]/((float) FLOW_RATE_SAMPLE_SIZE);
+  flowRates[flowRatePos] = 60.0*2.0*0.264172/lastflowratetimer;
+  myStatus.currentFlowRate += flowRates[flowRatePos]/((float) FLOW_RATE_SAMPLE_SIZE);
+  flowRatePos = (flowRatePos + 1) % FLOW_RATE_SAMPLE_SIZE;
+  myStatus.currentFlowRate = max(0, myStatus.currentFlowRate); // can't be negative
+
+  if(myStatus.currentFlowRate > MAX_MEASUREABLE_GPM){
+    myStatus.maxedOutFlowMeter = true;
+  }
+  
+  // else, have flow
+  if (x != lastflowpinstate){
+    //myStatus.currentFlowRate = 60.0*2.0*0.264172/lastflowratetimer;
+    lastflowpinstate = x;
+    lastflowratetimer = 0;
+    
+    // if low to high transition, add to accumulatedFlow
+    if(x == HIGH){
+      //low to high transition!
+      //pulses++;
+      myStatus.accumulatedFlow += 0.000528344; // add 2 mL (converted to gal) to accumulatedFlow
+    }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////// Helper Functions///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
  * getNodeStatus()
@@ -127,10 +164,20 @@ void getNodeStatus(){
   //////////// CHECK FLOW RATE ////////////
 
       // get flow rate, and recheck for false negative regarding having a connected meter
-      updateFlowRate();
+      //updateFlowRate();
+      if(myStatus.hasFlowRateMeter == false && myStatus.accumulatedFlow > 0){
+        myStatus.hasFlowRateMeter = true;
+      }
       
       // if has flow rate meter
       if(myStatus.hasFlowRateMeter){
+
+        // check for maxed out flow rate measurement
+        if(myStatus.currentFlowRate > MAX_MEASUREABLE_GPM){
+          myStatus.maxedOutFlowMeter = true;
+        }
+
+        
         // if valves are open...
         if(myStatus.numOpenValves > 0){
           // if water flowing, good
@@ -164,28 +211,25 @@ void getNodeStatus(){
       // check connection and print status
       if(!mesh.checkConnection()){  //TODO program freezes everytime this check fails
         // unconnected, try to reconnect
-        Serial.println("\n[Mesh not connected, trying to reconnect...]");
+        Serial.println(F("\n[Mesh not connected, trying to reconnect...]"));
         setLED(DISCONNECTED_SEQUENCE);
         if(!mesh.renewAddress(RENEWAL_TIMEOUT)){
           // reconnection effort failed, disconnected
-          setValve(1, OFF);
-          setValve(2, OFF);
-          setValve(3, OFF);
-          setValve(4, OFF);
-          Serial.println("[MESH NOT CONNECTED]");
+          setValve(ALL_VALVES, OFF);
+          Serial.println(F("[MESH NOT CONNECTED]"));
           myStatus.meshState = MESH_DISCONNECTED;
           myStatus.nodeMeshAddress = -1;
         }
         else{
           // reconnection effort succeeded, connected
-          Serial.println("[Mesh reconnected]");
+          Serial.println(F("[Mesh reconnected]"));
           myStatus.meshState = MESH_CONNECTED;
           setLED(CONNECTED_SEQUENCE);
         }
       }
       else{
         // connected
-        //Serial.println("[Connected]");
+        //Serial.println(F("[Connected]");
         myStatus.meshState = MESH_CONNECTED;
         setLED(LED_OFF);
       }
@@ -223,6 +267,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
         // if failed, connection is down
         Serial.println(F("MESH CONNECTION DOWN"));
         myStatus.meshState = MESH_DISCONNECTED;
+        setValve(ALL_VALVES, OFF);
         setLED(DISCONNECTED_SEQUENCE);
         interrupts();
         return false;
@@ -267,44 +312,6 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     //Serial.println(*payload); // cannot dereference void*, and do not know type...
     interrupts();
     return true;
-  }
-}
-
-/*
- * Setup flow meter; borrowed function
- */
-SIGNAL(TIMER0_COMPA_vect){
-  uint8_t x = digitalRead(FRATE);
-  
-  if (x == lastflowpinstate) {
-    lastflowratetimer++;
-    return; // nothing changed!
-  }
-  
-  if (x == HIGH) {
-    //low to high transition!
-    pulses++;
-    //changedPulseFlag = true;
-  }
-  
-  lastflowpinstate = x;
-  flowrate = 1000.0 / lastflowratetimer;  // in hertz
-  lastflowratetimer = 0;
-}
-
-/*
- * Setup flow meter; borrowed function
- * @param bool v: whether to use interrupts
- */
-void useInterrupt(bool v) {
-  if (v) {
-    // Timer0 is already used for millis() - we'll just interrupt somewhere
-    // in the middle and call the "Compare A" function above
-    OCR0A = 0xAF;
-    TIMSK0 |= _BV(OCIE0A);
-  } else {
-    // do not call the interrupt function COMPA anymore
-    TIMSK0 &= ~_BV(OCIE0A);
   }
 }
 
@@ -371,25 +378,6 @@ int8_t setValve(uint8_t whichValve, bool setTo){
   }
   myStatus.numOpenValves = myStatus.valveState1.state + myStatus.valveState2.state + myStatus.valveState3.state + myStatus.valveState4.state;
   return setTo;
-}
-
-
-void updateFlowRate(){
-  // can have false negative when detecting flow meter; if detect none, check again in case
-  if(myStatus.hasFlowRateMeter == false){
-    myStatus.hasFlowRateMeter = digitalRead(FRATE);
-  }
-  
-  if(myStatus.hasFlowRateMeter){
-    float beginLiters = pulses/7.5/60.0;                      // is initial amount of liters
-    delay(RATE_MEASURING_PERIOD);                                        // wait 5 seconds
-    //endLiters = pulses/7.5/60.0;                      // is end amount of liters
-    myStatus.currentFlowRate = (pulses/7.5/60.0-beginLiters)*(1000*60/RATE_MEASURING_PERIOD)*15.8503; // convert liters/sec to GPM //TODO something is wrong with this
-    if(myStatus.currentFlowRate > MAX_MEASUREABLE_GPM) 
-      myStatus.maxedOutFlowMeter = true;
-    myStatus.accumulatedFlow += pulses/7.5/60.0*0.264172;  //  end amount in gallons
-    pulses = 0;
-  }
 }
 
 // to be called once per day, from master
@@ -515,7 +503,11 @@ void initPins(){
   // FRATE -- also init variables
   pinMode(FRATE, INPUT);
   lastflowpinstate = digitalRead(FRATE);
-  useInterrupt(true);
+  //useInterrupt(true);
+  //setupFRateInterrupt();
+  // setup interrupt
+  OCR0A = 0xAF;
+  TIMSK0 |= _BV(OCIE0A);
   
   // LED
   pinMode(LED, OUTPUT);
@@ -553,7 +545,7 @@ void initStatus(){
 
   // currentFlowRate
   myStatus.currentFlowRate = 0;
-  updateFlowRate();
+  //updateFlowRate();
 
   // flowState
   if(myStatus.hasFlowRateMeter == false) myStatus.flowState = HAS_NO_METER;
@@ -619,59 +611,61 @@ void initStatus(){
 
 void printNodeStatus(){
   // print number of times executed
-  Serial.print('\n'); Serial.println(statusCounter++);
+  Serial.println(statusCounter++);
 
-  if(myStatus.isAwake == false) Serial.println("NODE IS IN STANDBY");
+  if(myStatus.isAwake == false) Serial.println(F("NODE IS IN STANDBY"));
 
-  Serial.print("Input voltage     : ");
-  Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.print(" V  : ");
-  if(myStatus.voltageState == GOOD_VOLTAGE) Serial.println("good");
-  else if(myStatus.voltageState == HIGH_VOLTAGE) Serial.println("HIGH INPUT VOLTAGE!");
-  else if(myStatus.voltageState == LOW_VOLTAGE) Serial.println("LOW INPUT VOLTAGE!");
+  Serial.print(F("Input voltage     : "));
+  Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.print(F(" V  : "));
+  if(myStatus.voltageState == GOOD_VOLTAGE) Serial.println(F("good"));
+  else if(myStatus.voltageState == HIGH_VOLTAGE) Serial.println(F("HIGH INPUT VOLTAGE!"));
+  else if(myStatus.voltageState == LOW_VOLTAGE) Serial.println(F("LOW INPUT VOLTAGE!"));
 
   // if has flow rate meter, tell current rate and accumulated flow
   if(myStatus.hasFlowRateMeter){
-    Serial.print("Current flow rate : "); Serial.print(myStatus.currentFlowRate); Serial.print(" GPM : ");
-    if(myStatus.flowState == NO_FLOW_GOOD) Serial.println("good");
-    else if(myStatus.flowState == FLOWING_GOOD) Serial.println("good");
-    else if(myStatus.flowState == STUCK_AT_OFF) Serial.println("VALVE OPEN BUT NO FLOW!");
-    else if(myStatus.flowState == STUCK_AT_ON) Serial.println("VALVE LEAKING!");
-    Serial.print("Accumulated flow  : "); Serial.print(myStatus.accumulatedFlow); Serial.println(" gal");
+    Serial.print(F("Current flow rate : ")); Serial.print(myStatus.currentFlowRate); Serial.print(F(" GPM : "));
+    if(myStatus.flowState == NO_FLOW_GOOD) Serial.println(F("good"));
+    else if(myStatus.flowState == FLOWING_GOOD) Serial.println(F("good"));
+    else if(myStatus.flowState == STUCK_AT_OFF) Serial.println(F("A VALVE IS OPEN BUT HAVE NO FLOW!"));
+    else if(myStatus.flowState == STUCK_AT_ON) Serial.println(F("A VALVE IS LEAKING!"));
+    Serial.print(F("Accumulated flow  : ")); Serial.print(myStatus.accumulatedFlow); Serial.print(F(" gal"));
+    myStatus.maxedOutFlowMeter ? Serial.println(F("*")) : Serial.println(F(""));
   }
   // else tell that has no meter
-  else Serial.println("No flow meter");
+  else Serial.println(F("No flow meter"));
 
   // if valve is connected, tell state
   if(myStatus.valveState1.isConnected){
-    Serial.print("Valve 1 is        : "); 
-    myStatus.valveState1.state ? Serial.println("OPEN") : Serial.println("closed");
+    Serial.print(F("Valve 1 is        : ")); 
+    myStatus.valveState1.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
   }
   if(myStatus.valveState2.isConnected){
-    Serial.print("Valve 2 is        : "); 
-    myStatus.valveState2.state ? Serial.println("OPEN") : Serial.println("closed");
+    Serial.print(F("Valve 2 is        : ")); 
+    myStatus.valveState2.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
   }
   if(myStatus.valveState3.isConnected){
-    Serial.print("Valve 3 is        : "); 
-    myStatus.valveState3.state ? Serial.println("OPEN") : Serial.println("closed");
+    Serial.print(F("Valve 3 is        : ")); 
+    myStatus.valveState3.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
   }
   if(myStatus.valveState4.isConnected){
-    Serial.print("Valve 4 is        : "); 
-    myStatus.valveState4.state ? Serial.println("OPEN") : Serial.println("closed");
+    Serial.print(F("Valve 4 is        : ")); 
+    myStatus.valveState4.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
   }
 
   // tell mesh state
-  Serial.print("Node ID, address  : "); Serial.print(myStatus.nodeID); Serial.print(", "); 
-  Serial.print(myStatus.nodeMeshAddress); Serial.print("     : ");
-  if(myStatus.meshState == MESH_CONNECTED) Serial.println("good");
-  else if(myStatus.meshState == MESH_DISCONNECTED) Serial.println("DISCONNECTED!");
+  Serial.print(F("Node ID, address  : ")); Serial.print(myStatus.nodeID); Serial.print(F(", ")); 
+  Serial.print(myStatus.nodeMeshAddress); Serial.print(F("     : "));
+  if(myStatus.meshState == MESH_CONNECTED) Serial.println(F("good\n"));
+  else if(myStatus.meshState == MESH_DISCONNECTED) Serial.println(F("DISCONNECTED!\n"));
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////     Setup       //////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////     Setup       ////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup(){
 
+  // initaialize all the pins
   initPins();
   
   // begin serial communication
@@ -680,12 +674,10 @@ void setup(){
   // check if button is being pressed; if so, do special startup
   if(digitalRead(BUTTON) == 0){
     setLED(SPECIAL_BOOT_SEQUENCE);
-
-    // do special stuff
-    Serial.println("\n\n////Special boot sequence////");
+    Serial.println(F("\n\n////Special boot sequence////"));
 
     // store VIN value in EEPROM
-    Serial.print("Reading voltage source: "); Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.println("V\n");
+    Serial.print(F("Reading voltage source: ")); Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.println(F("V\n"));
     myStatus.storedVIN = analogRead(VIN_REF)>>2; // shave off the last two bits to fit in one byte
     EEPROM.write(VIN_EEPROM_ADDR, myStatus.storedVIN);
   }
@@ -693,26 +685,27 @@ void setup(){
   // "power-on" light sequence
   setLED(TURN_ON_SEQUENCE);
 
+  // initialize myStatus
   initStatus();
 
-  //printNodeStatus();
   // print ID and number and location of connected valves and flow meters
   Serial.print(F("\n/////////Booted//////////\nNodeID: ")); Serial.println(readMyID());
-  Serial.print(F("Voltage source: ")); Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.print("V, ");
-  if(analogRead(VIN_REF)>>2 > myStatus.storedVIN*(1+OK_VIN_RANGE))
-    Serial.println("HI VOLTAGE WARNING");
-  else if (analogRead(VIN_REF)>>2 < myStatus.storedVIN*(1-OK_VIN_RANGE))
-    Serial.println("LOW VOLTAGE WARNING");
-  else
-    Serial.println("within expected range");
-  Serial.print("Valve 1: "); myStatus.valveState1.isConnected ? Serial.println("CONNECTED") : Serial.println("disconnected");
-  Serial.print("Valve 2: "); myStatus.valveState2.isConnected ? Serial.println("CONNECTED") : Serial.println("disconnected");
-  Serial.print("Valve 3: "); myStatus.valveState3.isConnected ? Serial.println("CONNECTED") : Serial.println("disconnected");
-  Serial.print("Valve 4: "); myStatus.valveState4.isConnected ? Serial.println("CONNECTED") : Serial.println("disconnected");
-  //Serial.print("FRate:   "); myStatus.hasFlowRateMeter ? Serial.println("CONNECTED\n") : Serial.println("disconnected\n");
-  // should be the above, but have slightly high probability of false negative on the first try, so just check directly
-  Serial.print("FRate:   "); digitalRead(FRATE) ? Serial.println("CONNECTED\n") : Serial.println("disconnected\n");
-
+  Serial.print(F("Voltage source: ")); Serial.print((analogRead(VIN_REF)>>2<<2)*3*4.8/1023.0); Serial.print(F("V, "));
+  if(analogRead(VIN_REF)>>2 > myStatus.storedVIN*(1+OK_VIN_RANGE)){
+    Serial.println(F("HI VOLTAGE WARNING"));
+  }
+  else if (analogRead(VIN_REF)>>2 < myStatus.storedVIN*(1-OK_VIN_RANGE)){
+    Serial.println(F("LOW VOLTAGE WARNING"));
+  }
+  else{
+    Serial.println(F("within expected range"));
+  }
+  Serial.print(F("Valve 1: ")); myStatus.valveState1.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
+  Serial.print(F("Valve 2: ")); myStatus.valveState2.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
+  Serial.print(F("Valve 3: ")); myStatus.valveState3.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
+  Serial.print(F("Valve 4: ")); myStatus.valveState4.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
+  // should use myStatus.hasFlowRateMeter, but have slightly high probability of false negative on the first try, so just check again
+  Serial.print(F("FRate:   ")); digitalRead(FRATE) ? Serial.println(F("CONNECTED\n")) : Serial.println(F("disconnected\n"));
 
   // set NodeID and prep for mesh.begin()
   mesh.setNodeID(myStatus.nodeID); // do manually
@@ -723,16 +716,16 @@ void setup(){
   while(!success){
     uint8_t attempt;
     for(attempt=1; attempt<=CONNECTION_TRIES; attempt++){
-      Serial.print(F("Connecting to the mesh (attempt ")); Serial.print(attempt); Serial.print(")... ");
+      Serial.print(F("Connecting to the mesh (attempt ")); Serial.print(attempt); Serial.print(F(")... "));
       success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
       if(success){
-        Serial.println("CONNECTED");
+        Serial.println(F("CONNECTED"));
         break;
       }
-      else Serial.println("FAILED");
+      else Serial.println(F("FAILED"));
     }
     if(!success){
-      Serial.println("Trying again in 15 minutes. Else powerdown or reset.\n");
+      Serial.println(F("Trying again in 15 minutes. Else powerdown or reset.\n"));
       delay(DISCONNECTED_SLEEP);
     }
   }
@@ -761,11 +754,10 @@ void setup(){
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////     Loop        //////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-void loop() {
-  
+////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////     Loop        ////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void loop() {  
   
   // refresh the reset
   refreshReset();
@@ -777,20 +769,19 @@ void loop() {
   if(updateNodeStatusFlag){
     getNodeStatus();
     printNodeStatus();
+
+    // reset the flag
     updateNodeStatusFlag = false;
   }
 
-  // toggle between awake and asleep
+  // if had buttonpress, toggle between awake and asleep
   if(hadButtonPress){
     // toggle states between asleep and awake
     myStatus.isAwake = !myStatus.isAwake;
 
     // if asleep, close valves
     if(myStatus.isAwake == false){
-      setValve(1, OFF);
-      setValve(2, OFF);
-      setValve(3, OFF);
-      setValve(4, OFF);
+      setValve(ALL_VALVES, OFF);
       setLED(GO_TO_SLEEP_SEQUENCE);
     }
     else{
@@ -808,72 +799,46 @@ void loop() {
   while(network.available()){
     RF24NetworkHeader header;
     network.peek(header);
-    //void* payload = malloc(sizeof(float)); // float is largest possible size
-    //network.read(header, payload, sizeof(payload));
     Serial.print(F("Received ")); Serial.print(char(header.type)); Serial.println(F(" type message."));
     Serial.print(F("From: ")); Serial.println(mesh.getNodeID(header.from_node));
 
     switch(header.type){
     case SET_VALVE_H:
-      // Valve command, on or off; type is bool
-      //  set the value and send return message
+      Valve_Command vc;
+      network.read(header, &vc, sizeof(vc));
+      Serial.print(F("Command is to turn valve ")); Serial.print(vc.whichValve); Serial.print(F(" ")); vc.onOrOff ? Serial.println(F("ON")) : Serial.println(F("OFF"));
       int8_t result;
+      
+      // if node is asleep, throw error
       if(myStatus.isAwake == false){
+        Serial.println(F("But I am asleep, so I am ingnoring it."));
         result = NODE_IS_ASLEEP_ERROR;
         safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
       }
-      Valve_Command vc;
-      network.read(header, &vc, sizeof(vc));
-      Serial.print(F("Command is to turn valve ")); Serial.print(vc.whichValve); Serial.print(" "); vc.onOrOff ? Serial.println("ON") : Serial.println("OFF");
-      
-      result = setValve(vc.whichValve, vc.onOrOff);
-      safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
+
+      // else, read command, execute, and return result
+      else{        
+        result = setValve(vc.whichValve, vc.onOrOff);
+        safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
+      }
       break;
-      
-    case INFO_REQUEST_H:    
-      // Request; type is char
-      char typeOfData;
-      network.read(header, &typeOfData, sizeof(typeOfData));
-      
-      switch( typeOfData ){
-      case GET_VALVE_P:
-        // tell current valve state
-        uint8_t whichValve;
-        network.read(header, &whichValve, sizeof(whichValve));
-        Serial.print(F("Command is to tell valve state of valve ")); Serial.print(whichValve);
-        Valve_Status vs;
-        if(whichValve == 1) vs = myStatus.valveState1;
-        else if(whichValve == 2) vs = myStatus.valveState2;
-        else if(whichValve == 3) vs = myStatus.valveState3;
-        else myStatus.valveState4;
-        Serial.print(F(", which is ")); vs.isConnected ? (vs.state ? Serial.println("ON") : Serial.println("OFF")) : Serial.println("DISCONNECTED");
-        safeMeshWrite(MASTER_ADDRESS, &vs, SEND_VALVE_H, sizeof(vs), DEFAULT_SEND_TRIES);        
-        break;
-      case GET_FLOW_RATE_P:
-        // tell current flow rate
-        Serial.print(F("Command is to current flow rate... "));
-        updateFlowRate();
-        Serial.print(F("Flow rate is ")); Serial.print(myStatus.currentFlowRate); Serial.println(F(" GPM"));
-        safeMeshWrite(MASTER_ADDRESS, &myStatus.currentFlowRate, SEND_FLOW_RATE_H, sizeof(myStatus.currentFlowRate), DEFAULT_SEND_TRIES);
-        break;
-      case GET_NODE_STATUS_P:
-        // return status
-        Serial.print(F("Command is to tell my status: ")); printNodeStatus();
-        safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
-        break;
-      default:
-        break;
-      }      
+
+    case GET_NODE_STATUS_H:
+      Serial.print(F("Command is to tell my status: ")); printNodeStatus();
+      safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
       break;
-      
+    
     case FORCE_RESET_H:
+      Serial.println(F("Command is to reset--RESETTING"));
       hardReset();
       break;
 
     case IS_NEW_DAY_H:
+      Serial.println(F("It is a new day!"));
       resetAccumulatedFlow();
       myStatus.isAwake = true;
       setLED(AWAKE_SEQUENCE);
+      safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NEW_DAY_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
       break;
       
     default:

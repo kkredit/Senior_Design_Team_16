@@ -5,7 +5,7 @@
  * For the GardeNet system
  *
  * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
- * Last modified: 3/26/16
+ * Last modified: 4/2/16
  */
  
  
@@ -47,27 +47,32 @@ struct Node_Status{
 #define COMM_CHANNEL        12            // Channel to use for communication
 #define DATA_RATE           RF24_250KBPS  // RF24 mesh communication data rate
 #define CONNECT_TIMEOUT     15000         // time in ms before mesh.begin() times out
-#define DEFAULT_SEND_TRIES  5             // number of tries to send a message if send fails but are connected  
+#define DEFAULT_SEND_TRIES  5             // number of tries to send a message if send fails but are
+                                          // connected  
 #define RETRY_PERIOD        1000          // number of ms to wait before retrying to send a message
 #define RENEWAL_TIMEOUT     15000         // time in ms before mesh.renewAddress() times out
-#define CONNECTION_TRIES    5             // number of tries to connect before waiting going to sleep
-#define DISCONNECTED_SLEEP  (15*60000)    // (15 minutes) -- time to wait before trying to connect again
+#define CONNECTION_TRIES    5             // number of tries to connect before waiting going to 
+                                          // sleep
+#define DISCONNECTED_SLEEP  (15*60000)    // (15 minutes) -- time to wait before trying to connect 
+                                          // again
 
 
 // communication protocol settings -- _H stands for message Headers, _P stands for message Payloads
 // master to nodes
 #define SET_VALVE_H         'V'
-#define INFO_REQUEST_H      'R'
-#define GET_VALVE_P         'v'
-#define GET_FLOW_RATE_P     'r'
-#define GET_NODE_STATUS_P   'n'
-#define FORCE_RESET_H       'F'
+//#define INFO_REQUEST_H      'R'     DEPRICATED
+//#define GET_VALVE_P         'v'     DEPRICATED
+//#define GET_FLOW_RATE_P     'r'     DEPRICATED
+//#define GET_NODE_STATUS_P   'n'     DEPRICATED
+#define GET_NODE_STATUS_H   'S'
+#define FORCE_RESET_H       'R'
 #define IS_NEW_DAY_H        'D'
 // nodes to master
 #define SEND_VALVE_H        'v'
-#define SEND_FLOW_RATE_H    'r'
-#define SEND_NODE_STATUS_H  'n'
-#define SEND_NODE_SLEEP_H   's'
+//#define SEND_FLOW_RATE_H    'r'     DEPRICATED
+#define SEND_NODE_STATUS_H  's'
+#define SEND_NODE_SLEEP_H   'l'
+#define SEND_NEW_DAY_H      'd'
 
 
 // node states -- apply equally to "node" proper and to master
@@ -88,7 +93,7 @@ struct Node_Status{
 #define STUCK_AT_ON       6
 
 
-// LEDR settings
+// LED settings
 #define LED_BRIGHTNESS        255     // 0-255; brightness of LEDR_BRIGHTNESS
 #define LED_OFF               0
 #define LED_ON                1
@@ -110,9 +115,10 @@ struct Node_Status{
 #define OFF                   0
 #define ALL_VALVES            5
 #define BAUD_RATE             9600    // serial communication baud rate
-#define TIMER1_PERIOD         10000000 /* 10s */ // timer period in microseconds (1000000 = 1 sec)
+#define TIMER1_PERIOD         4000000 /* 10s */ // timer period in microseconds (1000000 = 1 sec)
 #define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data
 #define VIN_EEPROM_ADDR       0       // address of the input voltage reading in EEPROM
 #define OK_VIN_RANGE          0.15    // amount that VIN can vary without generating an error
 #define MIN_MEASUREABLE_GPM   0.2642  // is 1 LPM, minimum measuring threshold for our meter
-#define MAX_MEASUREABLE_GPM   7.661   // is 29 LPM, maximumm measureing threshold for our meter
+#define MAX_MEASUREABLE_GPM   7.92516 // is 29 LPM, maximumm measureing threshold for our meter
+#define FLOW_RATE_SAMPLE_SIZE 100
