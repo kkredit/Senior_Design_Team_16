@@ -47,7 +47,7 @@ class JSON_Interface:
 		parsed = json.loads(json_str)
 		temp = True
 		while (temp):
-			zone_string = "zone" + str(i)
+			zone_string = "Zone" + str(i)
 			try:
 				parsed[zone_string]
 				# Anything after this line will not execute if a KeyError is raised

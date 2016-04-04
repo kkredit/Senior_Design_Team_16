@@ -30,8 +30,9 @@ class Event(Base):
 		self._owner = zone_owner
 
 	def __str__(self):
-		return self.day + ": start_time: " + str(self.start_time) + " stop_time: " + str(self.stop_time)\
-			   + " zoneID: " + str(self.owner)
+		#return "\"start_time\": " + str(self.start_time) + " \"stop_time\": : " + str(self.stop_time)\
+			   #+"\"day\": " + self.day + "\"zoneID\" :   " + str(self.owner)
+		return self.to_JSON()
 
 	def __lt__(self, other):
 		if self.start_time < other.start_time and self.owner == other.owner:
@@ -108,5 +109,4 @@ class Event(Base):
 if __name__ == "__main__":
 	e = Event(1.0, 2.0, 'Monday', 1)
 
-	e_JSON = e.to_JSON()
-	print(e_JSON)
+	print(str(e))
