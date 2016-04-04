@@ -5,7 +5,7 @@
  * For the GardeNet system
  *
  * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
- * Last modified: 4/2/16
+ * Last modified: 4/3/16
  */
  
  
@@ -23,8 +23,8 @@ struct Valve_Status{
 
 // Node_Status struct
 struct Node_Status{
-  bool isAwake; // TODO note: is master's duty to check for node being asleep
-  uint8_t storedVIN;
+  bool isAwake;
+  uint16_t storedVIN;
   uint8_t voltageState;
   bool hasFlowRateMeter;
   float currentFlowRate;
@@ -71,6 +71,7 @@ struct Node_Status{
 #define SEND_VALVE_H        'v'
 //#define SEND_FLOW_RATE_H    'r'     DEPRICATED
 #define SEND_NODE_STATUS_H  's'
+#define SEND_JUST_RESET_H   'r'
 #define SEND_NODE_SLEEP_H   'l'
 #define SEND_NEW_DAY_H      'd'
 
@@ -118,6 +119,8 @@ struct Node_Status{
 #define TIMER1_PERIOD         4000000 /* 10s */ // timer period in microseconds (1000000 = 1 sec)
 #define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data
 #define VIN_EEPROM_ADDR       0       // address of the input voltage reading in EEPROM
+#define RESET_EEPROM_ADDR     4       // address of the toldToReset bool in EEPROM
+#define ACC_FLOW_EEPROM_ADDR  8       // address of accumulatedFlow float in EEPROM
 #define OK_VIN_RANGE          0.15    // amount that VIN can vary without generating an error
 #define MIN_MEASUREABLE_GPM   0.2642  // is 1 LPM, minimum measuring threshold for our meter
 #define MAX_MEASUREABLE_GPM   7.92516 // is 29 LPM, maximumm measureing threshold for our meter
