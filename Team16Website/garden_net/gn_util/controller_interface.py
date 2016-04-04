@@ -154,7 +154,6 @@ while True:
 				#sock.close()
 				print(file_data)
 				broadcast(file_data, SOCKET_LIST)
-				sock.close()
 
 			try:
 				data = sock.recv(RECV_BUFFER)
