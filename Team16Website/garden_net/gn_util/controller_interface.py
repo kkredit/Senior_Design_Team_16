@@ -58,6 +58,13 @@ def create_event_list(json_str: str):
 
 		i += 1
 
+def send_event():
+	it = EVENT_LIST.pop()
+	print("Sending: " + str(it))
+	broadcast(str(it), SOCKET_LIST)
+	print("Successfully sent!")
+	time.sleep(5)
+
 interface = Interface()
 SOCKET_LIST = []
 RECV_BUFFER = 8192
@@ -71,10 +78,10 @@ json_conversion = JSON_Interface()
 SOCKET_LIST = []
 EVENT_LIST = []
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-#server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+#server_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host = socket.gethostname()
-port = 5534
+port = 5530
 print("The server hostname is: " + host + " on port: " + str(port))
 
 server_socket.bind(('', port))
@@ -92,8 +99,14 @@ print("The localhost port number for IPC communication is ", + ipc_port)
 
 SOCKET_LIST.append(ipc_socket)
 
-local_ip = socket.gethostbyname(socket.gethostname())
-print(local_ip)
+test_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+test_server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+test_server_port = 5539
+test_server_socket.bind(('localhost', test_server_port))
+test_server_socket.listen(5)
+print("The test_server_socket port number for IPC communication is ", + test_server_port)
+
+SOCKET_LIST.append(test_server_port)
 
 x = 1
 
@@ -103,6 +116,9 @@ while True:
 	except:
 		continue
 
+	if len(EVENT_LIST) != 0:
+		send_event()
+
 	for sock in ready_to_read:
 		if sock == server_socket:
 			client_sock, addr = server_socket.accept()
@@ -111,13 +127,9 @@ while True:
 			print("Client (%s, %s) connected" % addr)
 			welcome = "BIG COCK"
 			#client_sock.send(welcome.encode('utf-8'))
-
-		# elif len(EVENT_LIST) != 0:
-		# 	print("Sending: " + str(it))
-		# 	it = EVENT_LIST.pop()
-		# 	broadcast(str(it), SOCKET_LIST)
-		# 	print("Successfully sent!")
-		# 	time.sleep(5)
+		elif sock == test_server_socket:
+			test, test_addr = test_server_socket.accept()
+			test.close()
 		elif sock == ipc_socket:
 			print("Got a connection from myself")
 			ipc, addr = ipc_socket.accept()
@@ -149,12 +161,12 @@ while True:
 				print("Creating the event list")
 				create_event_list(file_data)
 				print("Event list created")
-				for event in EVENT_LIST:
-					print(str(event))
+				#send_event()
+				#for event in EVENT_LIST:
+				#	print(str(event))
 				#sock.close()
-				print(file_data)
-				broadcast(file_data, SOCKET_LIST)
-				sock.close()
+				#print(file_data)
+				#broadcast(file_data, SOCKET_LIST)
 
 			try:
 				data = sock.recv(RECV_BUFFER)
