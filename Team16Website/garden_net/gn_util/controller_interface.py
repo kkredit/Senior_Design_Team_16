@@ -106,7 +106,7 @@ test_server_socket.bind(('localhost', test_server_port))
 test_server_socket.listen(5)
 print("The test_server_socket port number for IPC communication is ", + test_server_port)
 
-SOCKET_LIST.append(test_server_port)
+SOCKET_LIST.append(test_server_socket)
 
 x = 1
 
@@ -165,13 +165,10 @@ while True:
 				#for event in EVENT_LIST:
 				#	print(str(event))
 				#sock.close()
-<<<<<<< HEAD
 				#print(file_data)
 				#broadcast(file_data, SOCKET_LIST)
-=======
 				print(file_data)
 				broadcast(file_data, SOCKET_LIST)
->>>>>>> b2fa73f1e65c8eb3f4b4417c28762e00ac2145cd
 
 			try:
 				data = sock.recv(RECV_BUFFER)

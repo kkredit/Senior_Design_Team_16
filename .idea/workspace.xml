@@ -2,20 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bc106674-867e-4d05-bad2-d0592623c4cb" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/database.db" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/database.db" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/JSON.py" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/JSON.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/GardeNetControl/Admin/admin.html" afterPath="$PROJECT_DIR$/Team16Website/GardeNetControl/Admin/admin.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/current_schedule_in_db.txt" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/current_schedule_in_db.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_controller_client.py" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_controller_client.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_ipc_client.py" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_ipc_client.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/js/duplicate_delete.js" afterPath="$PROJECT_DIR$/Team16Website/js/duplicate_delete.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/event.py" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/event.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/input_JSON.txt" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/input_JSON.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/ipc_file.txt" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/ipc_file.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/test/one_line_JSON.txt" afterPath="$PROJECT_DIR$/Team16Website/garden_net/test/one_line_JSON.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/trial.py" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/trial.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/trial.txt" afterPath="$PROJECT_DIR$/Team16Website/garden_net/gn_util/trial.txt" />
     </list>
     <ignored path="SeniorDesign.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -36,11 +24,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="controller_interface.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="controller_interface.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="136" column="23" selection-start-line="136" selection-start-column="23" selection-end-line="136" selection-end-column="23" />
+            <state vertical-scroll-proportion="2.0879629">
+              <caret line="108" column="37" selection-start-line="108" selection-start-column="37" selection-end-line="108" selection-end-column="37" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -58,11 +46,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_server.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="dummy_controller_client.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_controller_client.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="test_server.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/test_server.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5092593">
-              <caret line="22" column="2" selection-start-line="22" selection-start-column="2" selection-end-line="22" selection-end-column="2" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="22" column="27" selection-start-line="22" selection-start-column="27" selection-end-line="22" selection-end-column="27" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -121,10 +119,10 @@
         <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/input_JSON.txt" />
         <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/event.py" />
         <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/trial.py" />
-        <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_controller_client.py" />
-        <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py" />
         <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_ipc_client.py" />
         <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/test_server.py" />
+        <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_controller_client.py" />
+        <option value="$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py" />
       </list>
     </option>
   </component>
@@ -546,7 +544,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1280" height="745" extended-state="7" />
+    <frame x="0" y="23" width="1280" height="745" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -905,14 +903,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_controller_client.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.8101852">
-          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/test/one_line_JSON.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.0">
@@ -963,20 +953,28 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py">
+    <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/dummy_controller_client.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="136" column="23" selection-start-line="136" selection-start-column="23" selection-end-line="136" selection-end-column="23" />
+          <caret line="33" column="0" selection-start-line="33" selection-start-column="0" selection-end-line="33" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/test_server.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="27" selection-start-line="22" selection-start-column="27" selection-end-line="22" selection-end-column="27" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/test_server.py">
+    <entry file="file://$PROJECT_DIR$/Team16Website/garden_net/gn_util/controller_interface.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5092593">
-          <caret line="22" column="2" selection-start-line="22" selection-start-column="2" selection-end-line="22" selection-end-column="2" />
+        <state vertical-scroll-proportion="2.0879629">
+          <caret line="108" column="37" selection-start-line="108" selection-start-column="37" selection-end-line="108" selection-end-column="37" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
