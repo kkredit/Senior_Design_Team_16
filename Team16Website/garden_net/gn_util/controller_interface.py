@@ -129,6 +129,8 @@ while True:
 			#client_sock.send(welcome.encode('utf-8'))
 		elif sock == test_server_socket:
 			test, test_addr = test_server_socket.accept()
+			test_response = "true"
+			test.send(test_response.encode('utf-8'))
 			test.close()
 		elif sock == ipc_socket:
 			print("Got a connection from myself")

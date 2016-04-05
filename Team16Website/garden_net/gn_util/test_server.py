@@ -7,16 +7,21 @@ port = 5539
 print("My local hostname: " + host)
 
 try:
-	#soc = socket.create_connection((host, port))
 	soc = socket.create_connection(('localhost', port))
-	#soc = socket.create_connection(('153.106.112.199', port))
-	#socket.create_connection((host, port))
 except:
 	print("Killing and restarting the server")
 	subprocess.call(['./server_script.sh'])
 	exit()
 
 print('Connected to the local host for IPC communication on port ', port, '.')
+
+try:
+	data = soc.recv(1024)
+except:
+	print("Killing and restarting the server")
+	subprocess.call(['./server_script.sh'])
+	exit()
+
 
 soc.close()
 
