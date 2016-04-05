@@ -21,7 +21,6 @@
 // Schedule Class
 #include "Schedule.h"
 #include "ScheduleEvent.h"
-// Interrupt
 #include <TimerOne.h>
 // Modify protocol header file directory as needed
 #include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/settings.h"
@@ -58,6 +57,16 @@ RF24Mesh mesh(radio,network);
 String currentString = "";
 int incomingByte = 0;
 
+/******************************** Timer ***************************/
+list<int> currentEvents;
+/*************** ISR Routine ***************/
+volatile uint8_t interruptCounter = 0;
+time_t previousSec = 0;
+
+/******************************* RESET ***************************************/
+#define RESET_GND A0
+#define RESET_PIN A1
+
 /* the setup function configures and initializes the I/O devices: LEDs, push button, serial port, 
  * and 3G Modem
 */
@@ -83,32 +92,39 @@ void setup() {
   // flash LEDR three times at this point 
   flashLEDR(3, 250);
 
-  // setupMesh();
+  setupMesh();
 
   // flash LEDR four times at this point
-  // flashLEDR(4, 500);
+  flashLEDR(4, 500);
+
+  selfReset();
+
+  // flash LEDR two times at this point
+  flashLEDR(2, 1000);
 
   // attach interrupt to the function that prints out current network status
-  // Timer1.initialize(5000000);
-  // Timer1.attachInterrupt(printStatus);
-  // disconnectModem();
-
+  Timer1.initialize(5000000);
+  Timer1.attachInterrupt(printStatus);
+  
   // flash LEDG to indicate the end of the setup
   flashLEDG(1,1000);
 }
 
 void loop() {
-  // while(PrintModemResponse() > 0);
-  getModemResponse();
-  // updateMesh();
-  // schedule();
+  while(Modem_Serial.available() > 0) {
+    getModemResponse();
+  }
+  if(currentString == "NO CARRIER"){
+    openSocket();
+  }
+  schedule();
+  updateMesh();
 }
 
 
 /*******************************************************************************************
 ****************************** Function Declarations ***************************************
 *******************************************************************************************/
-
 
 /* This function manages the mesh network as needed
  * @param: none
@@ -190,22 +206,9 @@ void updateMesh() {
   }
 }
 
-
-/*
- * Regardless of current state, send message to other to turn on LEDY
- */
-// void handleButton(){
-//  if (counter > 0){
-//    hadButtonPress = true;
-//    //Serial.println(F("Deteceted Button Press"));
-//  } else {
-//    counter++;
-//  }
-//}
-
 void schedule() {
   if(currentString == "true") {
-    Serial.print("Message received. Now I need to send something to Kevin...");
+    Serial.println("Message received. Now I need to send something to Kevin...");
     hadButtonPress = true;
   }
 }
@@ -229,7 +232,7 @@ void printStatus(){
     Serial.print(" RF24Network Address: 0");
     Serial.println(mesh.addrList[i].address,OCT);
  }
-  Serial.println(F("**********************************"));
+  // Serial.println(F("**********************************"));
 }
 
 /* This function flashes LEDR based on the arguments
@@ -269,12 +272,13 @@ void setupPinMode() {
   pinMode(BUTTON, INPUT_PULLUP);
   pinMode(LEDR, OUTPUT);
   pinMode(LEDG, OUTPUT);
-  // while(BUTTON);    // wait for a button press to continue
-  // delay(5000);
   // attach interrup to push button
-  // attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);  
   digitalWrite(LEDR, LOW);
   digitalWrite(LEDG, LOW);
+
+  // RESET_PIN -- set to low immediately to discharge capacitor
+  pinMode(RESET_PIN, OUTPUT);
+  digitalWrite(RESET_PIN, LOW);
 }
 
 /* This function sets up the 3G modem and ensures that it connects to the 
@@ -299,6 +303,11 @@ void setupModem() {
 
   // Soft reset of modem
   Serial.println("Reseting modem");
+
+  Modem_Serial.println("AT#SGACT=1,0");
+  delay(250);
+  while(PrintModemResponse() > 0);
+  
   Modem_Serial.println("ATZ");
   delay(500);
   while(PrintModemResponse() > 0);
@@ -328,12 +337,22 @@ void setupMesh() {
   // radio.setPALevel(RF24_PA_LOW);
   // Set the nodeID to 0 for the master node
   mesh.setNodeID(myNodeID);
-  Serial.println(mesh.getNodeID());
+  // Serial.println(mesh.getNodeID());
   // Connect to the mesh
   Serial.print("Output of mesh.begin(): ");
-  Serial.println(mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT));
+  // Serial.println(mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT));
   // mesh.requestAddress(0);
   mesh.setAddress(0-48,0);
+}
+
+void selfReset() {
+  // enable self-resetting ability
+  delay(50);  // allow capacitor to discharge if was previously charged before enabling autoreset again
+              // 95% = 3*tau = 3*RC = 3*200*100*10^-6 = 60ms -- but never gets fully charged, and has
+              //    been dicharging during previous setup, so 50ms is sufficient
+  pinMode(RESET_PIN, INPUT);
+  pinMode(RESET_GND, OUTPUT);
+  digitalWrite(RESET_GND, LOW);
 }
 
 /************************************ Modem Specific *******************************************/
@@ -345,15 +364,19 @@ void setupMesh() {
 */
 void getModemIP() {
   //  setup TCP socket
-  Modem_Serial.println("AT#SGACT=1,0");
+  Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
   delay(500);
   while(PrintModemResponse() > 0);
 
-  delay(2000);
+  Modem_Serial.println("AT#TCPMAXDAT=1420");
+  delay(500);
+  while(PrintModemResponse() > 0);
 
-  Modem_Serial.println("AT#SGACT=1,1");
+  Modem_Serial.println("at#sgact=1,1");
   delay(500);
   while(PrintModemResponse() > 0); 
+  delay(5000);
+  while(PrintModemResponse() > 0);  
 }
 
 /* This function opens a TCP socket to the GardeNet server and send a message to the server
@@ -361,31 +384,11 @@ void getModemIP() {
  * @return: none
 */
 void openSocket() {
-  // disable socket dial time out
-  Modem_Serial.println("AT#SKTTO=0");
-  // Modem_Serial.println("AT#SKTSET=0,5533,\"gardenet.ddns.net\",255");
-  delay(500);
-  while(PrintModemResponse() > 0);
-
-  // activate CDMA context
-  Modem_Serial.println("#CDMADC=1");
- // Modem_Serial.println("AT#SKTOP");
-  delay(500);
-  while(PrintModemResponse() > 0);
-
   // initiate TCP socket dial
-  // Modem_Serial.println("AT#SD=2,0,5533,\"gardenet.ddns.net\",255,0");
-  // Modem_Serial.println("AT#SKTD=0,1024,\"www.telit.net\",255");
+  Modem_Serial.println("AT#SD=1,0,5531,\"gardenet.ddns.net\",0,0");
+  // Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",255,0");
   delay(500);
   while(PrintModemResponse() > 0);
-
-  /***************************** Recycle Bin ************************************/
-  // Modem_Serial.println("AT#SKTD=0,13,\"time.nist.gov\",0");
-  // Modem_Serial.println("AT#SD=2,0,13,\"time.nist.gov\",255,0");
-  // Modem_Serial.println("AT#SKTD=0,5533,\"gardenet.ddns.net\",255");
-  //  Modem_Serial.println("AT#SKTCT=1200");
-  //  delay(500);
-  //  Modem_Serial.println("Hey server!");
 }
 
 /* This function disconnects the 3G modem from the network and reports the data usage from 
@@ -420,9 +423,10 @@ void disconnectModem() {
 int PrintModemResponse() {
   while(Modem_Serial.available() > 0) {
     //read incoming byte from modem and write byte out to debug serial over USB
-    Serial.write(Modem_Serial.read());
+    // Serial.write(Modem_Serial.read());
+    getModemResponse();
   } 
-  Serial.println();
+  // Serial.println();
   //return number of characters in modem response buffer -- should be zero, but some may have come in since last test
   return Modem_Serial.available();
 }
@@ -442,5 +446,21 @@ void getModemResponse() {
   } else {
     currentString = "";
   }
+}
+
+/************************************ RESET ***********************************/
+void hardReset(){
+  pinMode(RESET_PIN, OUTPUT);
+  digitalWrite(RESET_PIN, HIGH);
+  delay(1000);
+  // arduino resets here
+}
+
+void refreshReset(){
+  pinMode(RESET_PIN, OUTPUT);  
+  digitalWrite(RESET_PIN, LOW);
+  delay(50); // 95% charged: 3*tau = 3*RC = 3*200*47*10^-6 = 28 ms
+  //digitalWrite(RESETPIN, LOW); // to turn off internal pullup
+  pinMode(RESET_PIN, INPUT);
 }
 

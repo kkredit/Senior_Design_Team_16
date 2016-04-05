@@ -35,6 +35,14 @@ void Schedule::deleteDaysSchedule(int day){
   days[day].erase(days[day].begin(),days[day].end());
 }
 
+bool Schedule::isEmpty(int day) {
+  if(days[day].empty()) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 /*
  * Author: Charles A. Kingston
  * Parameters: An int eger to select the day

@@ -17,6 +17,7 @@ public:
   Schedule();
   void insert(int day, ScheduleEvent event);
   void deleteDaysSchedule(int day);
+  bool isEmpty(int day);
   ScheduleEvent popFrontStartTime(int day);
 private:
   list<ScheduleEvent> days[7];

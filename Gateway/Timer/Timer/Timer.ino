@@ -10,81 +10,107 @@
 /*************** Global Variables ****************/
 String currentString = "";
 int incomingByte = 0;
-
-//int currentEvents[10];
 list<int> currentEvents;
-
 
 /*************** ISR Routine ***************/
 // counter
 volatile uint8_t interruptCounter = 0;
 time_t previousSec = 0;
+volatile uint8_t setFlag = 0;
+volatile uint8_t actFlag = 0;
+
 
 /**************** Hard-coded Schedule ********************/
-Schedule test0;
-ScheduleEvent event0;
-ScheduleEvent event1;
-ScheduleEvent event2;
+
 
 void setup() {
   // Setup serial port
   Serial.begin(9600);
   while (!Serial);
-  // setupModem();
-  // timeInit();
+  setupModem();
+  timeInit();
   // disconnectModem();
 
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
-  setTime(1, 10, 45, 1, 1, 16);
+  // remember to fix line 168 in Time.cpp
+  // setTime(1, 9, 45, 6, 3, 16);
   
   Timer1.initialize(5000000);
   Timer1.attachInterrupt(digitalClockDisplay);
-
-  // setup a schedule for testing purpose
-  event0.setNodeID(0);
-  event0.setStartHour(1);
-  event0.setStartMin(10);
-  event0.setEndHour(1);
-  event0.setEndMin(12);
-
-  // second schedule
-  event1.setNodeID(1);
-  event1.setStartHour(1);
-  event1.setStartMin(12);
-  event1.setEndHour(1);
-  event1.setEndMin(13);
-
-  // third schedule
-  event2.setNodeID(2);
-  event2.setStartHour(1);
-  event2.setStartMin(10);
-  event2.setEndHour(1);
-  event2.setEndMin(14);
 }
 
 void loop() {
-  // getModemResponse();
-  if(now() != previousSec) {
-    interruptCounter = interruptCounter + 1;
-    previousSec = now();
+  Schedule thisSchedule;
+  ScheduleEvent event0;
+  ScheduleEvent event1;
+  ScheduleEvent event2;
+
+  getModemResponse();
+  
+  if(hour() == 1 && minute() == 10) {
+    setFlag = 1;
+  } else if (hour() == 1 && minute() == 13) {
+    setFlag = 0;
   }
   
-  checkEvent(event0);
-  checkEvent(event1);
-  checkEvent(event2);
-
-  if(interruptCounter == 11) {
-    wateringEvent(event0);
-    wateringEvent(event1);
-    wateringEvent(event2);
+  if(now() != previousSec && actFlag == 1) {
+    interruptCounter = interruptCounter + 1;
+    previousSec = now();
+  } else if(actFlag == 0) {
     interruptCounter = 0;
-  } 
+  }
+  
+  // getModemResponse();
+  if(setFlag == 1) {
+    event0 = createEvent(0, 1, 10, 1, 12);
+    event1 = createEvent(1, 1, 12, 1, 13);
+    // event2 = createEvent(2, 1, 10, 1, 14);
+    thisSchedule.insert(0, event0);
+    thisSchedule.insert(0, event1);
+    // thisSchedule.insert(0, event2);
+
+    actFlag = 1;
+  } else {
+    actFlag = 0;
+  }
+
+  if(actFlag == 1) {
+      checkEvents(thisSchedule);
+      if(interruptCounter == 11) {
+        wateringEvents(thisSchedule);
+        interruptCounter = 0;
+      } 
+  }
 }
 
-/***************** Function Declarations *******************/
+/*****************************************************************
+********************* Function Declarations **********************
+******************************************************************/
 
 /************************ Schedule *******************************/
+
+ScheduleEvent createEvent(int myID, int myStartHour, int myStartMin, int myEndHour, int myEndMin) {
+  ScheduleEvent myEvent;
+  myEvent.setNodeID(myID);
+  myEvent.setStartHour(myStartHour);
+  myEvent.setStartMin(myStartMin);
+  myEvent.setEndHour(myEndHour);
+  myEvent.setEndMin(myEndMin);
+  return myEvent;
+}
+
+/* This function checks all events within a specific day of a schedule
+ * and makes necessary changes to the current event list
+ * @param: mySchedule, a schedule
+ * @return: none
+*/
+void checkEvents(Schedule mySchedule) {
+  while(!mySchedule.isEmpty(0)) {
+    ScheduleEvent myEvent = mySchedule.popFrontStartTime(0);
+    checkEvent(myEvent);
+  }
+}
 
 /* When the time kept by our internal timer is the same as the parameter's 
  * start time, the parameter's ID is appended to the list where we keep the
@@ -94,10 +120,22 @@ void loop() {
  * @return: none
 */
 void checkEvent(ScheduleEvent myEvent) {
-  if (myEvent.getStartHour() == hour() && myEvent.getStartMin() == minute() && isCurrentEvent(currentEvents, myEvent.getNodeID()) != 1) {
+  if (myEvent.getStartHour() == hour() && myEvent.getStartMin() == minute() && isCurrentEvent(myEvent.getNodeID()) != 1) {
     currentEvents.push_front(myEvent.getNodeID());
   } else if (myEvent.getEndHour() == hour() && myEvent.getEndMin() == minute()){
     currentEvents.remove(myEvent.getNodeID());
+  }
+}
+
+/* This function sends out instructions to the mesh network based on the current
+ * event list.
+ * @param: mySchedule, a schedule
+ * @return: none
+*/
+void wateringEvents(Schedule mySchedule) {
+  while(!mySchedule.isEmpty(0)) {
+    ScheduleEvent myEvent = mySchedule.popFrontStartTime(0);
+    wateringEvent(myEvent);
   }
 }
 
@@ -106,14 +144,8 @@ void checkEvent(ScheduleEvent myEvent) {
  * @param: myEvent, a member of the ScheduleEvent class
  * @return: none
 */
-//void wateringEvents() {
-//  int tmp = currentEvents.front();
-//  Serial.println(tmp);
-//
-//}
-
 void wateringEvent(ScheduleEvent myEvent) {
-  if(isCurrentEvent(currentEvents, myEvent.getNodeID()) == 1) {
+  if(isCurrentEvent(myEvent.getNodeID()) == 1) {
     Serial.print("Valve "); Serial.print(myEvent.getNodeID()); Serial.print(" is watering..."); Serial.println();
   } else {
     Serial.print("Valve "); Serial.print(myEvent.getNodeID()); Serial.print(" is not watering..."); Serial.println();
@@ -126,8 +158,8 @@ void wateringEvent(ScheduleEvent myEvent) {
  *         myItem, an integer representing an event ID
  * @return: 0 or 1
 */
-int isCurrentEvent(list<int> myList, int myItem) {
-  if(find(myList.begin(), myList.end(), myItem) != myList.end()) {
+int isCurrentEvent(int myItem) {
+  if(find(currentEvents.begin(), currentEvents.end(), myItem) != currentEvents.end()) {
     return 1;
   } else {
     return 0;
@@ -231,9 +263,13 @@ void timeInit() {
   Modem_Serial.println("#CDMADC=1");
   delay(500);
   while(PrintModemResponse() > 0);
+
+  Modem_Serial.println("AT#SCFG=1,1,100,0,600,50");
+  delay(500);
+  while(PrintModemResponse() > 0);
   
   // Modem_Serial.println("AT#SKTD=0,13,\"time.nist.gov\",255");
-  Modem_Serial.println("AT#SD=2,0,13,\"time.nist.gov\",255,0");
+  Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",255,0");
   delay(250);
   
   // while(PrintModemResponse() > 0); 
@@ -361,5 +397,3 @@ int PrintModemResponse() {
   //return number of characters in modem response buffer -- should be zero, but some may have come in since last test
   return Modem_Serial.available();
 }
-
-
