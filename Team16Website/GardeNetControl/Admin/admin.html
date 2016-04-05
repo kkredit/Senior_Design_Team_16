@@ -1890,7 +1890,42 @@
 	</div>
 </div>
 
+<footer class="page-footer teal">
+  <div class="container">
+    <div class="row">
+      <div class="col l5 s13">
+        <h5 class="white-text">Company Bio</h5>
+        <p class="grey-text text-lighten-4">We are a team of college students working on this project for our Senior Design Project at Calvin College. Feel free to email us with any questions. Any help would also be greatly appreciated.</p>
 
+
+      </div>
+      <div class="col l3 s12">
+        <h5 class="white-text">Gardens</h5>
+        <ul>
+          <li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+          <li><a class="white-text" href="http://www.eighthdayfarm.org/">Eighth Day Farm</a></li>
+        </ul>
+      </div>
+      <div class="col l2 s12">
+        <h5 class="white-text">Connect</h5>
+        <ul>
+          <li><a class="white-text" href="mailto:jrc32@students.calvin.edu">John Connell</a></li>
+          <li><a class="white-text" href="mailto:xj22@students.calvin.edu">Anthony Jin</a></li>
+          <li><a class="white-text" href="mailto:cak33@students.calvin.edu">Charles Kingston</a></li>
+          <li><a class="white-text" href="mailto:knk9@students.calvin.edu">Kevin Kredit</a></li>
+        </ul>
+      </div>
+      <div class="col l1 s12">
+       <a href = "http://www.calvin.edu"><img src= "../../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
+     </div>
+   </div>
+ </div>
+ <div class="footer-copyright">
+  <div class="container">
+    Website by John Connell made with <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a> <a href = "http://i.imgur.com/UyDbQ7S.gif" class = "right-align teal-text text-darken-1">secrets are best kept by friends</a>
+  </div>
+</div>
+</footer>
 
 <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 
@@ -1905,7 +1940,7 @@
 				$.each(item, function(j, event){
 					var nextName = "";
 					if(j=="openevents"){
-						nextName = thingName + "[" + j +"]]";
+						nextName = thingName + "[" + j +"]";
 						$("input[name='"+nextName+"']").val(event);
 
 					}else{

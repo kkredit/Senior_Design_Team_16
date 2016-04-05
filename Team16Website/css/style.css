@@ -10,6 +10,12 @@
 	display:none;
 }
 
+select[disabled] {
+  color: black;
+  background-color: white;
+  border-style: solid;
+}
+
 nav ul a,
 nav .brand-logo {
   color: #444;

@@ -6811,10 +6811,10 @@ select.browser-default {
   display: block; }
 
 select:disabled {
-  color: rgba(0, 0, 0, 0.3); }
+  color: black; }
 
 .select-wrapper input.select-dropdown:disabled {
-  color: rgba(0, 0, 0, 0.3);
+  color: rgba(0, 0, 0, 0.7);
   cursor: default;
   -webkit-user-select: none;
   /* webkit (safari, chrome) browsers */
@@ -6828,7 +6828,7 @@ select:disabled {
   color: rgba(0, 0, 0, 0.3); }
 
 .select-dropdown li.disabled {
-  color: rgba(0, 0, 0, 0.3);
+  color: black;
   background-color: transparent; }
 
 /*********************

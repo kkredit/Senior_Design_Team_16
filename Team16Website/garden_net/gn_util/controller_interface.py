@@ -8,9 +8,11 @@ import time
 
 from interface import Interface
 
+last_message = False
+
 def broadcast(message: str, soc_list: list):
 	for s in soc_list:
-		if s != server_socket and s != ipc_socket:
+		if s != server_socket and s != ipc_socket and s != test_server_socket:
 			try:
 				s.send(message.encode('utf-8'))
 				s.close()
@@ -64,6 +66,11 @@ def send_event():
 	broadcast(str(it), SOCKET_LIST)
 	print("Successfully sent!")
 	time.sleep(5)
+	if len(EVENT_LIST) == 0:
+		print("Last event was sent, sending the DONE message")
+		done_message = "DONE"
+		broadcast(done_message, SOCKET_LIST)
+		print("Sent successfully ")
 
 interface = Interface()
 SOCKET_LIST = []
@@ -77,6 +84,7 @@ json_conversion = JSON_Interface()
 
 SOCKET_LIST = []
 EVENT_LIST = []
+
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #server_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -129,9 +137,12 @@ while True:
 			#client_sock.send(welcome.encode('utf-8'))
 		elif sock == test_server_socket:
 			test, test_addr = test_server_socket.accept()
+			print("Got a connection from test")
 			test_response = "true"
+			print("Sending true")
 			test.send(test_response.encode('utf-8'))
 			test.close()
+			print("Closed the test socket")
 		elif sock == ipc_socket:
 			print("Got a connection from myself")
 			ipc, addr = ipc_socket.accept()
@@ -169,7 +180,7 @@ while True:
 				#sock.close()
 				#print(file_data)
 				#broadcast(file_data, SOCKET_LIST)
-				print(file_data)
+				#print(file_data)
 				broadcast(file_data, SOCKET_LIST)
 
 			try:
@@ -186,3 +197,4 @@ while True:
 
 			except:
 				continue
+
