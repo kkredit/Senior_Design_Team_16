@@ -1,1 +1,31 @@
-Hello
+{"Zone1":
+	{"event0":
+		{"start_time" : "01:00", "stop_time" : "02:00", "day" : "Monday", "zone_ID" : "3"},
+	"event1":
+		{"start_time" : "01:50", "stop_time" : "02:50", "day" : "Monday", "zone_ID" : "3"},
+	"event2":
+		{"start_time" : "02:00", "stop_time" : "03.00", "day" : "Monday", "zone_ID" : "3"},
+	"event3":
+		{"start_time" : "03:00", "stop_time" : "04:00", "day" : "Monday", "zone_ID" : "3"}
+    },
+"Zone2":
+	{"event0":
+		{"start_time" : "01:00", "stop_time" : "02:00", "day" : "Monday", "zone_ID" : "3"},
+	"event1":
+		{"start_time" : "01:50", "stop_time" : "02:50", "day" : "Monday", "zone_ID" : "3"},
+	"event2":
+		{"start_time" : "02:00", "stop_time" : "03.00", "day" : "Monday", "zone_ID" : "3"},
+	"event3":
+		{"start_time" : "03:00", "stop_time" : "04:00", "day" : "Monday", "zone_ID" : "3"}
+    },
+"Zone3":
+	{"event0":
+		{"start_time" : "01:00", "stop_time" : "02:00", "day" : "Monday", "zone_ID" : "3"},
+	"event1":
+		{"start_time" : "01:50", "stop_time" : "02:50", "day" : "Monday", "zone_ID" : "3"},
+	"event2":
+		{"start_time" : "02:00", "stop_time" : "03.00", "day" : "Monday", "zone_ID" : "3"},
+	"event3":
+		{"start_time" : "03:00", "stop_time" : "04:00", "day" : "Monday", "zone_ID" : "3"}
+    }
+}

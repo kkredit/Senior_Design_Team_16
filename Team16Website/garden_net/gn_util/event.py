@@ -110,3 +110,4 @@ if __name__ == "__main__":
 	e = Event(1.0, 2.0, 'Monday', 1)
 
 	print(str(e))
+

@@ -165,8 +165,13 @@ while True:
 				#for event in EVENT_LIST:
 				#	print(str(event))
 				#sock.close()
+<<<<<<< HEAD
 				#print(file_data)
 				#broadcast(file_data, SOCKET_LIST)
+=======
+				print(file_data)
+				broadcast(file_data, SOCKET_LIST)
+>>>>>>> b2fa73f1e65c8eb3f4b4417c28762e00ac2145cd
 
 			try:
 				data = sock.recv(RECV_BUFFER)
