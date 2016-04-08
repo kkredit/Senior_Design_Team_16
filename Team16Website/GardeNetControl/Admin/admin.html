@@ -79,8 +79,8 @@
 
 <div class="container">
 
-	<span><a class="waves-effect waves-light btn" id="button" onClick="forwardFunction()">Add Zone<i class="material-icons right">add</i></a></span>
-	<span class="right"><a class="waves-effect waves-light btn" id="button2" onClick="deleteTabs()">Delete Zone<i class="material-icons right">delete</i></a></span>
+	<span><a class="waves-effect waves-light btn" id="button" onClick="forwardFunction()">Zone<i class="material-icons right">add</i></a></span>
+	<span class="right"><a class="waves-effect waves-light btn" id="button2" onClick="deleteTabs()">Zone<i class="material-icons right">delete</i></a></span>
 	<br><br>
 	<div class="row">
 		<ul id="tabs" class="tab-titles scroll_tabs_theme_light" data-tabs="tabs">
@@ -93,8 +93,24 @@
 		<div id="tabs-container" class="card">
 			<form class="col s12" id="myForm" method = "post">
 				<div id="tab1" class="tab-content card-content active">
-					<h4>Zone 1</h4>
-					<input value="7" name="Zone1[openevents]">
+					<span class="col s5" onClick="editTitle()"><h4 id="zone1" class="zoneTitle" >Zone 1</h4></span>
+					<input id="newTitle1" type = "text" class="col s3 offset-s1 hide" name="Zone1[name]">
+					<button id="subTitle1" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+					<br/>
+					<a id="adControls1" class="right" onClick="advanced()">Advanced Controls</a>
+					<div class="input-field col s1 offset-s4 hide" id="node1">
+						<input name="Zone1[node]"  type="number" value="1">
+						<label id="node1name" for="Zone1[node]" class="active">Node</label>
+					</div>
+					<div class="input-field col s1 hide" id="valve1">
+						<input name="Zone1[valve]"  type="number" value="1">
+						<label for="Zone1[valve]" class="active">Valve</label>
+					</div>
+					<br/>
+					<button id="NVChange1" type="button" class="hide" onClick="changeNV()"> Submit</button>
+					<br/><br/><br/>
+					<input value="7" name="Zone1[openevents]" class="hide">
+					<br/>
 					<div id="row1" class="row hide">
 						<div class="col s3">
 							<p><br>Event 1</p>
@@ -687,8 +703,24 @@
 
 
 				<div id="tab2" class="tab-content card-content hide">
-					<h4>Zone 2</h4>
-					<input value="5" name="Zone2[openevents]">
+					<span class="col s5" onClick="editTitle()"><h4 id="zone2" class="zoneTitle" >Zone 2</h4></span>
+					<input id="newTitle2" type = "text" class="col s3 offset-s1 hide" name="Zone2[name]">
+					<button id="subTitle2" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+					<br/>
+					<a id="adControls2" class="right" onClick="advanced()">Advanced Controls</a>
+					<div class="input-field col s1 offset-s4 hide" id="node2">
+						<input name="Zone2[node]"  type="number" value="2">
+						<label id="node2name" for="Zone2[node]" class="active">Node</label>
+					</div>
+					<div class="input-field col s1 hide" id="valve2">
+						<input name="Zone2[valve]"  type="number" value="2">
+						<label for="Zone2[valve]" class="active">Valve</label>
+					</div>
+					<br/>
+					<button id="NVChange2" type="button" class="hide" onClick="changeNV()"> Submit</button>
+					<br/><br/><br/>
+					<input value="5" name="Zone2[openevents]" class="hide">
+					<br/>
 					<div id="row1" class="row hide">
 						<div class="col s3">
 							<p><br>Event 1</p>
@@ -1279,8 +1311,24 @@
 					</div>
 				</div>
 				<div id="tab3" class="tab-content card-content hide">
-					<h4>Zone 3</h4>
-					<input value="8" name="Zone3[openevents]">
+					<span class="col s5" onClick="editTitle()"><h4 id="zone3" class="zoneTitle" >Zone 3</h4></span>
+					<input id="newTitle3" type = "text" class="col s3 offset-s1 hide" name="Zone3[name]">
+					<button id="subTitle3" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+					<br/>
+					<a id="adControls3" class="right" onClick="advanced()">Advanced Controls</a>
+					<div class="input-field col s1 offset-s4 hide" id="node3">
+						<input name="Zone3[node]"  type="number" value="3">
+						<label id="node3name" for="Zone3[node]" class="active">Node</label>
+					</div>
+					<div class="input-field col s1 hide" id="valve3">
+						<input name="Zone3[valve]"  type="number" value="3">
+						<label for="Zone3[valve]" class="active">Valve</label>
+					</div>
+					<br/>
+					<button id="NVChange3" type="button" class="hide" onClick="changeNV()"> Submit</button>
+					<br/><br/><br/>
+					<input value="8" name="Zone3[openevents]" class="hide">
+					<br/>
 					<div id="row1" class="row hide">
 						<div class="col s3">
 							<p><br>Event 1</p>
@@ -1891,40 +1939,40 @@
 </div>
 
 <footer class="page-footer teal">
-  <div class="container">
-    <div class="row">
-      <div class="col l5 s13">
-        <h5 class="white-text">Company Bio</h5>
-        <p class="grey-text text-lighten-4">We are a team of college students working on this project for our Senior Design Project at Calvin College. Feel free to email us with any questions. Any help would also be greatly appreciated.</p>
+	<div class="container">
+		<div class="row">
+			<div class="col l5 s13">
+				<h5 class="white-text">Company Bio</h5>
+				<p class="grey-text text-lighten-4">We are a team of college students working on this project for our Senior Design Project at Calvin College. Feel free to email us with any questions. Any help would also be greatly appreciated.</p>
 
 
-      </div>
-      <div class="col l3 s12">
-        <h5 class="white-text">Gardens</h5>
-        <ul>
-          <li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
-          <li><a class="white-text" href="http://www.eighthdayfarm.org/">Eighth Day Farm</a></li>
-        </ul>
-      </div>
-      <div class="col l2 s12">
-        <h5 class="white-text">Connect</h5>
-        <ul>
-          <li><a class="white-text" href="mailto:jrc32@students.calvin.edu">John Connell</a></li>
-          <li><a class="white-text" href="mailto:xj22@students.calvin.edu">Anthony Jin</a></li>
-          <li><a class="white-text" href="mailto:cak33@students.calvin.edu">Charles Kingston</a></li>
-          <li><a class="white-text" href="mailto:knk9@students.calvin.edu">Kevin Kredit</a></li>
-        </ul>
-      </div>
-      <div class="col l1 s12">
-       <a href = "http://www.calvin.edu"><img src= "../../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
-     </div>
-   </div>
- </div>
- <div class="footer-copyright">
-  <div class="container">
-    Website by John Connell made with <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a> <a href = "http://i.imgur.com/UyDbQ7S.gif" class = "right-align teal-text text-darken-1">secrets are best kept by friends</a>
-  </div>
-</div>
+			</div>
+			<div class="col l3 s12">
+				<h5 class="white-text">Gardens</h5>
+				<ul>
+					<li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+					<li><a class="white-text" href="http://www.eighthdayfarm.org/">Eighth Day Farm</a></li>
+				</ul>
+			</div>
+			<div class="col l2 s12">
+				<h5 class="white-text">Connect</h5>
+				<ul>
+					<li><a class="white-text" href="mailto:jrc32@students.calvin.edu">John Connell</a></li>
+					<li><a class="white-text" href="mailto:xj22@students.calvin.edu">Anthony Jin</a></li>
+					<li><a class="white-text" href="mailto:cak33@students.calvin.edu">Charles Kingston</a></li>
+					<li><a class="white-text" href="mailto:knk9@students.calvin.edu">Kevin Kredit</a></li>
+				</ul>
+			</div>
+			<div class="col l1 s12">
+				<a href = "http://www.calvin.edu"><img src= "../../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
+			</div>
+		</div>
+	</div>
+	<div class="footer-copyright">
+		<div class="container">
+			Website by John Connell made with <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a> <a href = "http://i.imgur.com/UyDbQ7S.gif" class = "right-align teal-text text-darken-1">secrets are best kept by friends</a>
+		</div>
+	</div>
 </footer>
 
 <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
@@ -1939,11 +1987,6 @@
 				thingName = i;
 				$.each(item, function(j, event){
 					var nextName = "";
-					if(j=="openevents"){
-						nextName = thingName + "[" + j +"]";
-						$("input[name='"+nextName+"']").val(event);
-
-					}else{
 						nextName = thingName + "[" + j;
 						$.each(event, function(k, name){
 							var finalName = "";
@@ -1957,6 +2000,33 @@
 								$("input[name='"+finalName+"']").val(name);
 							}
 						});
+				});
+			});
+		});
+
+		$.getJSON('../../garden_net/gn_util/garden_info.txt', function(info){
+			$.each(info, function(i, item){
+				var thingName = "";
+				thingName = i;
+				$.each(item, function(j, event){
+					var nextName = "";
+					if(j=="name"){
+						nextName = thingName + "[" + j +"]";
+						$("input[name='"+nextName+"']").val(event);
+						if(thingName=="Zone1"){
+							$('#zone1').text(event);
+							$('#1').html(event);
+						}else if(thingName=="Zone2"){
+							$('#zone2').text(event);
+							$('#2').html(event);
+						}else {
+							$('#zone3').text(event);
+							$('#3').html(event);
+						}
+					}else {
+						nextName = thingName + "[" + j +"]";
+						$("input[name='"+nextName+"']").val(event);
+
 					}
 				});
 			});

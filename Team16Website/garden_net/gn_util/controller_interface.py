@@ -8,6 +8,7 @@ import time
 
 from interface import Interface
 
+global last_message
 last_message = False
 
 def broadcast(message: str, soc_list: list):
@@ -61,16 +62,26 @@ def create_event_list(json_str: str):
 		i += 1
 
 def send_event():
-	it = EVENT_LIST.pop()
-	print("Sending: " + str(it))
-	broadcast(str(it), SOCKET_LIST)
-	print("Successfully sent!")
-	time.sleep(5)
-	if len(EVENT_LIST) == 0:
-		print("Last event was sent, sending the DONE message")
-		done_message = "DONE"
-		broadcast(done_message, SOCKET_LIST)
-		print("Sent successfully ")
+	if len(SOCKET_LIST) > 3:
+		if len(EVENT_LIST) == 0:
+			last_message = False
+			#print("Last event was sent, sending the DONE message")
+			done_message = "DONE"
+			broadcast(done_message, SOCKET_LIST)
+			#print("Sent successfully ")
+		else:
+			it = EVENT_LIST.pop()
+			#print("length of socket list before sending:" + str(len(SOCKET_LIST)))
+			#print("Sending: " + str(it))
+			broadcast(str(it), SOCKET_LIST)
+			#print("Successfully sent!")
+			#print("length of socket list after sending:" + str(len(SOCKET_LIST)))
+			if len(EVENT_LIST) == 0:
+				global last_message
+				last_message = True
+		#time.sleep(5)
+	#else:
+		#print("Waiting for modem to reconnect")
 
 interface = Interface()
 SOCKET_LIST = []
@@ -90,7 +101,7 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 host = socket.gethostname()
 port = 5530
-print("The server hostname is: " + host + " on port: " + str(port))
+#print("The server hostname is: " + host + " on port: " + str(port))
 
 server_socket.bind(('', port))
 server_socket.listen(5)
@@ -103,7 +114,7 @@ ipc_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 ipc_port = 5538
 ipc_socket.bind(('localhost', ipc_port))
 ipc_socket.listen(5)
-print("The localhost port number for IPC communication is ", + ipc_port)
+#print("The localhost port number for IPC communication is ", + ipc_port)
 
 SOCKET_LIST.append(ipc_socket)
 
@@ -112,7 +123,7 @@ test_server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 test_server_port = 5539
 test_server_socket.bind(('localhost', test_server_port))
 test_server_socket.listen(5)
-print("The test_server_socket port number for IPC communication is ", + test_server_port)
+#print("The test_server_socket port number for IPC communication is ", + test_server_port)
 
 SOCKET_LIST.append(test_server_socket)
 
@@ -124,7 +135,7 @@ while True:
 	except:
 		continue
 
-	if len(EVENT_LIST) != 0:
+	if len(EVENT_LIST) != 0 or last_message:
 		send_event()
 
 	for sock in ready_to_read:
@@ -132,23 +143,23 @@ while True:
 			client_sock, addr = server_socket.accept()
 			SOCKET_LIST.append(client_sock)
 			client_sock.settimeout(1)
-			print("Client (%s, %s) connected" % addr)
+			#print("Client (%s, %s) connected" % addr)
 			welcome = "BIG COCK"
 			#client_sock.send(welcome.encode('utf-8'))
 		elif sock == test_server_socket:
 			test, test_addr = test_server_socket.accept()
-			print("Got a connection from test")
+			#print("Got a connection from test")
 			test_response = "true"
-			print("Sending true")
+			#print("Sending true")
 			test.send(test_response.encode('utf-8'))
 			test.close()
-			print("Closed the test socket")
+			#print("Closed the test socket")
 		elif sock == ipc_socket:
-			print("Got a connection from myself")
+			#print("Got a connection from myself")
 			ipc, addr = ipc_socket.accept()
-			print("Accepted the socket")
+			#print("Accepted the socket")
 			ipc.close()
-			print("Closed the socket")
+			#print("Closed the socket")
 			f = open(ipc_file, 'r')
 			file_data = ""
 			for line in f:
@@ -171,9 +182,9 @@ while True:
 
 				#broadcast(converted, SOCKET_LIST)
 				#broadcast(file_data, SOCKET_LIST)
-				print("Creating the event list")
+				#print("Creating the event list")
 				create_event_list(file_data)
-				print("Event list created")
+				#print("Event list created")
 				#send_event()
 				#for event in EVENT_LIST:
 				#	print(str(event))
@@ -181,15 +192,15 @@ while True:
 				#print(file_data)
 				#broadcast(file_data, SOCKET_LIST)
 				#print(file_data)
-				broadcast(file_data, SOCKET_LIST)
+				#broadcast(file_data, SOCKET_LIST)
 
 			try:
 				data = sock.recv(RECV_BUFFER)
 				if data:
 					msg = "Server Response: " + data.decode('utf-8')
-					print("Received: " + data.decode('utf-8'))
+					#print("Received: " + data.decode('utf-8'))
 					if data.decode('utf-8') == 'quit':
-						print("Closing connection with: " + str(sock))
+						#print("Closing connection with: " + str(sock))
 						sock.close()
 						SOCKET_LIST.remove(sock)
 					else:
