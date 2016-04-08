@@ -24,13 +24,13 @@
 #include <TimerOne.h>
 #include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 //#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-//#include <StandardCplusplus.h>
+#include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 //#include <Time.h>
-//#include "Schedule.h"
-//#include "ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/schedule/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/schedule/ScheduleEvent.h"
 
 // pins
 //#define unused    2
@@ -72,7 +72,7 @@ volatile bool updateStatusFlag = false;
 
 // other
 Garden_Status gardenStatus;
-//Schedule weeklySchedule;
+Schedule weeklySchedule;
 uint8_t statusCounter = 0;
 
 
@@ -200,6 +200,10 @@ void refreshReset(){
   pinMode(RESET_PIN, INPUT);
 }
 
+bool shouldValveBeOpen(uint8_t node, uint8_t valve){
+  
+}
+
 void checkSchedule(){
   // for each node
   uint8_t node;
@@ -220,7 +224,7 @@ void checkSchedule(){
             // send open signal
             Valve_Command vc;
             vc.whichValve = valve;
-            vc.state = ON;
+            vc.onOrOff = ON;
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
           // else if schedule says should be closed and is open
@@ -228,7 +232,7 @@ void checkSchedule(){
             // send close signal
             Valve_Command vc;
             vc.whichValve = valve;
-            vc.state = OFF;
+            vc.onOrOff = OFF;
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
           // else the state is as it should be
