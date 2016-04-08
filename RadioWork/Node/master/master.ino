@@ -1,175 +1,143 @@
-/*
- * Copyright: Charles Kingston, Kevin Kredit and Anthony Jin
+/* 
+ * master.ino
  * 
- * Arduino Leonardo code that sets up a mesh network. After setting up the 
- * mesh network it becomes the master on the network. This sketch also 
- * contains code to read data coming in from a flow sensors as pulses.
+ * This sketch is for master (gateway) in the GardeNet system. Functions include:
+ *    - Establishing and maintaining a mesh network
+ *    - Maintaining a 3G connection to the GardeNet server
+ *    - Controlling up to 16 nodes
+ *    - Tracking several variables with regards to its and the garden's status
+ * 
+ * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
+ * Last Modified: 4/6/16
  */
 
-/******************************************************************************
-***************************** Includes ****************************************
-*******************************************************************************/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////  Preprocessor   ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// includes
+#include "RF24.h"
+#include "RF24Network.h"
+#include "RF24Mesh.h"
+#include <EEPROM.h>
+#include <TimerOne.h>
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
 //#include <StandardCplusplus.h>
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 //#include <Time.h>
-// RF24 Mesh Network
-#include "RF24Network.h"
-#include "RF24.h"
-#include "RF24Mesh.h"
-// Schedule Class
 //#include "Schedule.h"
 //#include "ScheduleEvent.h"
-// Interrupt
-#include <TimerOne.h>
-// Modify protocol header file directory as needed
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/settings.h"
-#include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\SharedDefinitions.h"
 
-/******************************************************************************
-***************************** Global Variables ********************************
-*******************************************************************************/
-/* Randos */
-bool dummyValveCommand = true;
-char networkRequestChar;
-int myNodeID = 0;
-int counter = 0;
-volatile bool updateStatusFlag = false;
-/************************ MESH Network Related *********************************/
-uint32_t displayTimer = 0;
-int printcount = 0;
-bool hadButtonPress = false;
-bool defaultNetworkBlink = false;
+// pins
+//#define unused    2
+#define BUTTON    3
+#define LEDR      4
+#define LEDG      5
+//#define unused    6
+#define RF24_CE   7
+#define RF24_CS   8
+//RF24_MOSI //predifined on ICSP header
+//RF24_MISO //predifined on ICSP header
+//RF24_SCK  //predifined on ICSP header
+//#define unused    9
+//#define unused    10
+//#define unused    11
+#define ThreeG    12
+//#define unused    13
+#define RESET_GND A0
+#define RESET_PIN A1
+//#define unused    A2
+//#define unused    A3
+//#define unused    A4
+//#define unused    A5
+#define Modem_Serial Serial1
 
-/******************************* I/O Ports *************************************/
-#define BUTTON        3
-#define LEDR          4
-#define LEDG          5
-#define CE            7
-#define CS            8
 
-#define RESET_PIN A1////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-#define RESET_GND A0////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////     Globals     ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/******************************* Node IDs **************************************/
-#define KEVINID 1
-
-/******************* Configure RF24 CE & CS ************************************/
-RF24 radio(CE,CS);
+// mesh network
+RF24 radio(RF24_CE, RF24_CS);
 RF24Network network(radio);
-RF24Mesh mesh(radio,network);
+RF24Mesh mesh(radio, network);
 
-void resetAllNodes(){
-  uint16_t address;
-  uint8_t payload = 1;
-  for(address = 1; address < 512; address++){
-    mesh.write(address, &payload, FORCE_RESET_H, sizeof(payload));
+// flags
+volatile bool hadButtonPress = false;
+volatile bool updateStatusFlag = false;
+
+// other
+Garden_Status gardenStatus;
+//Schedule weeklySchedule;
+uint8_t statusCounter = 0;
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////     ISRs        ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* 
+ * handleButtonISR()
+ *
+ * Interrupt service routine (ISR) called when the button is pressed; sets a flag and exits
+ * 
+ * @preconditions: button is tied to interrupt; button is pressed
+ * @postconditions: hadButtonPress flag is set
+ */ 
+void handleButtonISR(){
+  // gets rid of startup false positive by ignoring for a few seconds after startup
+  if(statusCounter > 0){
+    hadButtonPress = true; 
+    Serial.println(F("\n[Detected buttonpress]"));
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
- * Resets the arduino by pressing its own "reset" button
+/* 
+ * updateStatusISR()
+ * 
+ * ISR called when timer1 times out; sets a flag and exits
+ * 
+ * @preconditions: timer interrupt must be enabled
+ * @postconditions: updateNodeStatus flag is set
  */
-void hardReset(){
-  pinMode(RESET_PIN, OUTPUT);
-  digitalWrite(RESET_PIN, HIGH);
-  delay(1000);
-  // arduino resets here
+void updateStatusISR(){
+  updateStatusFlag = true;
 }
 
-void refreshReset(){
-  pinMode(RESET_PIN, OUTPUT);  
-  digitalWrite(RESET_PIN, LOW);
-  delay(50); // 95% charged: 3*tau = 3*RC = 3*200*47*10^-6 = 28 ms
-  //digitalWrite(RESETPIN, LOW); // to turn off internal pullup
-  pinMode(RESET_PIN, INPUT);
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////// Helper Functions///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-/* the setup function configures and initializes the I/O devices: LEDs, push button, serial port, 
- * and 3G Modem
-*/
-void setup() {
-
-  // RESET_PIN -- set to low immediately to discharge capacitor////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  pinMode(RESET_PIN, OUTPUT);////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  digitalWrite(RESET_PIN, LOW);////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  // setup pin modes
+void initPins(){  
+  // BUTTON
   pinMode(BUTTON, INPUT_PULLUP);
+  // attach interrupt at the end of setup() in initPins2()
+  
+  // LEDR and LEDG
   pinMode(LEDR, OUTPUT);
-  pinMode(LEDG, OUTPUT);
-  //while(BUTTON);    // wait for a button press to continue
-  // attach interrup to push button
-  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButton, FALLING);  
-  digitalWrite(LEDR, LOW);
-  digitalWrite(LEDG, LOW);
+  pinMode(LEDG, OUTPUT);  
 
-  // flash LEDR to indicate the setup process
-  digitalWrite(LEDR, HIGH);
-  delay(500);
-  digitalWrite(LEDR, LOW);
-  
-  
-  //radio.setPALevel(RF24_PA_LOW);
+  // ThreeG
+  // handle in modem-specific code; has very specific behavior
 
-  // initialize serial debug port
-  Serial.begin(9600);
-  //while (!Serial);
+  // RESET_GND
+  // initialize at the end of setup() in initPins2()
 
-  // initialize 3G Modem
-  // setupModem();
+  // RESET_PIN
+  pinMode(RESET_PIN, OUTPUT);
+  digitalWrite(RESET_PIN, LOW);
+}
 
-  // flash LEDR twice at this point 
-//  digitalWrite(LEDR, HIGH);
-//  delay(250);
-//  digitalWrite(LEDR, LOW);
-//  delay(250);
-//  digitalWrite(LEDR, HIGH);
-//  delay(250);
-//  digitalWrite(LEDR, LOW);
-//  delay(250);
+void initPins2(){
+  // attach interrupt to button
+  attachInterrupt(digitalPinToInterrupt(BUTTON), handleButtonISR, FALLING);
 
-  // Set the nodeID to 0 for the master node
-  mesh.setNodeID(myNodeID);
-  Serial.println(mesh.getNodeID());
-  // Connect to the mesh
-  Serial.print("Output of mesh.begin(): ");
-  Serial.println(mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT));
-  //mesh.requestAddress(0);
-  mesh.setAddress(0,0);
-
-  /*Serial.print("Resetting all nodes...");
-  resetAllNodes();
-  Serial.println(" done.");*/
-
-  // flash LEDR three at this point in the setup process
-//  digitalWrite(LEDR, HIGH);
-//  delay(250);
-//  digitalWrite(LEDR, LOW);
-//  delay(250);
-  digitalWrite(LEDR, HIGH);
-  delay(250);
-  digitalWrite(LEDR, LOW);
-  delay(250);
-  digitalWrite(LEDR, HIGH);
-  delay(250);
-  digitalWrite(LEDR, LOW);
-
-  // attach interrupt to the function that prints out current network status
-  Timer1.initialize(5000000);
-  Timer1.attachInterrupt(updateStatusISR);
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // enable self-resetting ability
   delay(50);  // allow capacitor to discharge if was previously charged before enabling autoreset again
               // 95% = 3*tau = 3*RC = 3*200*100*10^-6 = 60ms -- but never gets fully charged, and has
@@ -177,166 +145,394 @@ void setup() {
   pinMode(RESET_PIN, INPUT);
   pinMode(RESET_GND, OUTPUT);
   digitalWrite(RESET_GND, LOW);
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
-void loop(){
-  // refresh the reset////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  refreshReset();////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-  // Call mesh.update to keep the network updated
-  mesh.update();
-  
-  // In addition, keep the 'DHCP service' running on the master node so addresses will
-  // be assigned to the sensor nodes
-  mesh.DHCP();
-  
-  
-  // Check for incoming data from the sensors
-  if(network.available()){
-    RF24NetworkHeader header;
-    network.peek(header);
-    Serial.print(F("Received ")); Serial.print(char(header.type)); Serial.println(F(" type message."));
-    Serial.print(F("From [logical address]: ")); Serial.println(header.from_node);
-    Serial.print(F("From [converted to nodeID]: ")); Serial.println(mesh.getNodeID(header.from_node));
-    
-    uint32_t dat=0;
-    bool boolMessage;
-    float flowSensorData = -1;
-    // idk if initializing this value is allowed...
-    int valveResponse = -1;
-    uint8_t networkStatusRequest;
-    
-    switch(header.type){
-      // valve flowrate sensor 
-      case SEND_FLOW_RATE_H:
-        network.read(header,&flowSensorData,sizeof(flowSensorData));
-        if (flowSensorData == float(-1)) {
-          Serial.println("Something went terribly wrong with the flowSensorData...");
-        } else {
-          Serial.print(flowSensorData); 
-          Serial.println(" GPM");
+/* 
+ * flashLED()
+ * 
+ * Flashes an LED based on the arguments
+ * 
+ * @preconditions: pins initialized
+ * @postconditions: none
+ * 
+ * @param uint8_t whichLED: the pin name of the LED you want to flash, must be LEDR or LEDG
+ * @param uint8_t myNum: the number of times you want LED to flash
+ * @param uint8_t myTime: the duration of LED's on/off state when it flashes
+*/
+void flashLED(uint8_t whichLED, uint8_t myNum, uint8_t myTime){
+  if(whichLED != LEDR && whichLED != LEDG) return;
+  for (int i = 0; i < myNum; i++) {
+    digitalWrite(whichLED, HIGH);
+    delay(myTime);  
+    digitalWrite(whichLED, LOW);
+    delay(myTime);
+  }  
+}
+
+/* 
+ * hardReset()
+ *
+ * "Presses" the reset button by turning on the reset circuit
+ * 
+ * @preconditions: the pins are configured appropriately and the RESET_GND is set to LOW
+ * @postconditions: the board resets
+ */ 
+void hardReset(){
+  pinMode(RESET_PIN, OUTPUT);
+  digitalWrite(RESET_PIN, HIGH);
+  delay(1000);
+  // arduino resets here
+}
+
+/* 
+ * refreshReset()
+ *
+ * Discharges the capacitor in the resetting circuit. Must be called once every 5 minutes in order
+ * to not reset the board.
+ * 
+ * @preconditions: pins configured
+ * @postconditions: reset circuit is discharged, and will not reset for at least 5 minutes
+ */ 
+void refreshReset(){
+  pinMode(RESET_PIN, OUTPUT);  
+  digitalWrite(RESET_PIN, LOW);
+  delay(50); // 95% charged: 3*tau = 3*RC = 3*200*100*10^-6 = 60 ms
+  pinMode(RESET_PIN, INPUT);
+}
+
+void checkSchedule(){
+  // for each node
+  uint8_t node;
+  for(node=1; node<=16; node++){
+    // if registered
+    if(gardenStatus.nodeStatusPtrs[node] != NULL){
+      // if connected
+      if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+        // for each valve
+        uint8_t valve;
+        for(valve=1; valve<=4; valve++){
+          // if schedule says should be open and is closed
+          bool shouldBeOn;
+          
+          // TODO insert code to get shouldBeOpen according to schedule
+          
+          if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
+            // send open signal
+            Valve_Command vc;
+            vc.whichValve = valve;
+            vc.state = ON;
+            safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+          }
+          // else if schedule says should be closed and is open
+          else if(shouldBeOn == false && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == ON){
+            // send close signal
+            Valve_Command vc;
+            vc.whichValve = valve;
+            vc.state = OFF;
+            safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+          }
+          // else the state is as it should be
         }
-        break;
-      // read a valve response from one of the nodes
-      case SEND_VALVE_H:
-        network.read(header, &valveResponse, sizeof(valveResponse));
-        if (valveResponse == -1){
-          Serial.println("The status is unknown");
-        } else if (valveResponse == 0) {
-          Serial.println("The valve is closed");
-        } else if (valveResponse == 1){
-          Serial.println("The valve is open");
-        } else {
-          Serial.println("Something went terribly wrong with the valveResponse...");
-        }
-        break;
-      case SEND_NODE_STATUS_H:
-        network.read(header, &networkStatusRequest, sizeof(networkStatusRequest));
-//        if (networkStatusRequest == 1){
-//          Serial.println("We're solid");
-//        } else if (networkStatusRequest == 2) {
-//          Serial.println("There's a low battery warning");
-//        } else if (networkStatusRequest == 3){
-//          Serial.println("There's a valve error");
-//        } else {
-//          Serial.println("Something went terribly wrong with the valveResponse...");
-//        }
-        break;
-      default: 
-        //network.read(header,0,0); 
-        defaultNetworkBlink = !defaultNetworkBlink;
-        digitalWrite(LEDR, defaultNetworkBlink);
-        network.read(header,&dat,sizeof(dat)); 
-        Serial.print("Message recieved: "); Serial.print(dat); Serial.println(", but is undefined");
-        break;
+      }
+      // else node is not connected to mesh
+      else{
+        // TODO alert the server?
+      }
+    }
+    // else unregistered
+  }    
+}
+
+
+/* 
+ * safeMeshWrite()
+ *
+ * Performs mesh.writes, but adds reliability features, hence "safe". If mesh.write doesn't work, 
+ * then tries again after a set period of time; if a set number of tries doesn't work, then the 
+ * addressed node is considered disconnected. Maximum latency = 5 seconds.
+ * 
+ * @preconditions: mesh is configured
+ * @postconditions: message is sent, or else node is considered to be disconnected
+ * 
+ * @param uint8_t destination: the mesh address of the recipient
+ * @param void* payload: the address of the data to send
+ * @param char header: the message type that you are sending
+ * @param uint8_t datasize: the size of the data to send, in bytes
+ * @param uint8_t timesToTry: the number of remaining times to try to send
+ * 
+ * @return bool: true means send success, false means send failure
+ */ 
+bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t datasize, uint8_t timesToTry){  
+  // perform write
+  if (!mesh.write(destination, payload, header, datasize)) {
+    // if a write fails, check if have more tries
+    if(timesToTry > 0){
+      delay(RETRY_PERIOD);
+      return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
+    }
+    else{
+      if(mesh.getNodeID(destination) != -1 && gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)] != NULL){
+        gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)]->meshState = MESH_DISCONNECTED; // TODO is this the only way to tell?
+      }
+      return false;
     }
   }
-  
-  if (hadButtonPress){
-    //mesh.write(mesh.getAddress(KEVINID), &dummyValveCommand, SET_VALVE_H, sizeof(dummyValveCommand));
-    Serial.print("Sending the valve command: "); Serial.println(dummyValveCommand);
-    dummyValveCommand = !dummyValveCommand;
-    hadButtonPress = false;
-    //hardReset();
-  }
-
-  if(updateStatusFlag){
-    updateStatus();
-    updateStatusFlag = false;
+  else {
+    // write succeeded
+    Serial.print(F("Send of type ")); Serial.print(header); Serial.println(F(" success"));
+    return true;
   }
 }
 
-/*
- * Regardless of current state, send message to other to turn on LEDY
- */
-void handleButton(){
-  if (counter > 0){
-    hadButtonPress = true;
-    Serial.println(F("Detected Button Press"));
-  } else {
-    counter++;
+bool checkNodeRegistered(uint8_t nodeID){
+  if(gardenStatus.nodeStatusPtrs[nodeID] == NULL){
+    gardenStatus.nodeStatusPtrs[nodeID] = new Node_Status;
+    gardenStatus.numRegisteredNodes++;
+    return false;
   }
+  return true;
 }
 
-uint8_t getNodeStatus(uint8_t nodeID){
-  return 0;
-//  if(nodeID == MASTER_ADDRESS) return NODE_IS_MASTER;
-//  
-//  char payload = GET_NODE_STATUS_P;
-//  mesh.write(mesh.getAddress(nodeID), &payload, INFO_REQUEST_H, sizeof(payload));
-//
-//  // wait for response (not the best way to implement...
-//  RF24NetworkHeader header;
-//  uint16_t startTime = millis();
-//  // TODO this part doesn't work for some reason
-//  while(header.type != SEND_NODE_STATUS_H){
-//    network.peek(header);
-//    if(millis() - startTime > 15000) return NODE_DISCONNECTED;
-//  }
-//  
-//  uint8_t nodeStatus;
-//  network.read(header, &nodeStatus, sizeof(nodeStatus));
-//  return nodeStatus;
-}
+void readMeshMessages(){
+  while(network.available()){
+    RF24NetworkHeader header;
+    network.peek(header);
+    Serial.print(F("Received ")); Serial.print(char(header.type));
+    Serial.print(F(" type message from node ")); Serial.println(mesh.getNodeID(header.from_node));
 
-void updateStatusISR(){
-  updateStatusFlag = true;
-}
+    switch(header.type){
+    case SEND_VALVE_H:
+      // A node is responding to a valve command. Read the response; if not what is expected, send
+      //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
+      //  don't have endless cycle in case things fail?
 
-void updateStatus(){
-  Serial.println(""); Serial.println(printcount++);
-  Serial.print("\nMy ID:      "); Serial.println(MASTER_ADDRESS);
-  Serial.print("My address: "); Serial.println(MASTER_ADDRESS);
-  Serial.println(F("\n********Assigned Addresses********"));
-  for(int i=0; i<mesh.addrListTop; i++){
-    Serial.print("NodeID: ");
-    Serial.print(mesh.addrList[i].nodeID);
-    Serial.print(" RF24Network Address: 0");
-    Serial.println(mesh.addrList[i].address);
-    Serial.print("   ");
-    /*switch(getNodeStatus(mesh.addrList[i].nodeID)){
-    case NODE_IS_MASTER:
-      //Serial.println(myStatus);
-      Serial.println("Me, the gateway");
+      // TODO implement the above
       break;
-    case NODE_OK:
-      Serial.println("OK");
+    case SEND_NODE_STATUS_H:
+      // A node is reporting its status. Update its status in gardenStatus
+
+      // check that it's registered
+      checkNodeRegistered(mesh.getNodeID(header.from_node));
+      
+      // read in the new status
+      network.read(header, gardenStatus.nodeStatusPtrs[mesh.getNodeID(header.from_node)], sizeof(Node_Status));
       break;
-    case NODE_DISCONNECTED:
-      Serial.println("DISCONNECTED");
+    case SEND_JUST_RESET_H:
+      // means that a node has recovered from reset; true means it was told to do so, false means a crash
+
+      bool toldToReset;      
+      network.read(header, &toldToReset, sizeof(toldToReset));
+      
+      // TODO what to do with this information? ask for status update?
+      
       break;
-    case NODE_VALVE_ERROR:
-      Serial.println("VALVE ERROR");
+    case SEND_NODE_SLEEP_H:
+      // node had its button pressed and toggled sleep; update its status and TODO let the website know?
+
+      // check that it's registered
+      checkNodeRegistered(mesh.getNodeID(header.from_node));
+      
+      bool nodeIsAwake;
+      network.read(header, &nodeIsAwake, sizeof(nodeIsAwake));
+
+      gardenStatus.nodeStatusPtrs[mesh.getNodeID(header.from_node)]->isAwake = nodeIsAwake;
+
+      // TODO what else to do with this information?
+      
       break;
-    case NODE_LOW_BATTERY:
-      Serial.println("LOW BATTERY");
+    case SEND_NEW_DAY_H:
+      // node is responding that it got the "new day" message; should respond "true", meaning that it is awake
+      
+      // check that it's registered
+      checkNodeRegistered(mesh.getNodeID(header.from_node));
+
+      bool response;
+      network.read(header, &response, sizeof(response));
+
+      // TODO what else to do with this information?
+      
       break;
     default:
+      Serial.println(F("Unknown message type."));
       break;
-    }*/
- }
-  Serial.println(F("**********************************"));
+    }
+  }
 }
+
+/* 
+ * initStatus()
+ * 
+ * Initializes the Garden_Status struct gardenStatus.
+ * 
+ * @preconditions: pins are configured
+ * @postconditions: myStatus is gardenStatus
+ */
+void initGardenStatus(){  
+  // isAwake
+  gardenStatus.isAwake = true;
+  
+  // TODO
+}
+
+/* 
+ * updateGardenStatus()
+ *
+ * Performs diagnostics on the 3G connection, mesh connection, and nodes
+ * 
+ * @preconditions: gardenStatus is initialized
+ * @postconditions: gardenStatus is updated
+ */
+void updateGardenStatus(){
+
+  //////////// CHECK 3G CONNECTION ////////////  
+
+  // TODO
+  
+
+  //////////// CHECK MESH CONNECTION ////////////
+
+  // TODO
+  
+  
+  //////////// CHECK NODE_STATUSES ////////////
+
+  // TODO  
+}
+
+/* 
+ * printGardenStatus()
+ *
+ * Prints gardenStatus to Serial port in a user-friendly way.
+ * 
+ * @preconditions: myStatus is initialized, Serial port is active
+ * @postconditions: none
+ */ 
+void printGardenStatus(){
+  // print number of times executed
+  Serial.println(F("")); Serial.println(statusCounter++);
+
+  if(gardenStatus.isAwake == false) Serial.println(F("GARDEN IS IN STANDBY"));
+
+  // TODO
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////     Setup       ////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* 
+ * setup()
+ *
+ * The beginning of execution when the board boots; uses helper functions to initialize the pins, 
+ * initialized myStatus, begin mesh communication, and more; see internal comments for more detail.
+ * 
+ * @preconditions: board just booted
+ * @postconditions: all initializaion is complete, ready for normal operation
+ */ 
+void setup(){
+
+  // initaialize all the pins
+  initPins();
+
+  // flash LEDR once to indicate the beginning of the setup process
+  flashLED(LEDR, 1, 500);
+  
+  // begin serial communication
+  Serial.begin(BAUD_RATE);
+  while (!Serial);
+  
+  // check if button is being pressed; if so, do special startup
+  if(digitalRead(BUTTON) == 0){
+    flashLED(LEDG, 3, 125);
+
+    // do special stuff
+  }
+
+  // initialize gardenStatus
+  initGardenStatus();
+
+  // TODO print status?
+
+  // Setup mesh
+  mesh.setNodeID(MASTER_NODE_ID);
+  while(!mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT)){
+    Serial.println(F("Trouble setting up the mesh, trying again..."));
+    delay(1000);
+  }
+  Serial.println(F("Mesh created"));
+  mesh.setAddress(MASTER_NODE_ID, MASTER_ADDRESS);
+
+
+  // init timer for regular system checks
+  Timer1.initialize(TIMER1_PERIOD);
+  Timer1.attachInterrupt(updateStatusISR);
+
+  initPins2();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////     Loop        ////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* 
+ * loop()
+ *
+ * Run indefinitely after setup() completes; contains the core node features. Uses helper functions
+ * to control the reset circuit, maintain the mesh, update myStatus, handle buttonpresses, and 
+ * handle communication with the master.
+ * 
+ * @preconditions: asetup() has successfully completed
+ * @postconditions: none--runs forever
+ */ 
+void loop() {  
+  
+  // refresh the reset
+  refreshReset();
+
+  // refresh the mesh
+  mesh.update();
+  mesh.DHCP();
+
+  // update node status if necessary
+  if(updateStatusFlag){
+    updateGardenStatus();
+    printGardenStatus();
+
+    // reset the flag
+    updateStatusFlag = false;
+  }
+
+  // check if need to open/close valves according to schedule
+  checkSchedule();
+
+  // if had buttonpress, toggle between awake and asleep
+  if(hadButtonPress){
+    // toggle states between asleep and awake
+    gardenStatus.isAwake = !gardenStatus.isAwake;
+
+    // if asleep, tell valves to shut
+    if(gardenStatus.isAwake == false){
+      // TODO set light sequence
+      
+      // TODO for each node, shut off all valves
+    }
+    else{
+      // TODO set light sequence
+    }
+
+    // TODO report state to the server/website?
+    
+    // reset flag
+    hadButtonPress = false;
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////// INSERT 3G STUFF HERE /////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // read in and respond to mesh messages
+  readMeshMessages();
+}
+

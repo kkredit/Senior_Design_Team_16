@@ -23,7 +23,7 @@
 #include "RF24Mesh.h"
 #include <EEPROM.h>
 #include <TimerOne.h>
-#include "C:\\Users\\kevin\\Documents\\Senior_Design_Team_16\\RadioWork\\Shared\\SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 
 // pins
 #define BUTTON    2
@@ -70,6 +70,7 @@ volatile bool updateNodeStatusFlag = false;
 // other
 Node_Status myStatus;
 uint8_t statusCounter = 0;
+const uint8_t VALVE_PINS[5] = {255, VALVE_1, VALVE_2, VALVE_3, VALVE_4};
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,8 +337,37 @@ void setLED(uint8_t setTo){
  */ 
 int8_t setValve(uint8_t whichValve, bool setTo){
   // check if valve is connected, then open/close and set state
-  switch(whichValve){
+  if(whichValve >= 1 && whichValve <= 4){
+    if(myStatus.valveStates[whichValve].isConnected == false) return NO_VALVE_ERROR;
+    else{
+      digitalWrite(VALVE_PINS[whichValve], setTo);
+      myStatus.valveStates[whichValve].state = setTo;
+    }
+  }
+  else if(whichValve == ALL_VALVES){
+    uint8_t valve;
+    for(valve=1; valve<=4; valve++){
+      if(myStatus.valveStates[valve].isConnected){
+        digitalWrite(VALVE_PINS[valve], setTo);
+        myStatus.valveStates[valve].state = setTo;
+      }
+    }
+  }
+  else{
+    return NO_VALVE_ERROR;
+  }
+  /*switch(whichValve){
   case 1:
+  case 2:
+  case 3:
+  case 4:
+    
+    break;
+  case ALL_VALVES:
+    break;
+  default:
+    break;*/
+  /*case 1:
     if(myStatus.valveState1.isConnected == false) return NO_VALVE_ERROR;
     else{
       digitalWrite(VALVE_1, setTo);
@@ -384,10 +414,11 @@ int8_t setValve(uint8_t whichValve, bool setTo){
     }
     break;
   default:
+    return NO_VALVE_ERROR;
     break;
-  }
-  myStatus.numOpenValves = myStatus.valveState1.state + myStatus.valveState2.state
-                          + myStatus.valveState3.state + myStatus.valveState4.state;
+  }*/
+  myStatus.numOpenValves = myStatus.valveStates[1].state + myStatus.valveStates[2].state
+                          + myStatus.valveStates[3].state + myStatus.valveStates[4].state;
   return setTo;
 }
 
@@ -474,7 +505,6 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
 void initStatus(){  
   // isAwake
   myStatus.isAwake = true;
-  setLED(AWAKE_SEQUENCE);
   
   // storedVIN
   EEPROM.get(VIN_EEPROM_ADDR, myStatus.storedVIN);
@@ -520,33 +550,42 @@ void initStatus(){
   myStatus.numOpenValves = 0;
 
   // valves
-  pinMode(VALVE_1, INPUT_PULLUP);
-  myStatus.valveState1.isConnected = !digitalRead(VALVE_1);
+  uint8_t valve;
+  for(valve=1; valve<=4; valve++){
+    pinMode(VALVE_PINS[valve], INPUT_PULLUP);
+    myStatus.valveStates[valve].isConnected = !digitalRead(VALVE_PINS[valve]);
+    pinMode(VALVE_PINS[valve], OUTPUT);
+    if(myStatus.valveStates[valve].isConnected) myStatus.numConnectedValves++;
+    digitalWrite(VALVE_PINS[valve], LOW);
+    myStatus.valveStates[valve].state = OFF;
+  }
+  /*pinMode(VALVE_1, INPUT_PULLUP);
+  myStatus.valveStates[1].isConnected = !digitalRead(VALVE_1);
   pinMode(VALVE_1, OUTPUT);
-  if(myStatus.valveState1.isConnected) myStatus.numConnectedValves++;
+  if(myStatus.valveStates[1].isConnected) myStatus.numConnectedValves++;
   digitalWrite(VALVE_1, LOW); // TODO: use setValve() to handle this and next line?
   myStatus.valveState1.state = OFF;
 
   pinMode(VALVE_2, INPUT_PULLUP);
-  myStatus.valveState2.isConnected = !digitalRead(VALVE_2);
+  myStatus.valveStates[2].isConnected = !digitalRead(VALVE_2);
   pinMode(VALVE_2, OUTPUT);
-  if(myStatus.valveState2.isConnected) myStatus.numConnectedValves++;
+  if(myStatus.valveStates[2].isConnected) myStatus.numConnectedValves++;
   digitalWrite(VALVE_2, LOW);
-  myStatus.valveState2.state = OFF;
+  myStatus.valveStates[2].state = OFF;
 
   pinMode(VALVE_3, INPUT_PULLUP);
-  myStatus.valveState3.isConnected = !digitalRead(VALVE_3);
+  myStatus.valveStates[3].isConnected = !digitalRead(VALVE_3);
   pinMode(VALVE_3, OUTPUT);
-  if(myStatus.valveState3.isConnected) myStatus.numConnectedValves++;
+  if(myStatus.valveStates[3].isConnected) myStatus.numConnectedValves++;
   digitalWrite(VALVE_3, LOW);
-  myStatus.valveState3.state = OFF;
+  myStatus.valveStates[3].state = OFF;
 
   pinMode(VALVE_4, INPUT_PULLUP);
-  myStatus.valveState4.isConnected = !digitalRead(VALVE_4);
+  myStatus.valveStates[4].isConnected = !digitalRead(VALVE_4);
   pinMode(VALVE_4, OUTPUT);
   if(myStatus.valveState4.isConnected) myStatus.numConnectedValves++;
   digitalWrite(VALVE_4, LOW);
-  myStatus.valveState1.state = OFF;
+  myStatus.valveState1.state = OFF;*/
 
   // meshState
   myStatus.meshState = MESH_DISCONNECTED;
@@ -696,7 +735,14 @@ void printNodeStatus(){
   else Serial.println(F("No flow meter"));
 
   // if valve is connected, tell state
-  if(myStatus.valveState1.isConnected){
+  uint8_t valve;
+  for(valve=1; valve<=4; valve++){
+    if(myStatus.valveStates[valve].isConnected){
+      Serial.print(F("Valve ")); Serial.print(valve); Serial.print(F(" is        : ")); 
+      myStatus.valveStates[valve].state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
+    }
+  }
+  /*if(myStatus.valveState1.isConnected){
     Serial.print(F("Valve 1 is        : ")); 
     myStatus.valveState1.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
   }
@@ -711,7 +757,7 @@ void printNodeStatus(){
   if(myStatus.valveState4.isConnected){
     Serial.print(F("Valve 4 is        : ")); 
     myStatus.valveState4.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
-  }
+  }*/
 
   // tell mesh state
   Serial.print(F("Node ID, address  : ")); Serial.print(myStatus.nodeID); Serial.print(F(", ")); 
@@ -784,14 +830,24 @@ void setup(){
   else{
     Serial.println(F("within expected range"));
   }
-  Serial.print(F("Valve 1: ")); 
+  uint8_t valve;
+  for(valve=1; valve<=4; valve++){
+    Serial.print(F("Valve ")); Serial.print(valve); Serial.print(F(": "));
+    if(myStatus.valveStates[valve].isConnected){
+      Serial.println(F("CONNECTED"));
+    }
+    else{
+      Serial.println(F("disconnected"));
+    }
+  }
+  /*Serial.print(F("Valve 1: ")); 
   myStatus.valveState1.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
   Serial.print(F("Valve 2: ")); 
   myStatus.valveState2.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
   Serial.print(F("Valve 3: ")); 
   myStatus.valveState3.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
   Serial.print(F("Valve 4: ")); 
-  myStatus.valveState4.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
+  myStatus.valveState4.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));*/
   // should use myStatus.hasFlowRateMeter, but in case of false negative, check again
   Serial.print(F("FRate:   "));
   digitalRead(FRATE) ? Serial.println(F("CONNECTED\n")) : Serial.println(F("disconnected\n"));
@@ -925,7 +981,7 @@ void loop() {
       }
 
       // else, read command, execute, and return result
-      else{        
+      else{
         result = setValve(vc.whichValve, vc.onOrOff);
         safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
       }

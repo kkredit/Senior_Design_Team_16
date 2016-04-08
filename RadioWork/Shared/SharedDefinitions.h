@@ -33,17 +33,29 @@ struct Node_Status{
   bool maxedOutFlowMeter;
   uint8_t numConnectedValves;
   uint8_t numOpenValves;
-  Valve_Status valveState1;
-  Valve_Status valveState2;
-  Valve_Status valveState3;
-  Valve_Status valveState4;
+  Valve_Status valveStates[5];
+  //Valve_Status valveState1;           // DEPRICATED
+  //Valve_Status valveState2;           // DEPRICATED
+  //Valve_Status valveState3;           // DEPRICATED
+  //Valve_Status valveState4;           // DEPRICATED
   uint8_t meshState;
   uint8_t nodeID;
   int16_t nodeMeshAddress;
 };
+
+// Garden_Status struct
+struct Garden_Status{
+  bool isAwake;
+  uint8_t threeGState;
+  uint8_t meshState;
+  uint8_t gardenState;
+  uint8_t numRegisteredNodes;
+  Node_Status* nodeStatusPtrs[17];
+};
  
 // mesh settings
-#define MASTER_ADDRESS      0             // Address (and nodeID) of the master
+#define MASTER_ADDRESS      0             // Address of the master
+#define MASTER_NODE_ID      0             // Node ID of the master
 #define COMM_CHANNEL        12            // Channel to use for communication
 #define DATA_RATE           RF24_250KBPS  // RF24 mesh communication data rate
 #define CONNECT_TIMEOUT     15000         // time in ms before mesh.begin() times out
@@ -53,23 +65,18 @@ struct Node_Status{
 #define RENEWAL_TIMEOUT     15000         // time in ms before mesh.renewAddress() times out
 #define CONNECTION_TRIES    5             // number of tries to connect before waiting going to 
                                           // sleep
-#define DISCONNECTED_SLEEP  (15*60000)    // (15 minutes) -- time to wait before trying to connect 
+#define DISCONNECTED_SLEEP  (5*60000)     // (5 minutes) -- time to wait before trying to connect 
                                           // again
 
 
 // communication protocol settings -- _H stands for message Headers, _P stands for message Payloads
 // master to nodes
 #define SET_VALVE_H         'V'
-//#define INFO_REQUEST_H      'R'     DEPRICATED
-//#define GET_VALVE_P         'v'     DEPRICATED
-//#define GET_FLOW_RATE_P     'r'     DEPRICATED
-//#define GET_NODE_STATUS_P   'n'     DEPRICATED
 #define GET_NODE_STATUS_H   'S'
 #define FORCE_RESET_H       'R'
 #define IS_NEW_DAY_H        'D'
 // nodes to master
 #define SEND_VALVE_H        'v'
-//#define SEND_FLOW_RATE_H    'r'     DEPRICATED
 #define SEND_NODE_STATUS_H  's'
 #define SEND_JUST_RESET_H   'r'
 #define SEND_NODE_SLEEP_H   'l'
