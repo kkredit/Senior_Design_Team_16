@@ -28,7 +28,7 @@
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
-//#include <Time.h>
+#include <Time.h>
 #include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/schedule/Schedule.h"
 #include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/schedule/ScheduleEvent.h"
 
@@ -74,6 +74,7 @@ volatile bool updateStatusFlag = false;
 Garden_Status gardenStatus;
 Schedule weeklySchedule;
 uint8_t statusCounter = 0;
+uint8_t lastMinute = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,11 +216,10 @@ void checkSchedule(){
         // for each valve
         uint8_t valve;
         for(valve=1; valve<=4; valve++){
-          // if schedule says should be open and is closed
           bool shouldBeOn;
+          shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday(), hour(), minute(), node, valve);
           
-          // TODO insert code to get shouldBeOpen according to schedule
-          
+          // if schedule says should be open and is closed
           if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
             // send open signal
             Valve_Command vc;
@@ -458,6 +458,8 @@ void setup(){
 
   // TODO print status?
 
+  ////////////////////////////////// INSERT 3G SETUP HERE ///////////////////////////////////
+
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
   while(!mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT)){
@@ -471,6 +473,9 @@ void setup(){
   // init timer for regular system checks
   Timer1.initialize(TIMER1_PERIOD);
   Timer1.attachInterrupt(updateStatusISR);
+
+  // setup time
+  //time.setTime(0, 
 
   initPins2();
 }
@@ -509,7 +514,11 @@ void loop() {
   }
 
   // check if need to open/close valves according to schedule
-  checkSchedule();
+  // to occur at the beginning of each new minute
+  if(lastMinute != minute()){
+    checkSchedule();
+    lastMinute = minute();
+  }
 
   // if had buttonpress, toggle between awake and asleep
   if(hadButtonPress){

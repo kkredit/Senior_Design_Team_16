@@ -7,22 +7,24 @@
 
 #include "Schedule.h"
 
-Schedule::Schedule() {
+/*
+Schedule::Schedule(){
 
 }
+*/
 
 /*
  * Author: Charles A. Kingston
  * Parameters: An integer for which day to insert to and a
  * scheduleEvent object to insert
- * Purpose: Function that inserts a new item into the list
+ * Purpose: Function that inserts a new item uint8_t o the list
  * on the passed in day. The list will order itself, based
  * upon the operators defined in the schedule class, with
  * the earliest start times first
  */
-void Schedule::insert(int day, scheduleEvent event) {
-	days[day].push_front(event);
-	days[day].sort();
+void Schedule::insert(uint8_t day, ScheduleEvent event){
+  days[day].push_front(event);
+  days[day].sort();
 }
 
 /*
@@ -31,8 +33,16 @@ void Schedule::insert(int day, scheduleEvent event) {
  * Purpose: Function that deletes the list for a certain day
  * passed in by the user
  */
-void Schedule::deleteDaysSchedule(int day){
-		days[day].erase(days[day].begin(),days[day].end());
+void Schedule::deleteDaysSchedule(uint8_t day){
+  days[day].erase(days[day].begin(),days[day].end());
+}
+
+bool Schedule::isEmpty(uint8_t day) {
+  if(days[day].empty()) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /*
@@ -42,8 +52,30 @@ void Schedule::deleteDaysSchedule(int day){
  * at the specified day and deletes that item. This function
  * can be compared to pop() for a stack
  */
-scheduleEvent Schedule::popFrontStartTime(int day){
-	scheduleEvent tempEvent = days[day].front();
-	days[day].pop_front();
-	return tempEvent;
+ScheduleEvent Schedule::popFrontStartTime(uint8_t day){
+  ScheduleEvent tempEvent = days[day].front();
+  days[day].pop_front();
+  return tempEvent;
 }
+/*
+bool Schedule::shouldValveBeOpen(uint8_t dayofweek, uint8_t hour, uint8_t minute, uint8_t node, uint8_t valve){
+  // check for empty schedule...
+  if(days[dayofweek].empty()) return false;
+  
+  // else, check each event  
+  bool result = false;
+  // for each event in given day
+  list<ScheduleEvent>::const_iterator iter;
+  for(iter=days[dayofweek].cbegin(); iter != days[dayofweek].cend(); iter++){
+    // if given event is for this node and valve
+    if(iter->getNodeID() == node && iter->getValveNum() == valve){
+      // if event is active, then return true
+      if(iter->getStartHour() <= hour && iter->getStartMin() <= minute && iter->getEndHour() <= hour && iter->getEndMinute <= minute){
+        result = true;
+        break;
+      }
+    }
+  }
+  return result;
+}
+*/
