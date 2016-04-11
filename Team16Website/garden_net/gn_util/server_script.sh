@@ -15,7 +15,7 @@ kill -SIGKILL $value
 
 nohup python3 /var/www/Team16Website/garden_net/gn_util/controller_interface.py
 
-rm output.txt
-rm python_sockets.txt
-rm temp.txt
-rm pid.txt 
+#rm output.txt
+#rm python_sockets.txt
+#rm temp.txt
+#rm pid.txt 

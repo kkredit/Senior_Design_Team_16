@@ -46,7 +46,8 @@ def create_event_list(json_str: str):
 					stop_time = float(temp_stop.replace(":", "."))
 					if (zone_id != i):
 						zone_id = i
-					event = Event(start_time, stop_time, day, zone_id)
+					valve = parsed[zone_string][event_string]['valve_num']
+					event = Event(start_time, stop_time, day, zone_id, valve)
 					EVENT_LIST.append(event)
 
 					#print(start_time)
@@ -143,28 +144,28 @@ while True:
 			client_sock, addr = server_socket.accept()
 			SOCKET_LIST.append(client_sock)
 			client_sock.settimeout(1)
-			#print("Client (%s, %s) connected" % addr)
+			print("Client (%s, %s) connected" % addr)
 			welcome = "BIG COCK"
 			#client_sock.send(welcome.encode('utf-8'))
 		elif sock == test_server_socket:
 			test, test_addr = test_server_socket.accept()
-			#print("Got a connection from test")
+			print("Got a connection from test")
 			test_response = "true"
-			#print("Sending true")
+			print("Sending true")
 			test.send(test_response.encode('utf-8'))
 			test.close()
-			#print("Closed the test socket")
+			print("Closed the test socket")
 		elif sock == ipc_socket:
-			#print("Got a connection from myself")
+			print("Got a connection from myself")
 			ipc, addr = ipc_socket.accept()
-			#print("Accepted the socket")
+			print("Accepted the socket")
 			ipc.close()
-			#print("Closed the socket")
+			print("Closed the socket")
 			f = open(ipc_file, 'r')
 			file_data = ""
 			for line in f:
 				file_data += line
-			#print(file_data)
+			print(file_data)
 			f.close()
 
 			if file_data == "true" or file_data == "false":
@@ -183,11 +184,13 @@ while True:
 				#broadcast(converted, SOCKET_LIST)
 				#broadcast(file_data, SOCKET_LIST)
 				#print("Creating the event list")
-				create_event_list(file_data)
+				for item in EVENT_LIST:
+					EVENT_LIST.remove(item)
+				create_event_list(converted)
 				#print("Event list created")
 				#send_event()
-				#for event in EVENT_LIST:
-				#	print(str(event))
+				for event in EVENT_LIST:
+					print(str(event))
 				#sock.close()
 				#print(file_data)
 				#broadcast(file_data, SOCKET_LIST)
@@ -208,4 +211,5 @@ while True:
 
 			except:
 				continue
+
 

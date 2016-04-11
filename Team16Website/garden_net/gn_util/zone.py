@@ -12,7 +12,7 @@ class Zone(Base):
 	_zone_id = Column(Integer)
 
 	def to_JSON(self):
-		return "\"zone" + str(self._zone_id) + "\":"
+		return "\"Zone" + str(self._zone_id) + "\":"
 
 	@property
 	def zone_id(self):
@@ -22,3 +22,4 @@ if __name__ == "__main__":
 	z = Zone(1)
 	z_JSON = z.to_JSON()
 	print(z_JSON)
+

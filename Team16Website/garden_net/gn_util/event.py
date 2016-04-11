@@ -30,8 +30,8 @@ class Event(Base):
 			raise ValueError("Specify a day of the week")
 		self._owner = zone_owner
 
-		if valve_id >= 1 and valve_id <= 3:
-			self._valve_num = valve_id
+		if int(valve_id) >= 1 and int(valve_id) <= 4:
+			self._valve_num = int(valve_id)
 		else:
 			raise ValueError("Legal valve numbers are 1 through 3")
 
@@ -121,4 +121,5 @@ if __name__ == "__main__":
 	e = Event(1.0, 2.0, 'Monday', 1, 1)
 
 	print(str(e))
+
 

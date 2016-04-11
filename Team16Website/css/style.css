@@ -16,10 +16,30 @@ select[disabled] {
   border-style: solid;
 }
 
+
+.teal-gradient {
+  background: -webkit-linear-gradient(top, rgb(0,63,96), rgb(255,197,85));
+}
+
 nav ul a,
 nav .brand-logo {
   color: #444;
 }
+
+nav.subnav {
+    height: 30px;
+    line-height: 30px;
+    background: -webkit-linear-gradient(right, teal,white);
+}
+
+
+@media only screen and (min-width: 601px){
+    nav.subnav {
+        height: 30px;
+        line-height: 30px;
+    }
+}
+
 
 p {
   line-height: 2rem;

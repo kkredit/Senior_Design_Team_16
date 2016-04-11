@@ -65,12 +65,15 @@ class JSON_Interface:
 						stop_time = float(temp_stop.replace(":", "."))
 						if (zone_id != i):
 							zone_id = i
-						valve = parsed[zone_string][event_string]['valve_num']
+						valve = int(parsed[zone_string][event_string]['valve_num'])
 						event = Event(start_time, stop_time, day, zone_id, valve)
 						#print(start_time)
 						#print(parsed[zone_string][event_string])
 						#print(event)
-						db.add_event(event)
+						try:
+							db.add_event(event)
+						except:
+							pass
 						j += 1
 					except(KeyError):
 						temp2 = False
@@ -88,7 +91,7 @@ class JSON_Interface:
 			events= []
 			try:
 				try:
-					events = db.get_events_on_day_for_zone('Sunday', i)
+					events += db.get_events_on_day_for_zone('Sunday', i)
 				except ValueError:
 					pass
 				try:
@@ -145,3 +148,4 @@ if __name__ == "__main__":
 	parsed = json.loads(string)
 
 	print(parsed['zone3']['event0']['day'])
+
