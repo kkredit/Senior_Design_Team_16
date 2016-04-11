@@ -1,5 +1,7 @@
-from forecastiopy import ForecastIO, FIODaily
-from datetime import datetime
+from forecastiopy import ForecastIO, FIOHourly, FIODaily
+from datetime import datetime, timedelta
+from pytz import timezone
+import pytz
 
 class Forecast:
 	def __init__(self):
@@ -10,37 +12,73 @@ class Forecast:
 		self._fio = ForecastIO.ForecastIO(self._apikey, latitude=self._my_location[0], longitude=self._my_location[1])
 
 	def get_forecast(self):
-		if self._fio.has_daily() is True:
-			daily = FIODaily.FIODaily(self._fio)
-			#print('Daily')
-			#print('Summary:', daily.summary)
-			#print('Icon:', daily.icon)
-			print()
-			for day in range(2, 9):
-				print('Day', day)
-				rise_time = daily.get_day(day)['sunriseTime']
-				sunriseTime = datetime.datetime.fromtimestamp(int(rise_time)).strftime('%m-%d-%Y %H:%M:%S')
-				print("sunriseTime: " + sunriseTime)
-				down_time = daily.get_day(day)['sunsetTime']
-				sunsetTime = datetime.datetime.fromtimestamp(int(down_time)).strftime('%H:%M:%S')
-				print("sunsetTime: " + sunsetTime)
-				print("humidity: " + str(daily.get_day(day)['humidity']))
-				print("temperatureMax: " + str(daily.get_day(day)['temperatureMax']))
-				print("temperatureMin: " + str(daily.get_day(day)['temperatureMin']))
-				print("cloudCover: " + str(daily.get_day(day)['cloudCover']))
-				print("precipType: " + str(daily.get_day(day)['precipType']))
-				print("precipProbability: " + str(daily.get_day(day)['precipProbability']))
-				# for item in daily.get_day(day).keys():
-				# 	print(item + ' : ' + str(daily.get_day(day)[item]))
-				print
+		total_forecast = ""
+		if self._fio.has_hourly() is True:
+			hourly = FIOHourly.FIOHourly(self._fio)
+			time = self.get_current_time()
+			for hour in range(0, 24):
+				total_forecast += 'Hour' + str(hour+1) + "\n"
+				curr = time + timedelta(hours=hour)
+				total_forecast += str(curr) + "\n"
+				for item in hourly.get_hour(hour).keys():
+					total_forecast += item + ' : ' + str(hourly.get_hour(hour)[item]) + "\n"
+				total_forecast += "\n"
 				# Or access attributes directly for a given minute.
-				# daily.day_7_time would also work
-				#print(daily.day_5_time)
-				print()
-				print()
+				# hourly.hour_5_time would also work
+			return total_forecast
 		else:
-			print('No Daily data')
+			return 'No Hourly data'
+
+	def get_total_24_rain_forecast(self):
+		total = 0
+		if self._fio.has_hourly() is True:
+			hourly = FIOHourly.FIOHourly(self._fio)
+			for hour in range(0, 24):
+				if hourly.get_hour(hour)['precipProbability'] > 0:
+					total += hourly.get_hour(hour)['precipIntensity']
+			return total
+		else:
+			print('No Hourly data')
+			return total
+
+	def get_intensity_for_hour(self, hour):
+		if self._fio.has_hourly():
+			hourly = FIOHourly.FIOHourly(self._fio)
+			return hourly.get_hour(hour)['precipIntensity']
+
+	def get_probability_for_hour(self, hour):
+		if self._fio.has_hourly():
+			hourly = FIOHourly.FIOHourly(self._fio)
+			return hourly.get_hour(hour)['precipProbability']
+
+	def get_current_time(self, hour):
+		eastern = timezone('US/Eastern')
+		loc_dt = eastern.localize(datetime.now())
+		return (loc_dt + timedelta(hours=hour))
+
+	def get_current_day(self):
+		eastern = timezone('US/Eastern')
+		loc_dt = eastern.localize(datetime.now())
+		it = datetime.date(loc_dt).isoweekday()
+		if it == 1:
+			return "Monday"
+		elif it == 2:
+			return "Tuesday"
+		elif it == 3:
+			return "Wednesday"
+		elif it == 4:
+			return "Thursday"
+		elif it == 5:
+			return "Friday"
+		elif it == 6:
+			return "Saturday"
+		elif it == 7:
+			return "Sunday"
 
 if __name__ == "__main__":
 	forecast = Forecast()
-	forecast.get_forecast()
+	#days_rainfall = forecast.get_total_24_rain_forecast()
+	#forecast_string = forecast.get_forecast()
+	#print(days_rainfall)
+	#print(forecast_string)
+	print(forecast.get_current_day())

@@ -9,9 +9,10 @@ class Event(Base):
 	_start_time = Column(Float)
 	_stop_time = Column(Float)
 	_day = Column(String(10))
+	_valve_num = Column(Integer)
 	_owner = Column(Integer, ForeignKey('zones._zone_id'))
 
-	def __init__(self, start, stop, myDay, zone_owner):
+	def __init__(self, start, stop, myDay, zone_owner, valve_id):
 		if start > stop:
 			raise ValueError("Start time should be less than stop time")
 		if start > 23.59:
@@ -23,11 +24,16 @@ class Event(Base):
 			self._stop_time = stop
 		if myDay == 'Sunday' or myDay == 'Monday' or myDay == 'Tuesday' \
 				or myDay == 'Wednesday'or myDay == 'Thursday' or myDay == 'Friday' \
-				or myDay =='Saturday':
+				or myDay =='Saturday' or myDay == 'Everyday':
 			self._day = myDay
 		else:
 			raise ValueError("Specify a day of the week")
 		self._owner = zone_owner
+
+		if valve_id >= 1 and valve_id <= 3:
+			self._valve_num = valve_id
+		else:
+			raise ValueError("Legal valve numbers are 1 through 3")
 
 	def __str__(self):
 		#return "\"start_time\": " + str(self.start_time) + " \"stop_time\": : " + str(self.stop_time)\
@@ -102,12 +108,17 @@ class Event(Base):
 		else:
 			raise ValueError("The zone ownership should be and int")
 
+	@property
+	def valve_num(self):
+		return self._valve_num
+
 	def to_JSON(self):
 		return "{\"start_time\" : \"" + str(self.start_time) + "\"" + ", \"stop_time\" : \"" + str(self.stop_time) + \
-			   "\", \"day\" : \"" + str(self.day) + "\", \"zone_ID\" : \"" + str(self.owner) + "\"}"
+				"\", \"day\" : \"" + str(self.day) + "\", \"zone_ID\" : \"" + str(self.owner) + "\" , \"valve_num\" : " \
+				"\"" + str(self.valve_num) + "\" }"
 
 if __name__ == "__main__":
-	e = Event(1.0, 2.0, 'Monday', 1)
+	e = Event(1.0, 2.0, 'Monday', 1, 1)
 
 	print(str(e))
 

@@ -2,15 +2,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import and_, exists
 
-
 from base import Base, Meta
 from zone import Zone
 from event import Event
 
 
 class Database:
-	def __init__(self):
-		self.engine = create_engine('sqlite:///database.db')
+	def __init__(self, new: bool):
+		if new:
+			self.engine = create_engine('sqlite://')
+		else:
+			self.engine = create_engine('sqlite:///database.db')
 
 		self.meta = Meta
 		self.base = Base

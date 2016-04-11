@@ -65,7 +65,8 @@ class JSON_Interface:
 						stop_time = float(temp_stop.replace(":", "."))
 						if (zone_id != i):
 							zone_id = i
-						event = Event(start_time, stop_time, day, zone_id)
+						valve = parsed[zone_string][event_string]['valve_num']
+						event = Event(start_time, stop_time, day, zone_id, valve)
 						#print(start_time)
 						#print(parsed[zone_string][event_string])
 						#print(event)

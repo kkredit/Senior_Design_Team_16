@@ -1,3 +1,4 @@
+DAILY:
 cloudCover : 0.87
 moonPhase : 0.02
 apparentTemperatureMin : 40.79
@@ -24,3 +25,21 @@ apparentTemperatureMinTime : 1457582400
 temperatureMaxTime : 1457499600
 sunsetTime : 1457566985
 apparentTemperatureMaxTime : 1457499600
+
+HOURLY:
+2016-04-08 07:09:49.123441-04:00
+ozone : 427.88
+temperature : 28.82
+icon : partly-cloudy-night
+dewPoint : 23.79
+humidity : 0.81
+visibility : 9.05
+summary : Partly Cloudy
+apparentTemperature : 21.39
+pressure : 1008.91
+windSpeed : 7.39
+cloudCover : 0.55
+time : 1460109600
+windBearing : 285
+precipIntensity : 0
+precipProbability : 0

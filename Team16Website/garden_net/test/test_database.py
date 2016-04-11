@@ -1,9 +1,9 @@
 import unittest
 
-from garden_net.database.database import Database
-from garden_net.gn_util.zone import Zone
-from garden_net.gn_util.event import Event
-from garden_net.gn_util.JSON import JSON_Interface
+from Team16Website.garden_net.gn_util.database import Database
+from Team16Website.garden_net.gn_util.zone import Zone
+from Team16Website.garden_net.gn_util.event import Event
+from Team16Website.garden_net.gn_util.JSON import JSON_Interface
 
 class TestDataBase(unittest.TestCase):
 	def setUp(self):
@@ -23,7 +23,7 @@ class TestDataBase(unittest.TestCase):
 	def test_add_event(self):
 		z = Zone(1)
 		self.db.add_zone(z)
-		test_event = Event(1.0, 2.0, 'Monday', 3)
+		test_event = Event(1.0, 2.0, 'Monday', 1)
 		with self.assertRaises(ValueError):
 			self.db.add_event(test_event)
 
