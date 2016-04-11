@@ -50,6 +50,7 @@ struct Garden_Status{
   uint8_t meshState;
   uint8_t gardenState;
   uint8_t numRegisteredNodes;
+  uint8_t numConnectedNodes;
   Node_Status* nodeStatusPtrs[17];
 };
  
@@ -69,7 +70,7 @@ struct Garden_Status{
                                           // again
 
 
-// communication protocol settings -- _H stands for message Headers, _P stands for message Payloads
+// communication protocol settings
 // master to nodes
 #define SET_VALVE_H         'V'
 #define GET_NODE_STATUS_H   'S'
@@ -83,15 +84,29 @@ struct Garden_Status{
 #define SEND_NEW_DAY_H      'd'
 
 
-// node states -- apply equally to "node" proper and to master
-// voltage states
+// master states
+// threeGStates
+#define TR_G_CONNECTED        0
+#define TR_G_DISCONNECTED     1
+// meshStates
+#define MESH_ALL_NODES_GOOD   0
+#define MESH_NOT_BEGAN        1
+#define MESH_SOME_NODES_DOWN  2
+#define MESH_ALL_NODES_DOWN   3
+// gardenStates
+#define GARDEN_ALL_IS_WELL    0
+#define GARDEN_NODE_ERROR     1
+
+
+// node states
+// voltageStates
 #define GOOD_VOLTAGE      0
 #define LOW_VOLTAGE       1
 #define HIGH_VOLTAGE      2
-// mesh states
+// meshStates
 #define MESH_CONNECTED    0
 #define MESH_DISCONNECTED 1
-// flow states
+// flowStates
 #define HAS_NO_METER      0
 #define NO_FLOW_GOOD      1
 #define FLOWING_GOOD      2

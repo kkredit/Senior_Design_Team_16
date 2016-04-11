@@ -277,6 +277,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     else{
       if(mesh.getNodeID(destination) != -1 && gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)] != NULL){
         gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)]->meshState = MESH_DISCONNECTED; // TODO is this the only way to tell?
+        gardenStatus.numConnectedNodes--; // TODO make sure not to recount fallen nodes or go below 0
       }
       return false;
     }
@@ -292,6 +293,7 @@ bool checkNodeRegistered(uint8_t nodeID){
   if(gardenStatus.nodeStatusPtrs[nodeID] == NULL){
     gardenStatus.nodeStatusPtrs[nodeID] = new Node_Status;
     gardenStatus.numRegisteredNodes++;
+    gardenStatus.numConnectedNodes++;
     return false;
   }
   return true;
@@ -375,7 +377,23 @@ void initGardenStatus(){
   // isAwake
   gardenStatus.isAwake = true;
   
-  // TODO
+  // threeGState
+  gardenStatus.threeGState = TR_G_DISCONNECTED;
+
+  // meshState
+  gardenStatus.meshState = MESH_NOT_BEGAN;
+
+  // gardenState
+  gardenStatus.gardenState = GARDEN_ALL_IS_WELL;
+
+  // numRegisteredNodes
+  gardenStatus.numRegisteredNodes = 0;
+
+  // numConnectedNodes
+  gardenStatus.numConnectedNodes = 0;
+
+  // nodeStatusPrts -- initiate all to NULL
+  *gardenStatus.nodeStatusPtrs = {0};
 }
 
 /* 
@@ -395,12 +413,41 @@ void updateGardenStatus(){
 
   //////////// CHECK MESH CONNECTION ////////////
 
-  // TODO
-  
+  // assume began, so just check ratio of connected nodes
+  if(gardenStatus.numConnectedNodes == gardenStatus.numRegisteredNodes){
+    gardenStatus.meshState = MESH_ALL_NODES_GOOD;
+  }
+  else if(gardenStatus.numConnectedNodes == 0){
+    gardenStatus.meshState = MESH_ALL_NODES_DOWN;
+  }
+  else{
+    gardenStatus.meshState = MESH_SOME_NODES_DOWN;
+  }
   
   //////////// CHECK NODE_STATUSES ////////////
 
-  // TODO  
+  gardenStatus.gardenState = GARDEN_ALL_IS_WELL;
+  // cycle through CONNECTED nodes, and if any have an error, report
+  uint8_t node;
+  for(node=1; node<=16; node++){
+    // if registered
+    if(gardenStatus.nodeStatusPtrs[node] != NULL){
+      // if connected
+      if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+        // check if it has any errors; if so, report
+        if(gardenStatus.nodeStatusPtrs[node]->voltageState != GOOD_VOLTAGE){
+          gardenStatus.gardenState = GARDEN_NODE_ERROR;
+          break;
+        }
+        else if(gardenStatus.nodeStatusPtrs[node]->flowState != HAS_NO_METER &&
+                gardenStatus.nodeStatusPtrs[node]->flowState != NO_FLOW_GOOD &&
+                gardenStatus.nodeStatusPtrs[node]->flowState != FLOWING_GOOD){
+          gardenStatus.gardenState = GARDEN_NODE_ERROR;
+          break;
+        }
+      }
+    }
+  }   
 }
 
 /* 
@@ -417,7 +464,38 @@ void printGardenStatus(){
 
   if(gardenStatus.isAwake == false) Serial.println(F("GARDEN IS IN STANDBY"));
 
-  // TODO
+  Serial.print(gardenStatus.numConnectedNodes); Serial.print(F("/"));
+  Serial.print(gardenStatus.numRegisteredNodes); Serial.println(F(" nodes are connected"));
+
+  Serial.print(F("3G status:      ")); 
+  if(gardenStatus.threeGState == TR_G_CONNECTED){
+    Serial.println(F("good (connected)"));
+  }
+  else if(gardenStatus.threeGState == TR_G_DISCONNECTED){
+    Serial.println(F("DISCONNECTED"));
+  }
+
+  Serial.print(F("Mesh status:    "));
+  if(gardenStatus.meshState == MESH_ALL_NODES_GOOD){
+    Serial.println(F("good (all nodes connected)"));
+  }
+  else if(gardenStatus.meshState == MESH_NOT_BEGAN){
+    Serial.println(F("not began"));
+  }
+  else if(gardenStatus.meshState == MESH_SOME_NODES_DOWN){
+    Serial.println(F("some nodes down!"));
+  }
+  else if(gardenStatus.meshState == MESH_ALL_NODES_DOWN){
+    Serial.println(F("ALL NODES DOWN!"));
+  }
+
+  Serial.print(F("Node statuses:  "));
+  if(gardenStatus.gardenState == GARDEN_ALL_IS_WELL){
+    Serial.println(F("good"));
+  }
+  else if(gardenStatus.meshState == GARDEN_NODE_ERROR){
+    Serial.println(F("at least one connected node has an error!"));
+  }
 }
 
 
@@ -516,7 +594,9 @@ void loop() {
   // check if need to open/close valves according to schedule
   // to occur at the beginning of each new minute
   if(lastMinute != minute()){
-    checkSchedule();
+    if(gardenStatus.isAwake){
+      checkSchedule();
+    }
     lastMinute = minute();
   }
 
@@ -529,7 +609,21 @@ void loop() {
     if(gardenStatus.isAwake == false){
       // TODO set light sequence
       
-      // TODO for each node, shut off all valves
+      // for each node, shut off all valves
+      uint8_t node;
+      for(node=1; node<=16; node++){
+        // if registered
+        if(gardenStatus.nodeStatusPtrs[node] != NULL){
+          // if connected
+          if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+            // send command to turn off all valves
+            Valve_Command vc;
+            vc.whichValve = ALL_VALVES;
+            vc.onOrOff = OFF;
+            safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+          }
+        }
+      }
     }
     else{
       // TODO set light sequence
@@ -541,9 +635,7 @@ void loop() {
     hadButtonPress = false;
   }
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////// INSERT 3G STUFF HERE /////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // read in and respond to mesh messages
   readMeshMessages();
