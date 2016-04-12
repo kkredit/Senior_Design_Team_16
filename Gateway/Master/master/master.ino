@@ -29,8 +29,10 @@
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "Schedule.h"
-#include "ScheduleEvent.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
 //#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/schedule/Schedule.h"
 //#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/schedule/ScheduleEvent.h"
 
@@ -325,7 +327,7 @@ void parseJSON() {
  * @postconditions: the schedule event is parsed and inserted into the weekly schedule
 */
 void createEvent() {
-  int myDay = 0;
+  int myDay;
   int beginIdx = 0;
   ScheduleEvent tempEvent;
   // used to process start time and end time further
@@ -517,10 +519,6 @@ void refreshReset(){
   digitalWrite(RESET_PIN, LOW);
   delay(50); // 95% charged: 3*tau = 3*RC = 3*200*100*10^-6 = 60 ms
   pinMode(RESET_PIN, INPUT);
-}
-
-bool shouldValveBeOpen(uint8_t node, uint8_t valve){
-  
 }
 
 void checkSchedule(){
