@@ -459,6 +459,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
       else{
         // if succeeded, are reconnected and try again
         myStatus.meshState = MESH_CONNECTED;
+        safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
         setLED(CONNECTED_SEQUENCE);
         if(timesToTry){
           // more tries allowed; try again
@@ -684,12 +685,14 @@ void updateNodeStatus(){
       // reconnection effort succeeded, connected
       Serial.println(F("[Mesh reconnected]"));
       myStatus.meshState = MESH_CONNECTED;
+      safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
       setLED(CONNECTED_SEQUENCE);
     }
   }
   else{
     // connected
     myStatus.meshState = MESH_CONNECTED;
+    //safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
     setLED(LED_OFF);
   }
 
@@ -903,7 +906,11 @@ void setup(){
               //    been dicharging during previous setup, so 50ms is sufficient
   pinMode(RESET_PIN, INPUT);
   pinMode(RESET_GND, OUTPUT);
-  digitalWrite(RESET_GND, LOW); 
+  digitalWrite(RESET_GND, LOW);
+
+  // send status so that master knows I exist
+  Serial.print(F("Registering myself with the gateway\n"));
+  safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
 }
 
 
@@ -940,24 +947,27 @@ void loop() {
 
   // if had buttonpress, toggle between awake and asleep
   if(hadButtonPress){
-    // toggle states between asleep and awake
-    myStatus.isAwake = !myStatus.isAwake;
-
-    // if asleep, close valves
-    if(myStatus.isAwake == false){
-      setValve(ALL_VALVES, OFF);
-      setLED(GO_TO_SLEEP_SEQUENCE);
+    if(statusCounter > 0){
+      // toggle states between asleep and awake
+      myStatus.isAwake = !myStatus.isAwake;
+  
+      // if asleep, close valves
+      if(myStatus.isAwake == false){
+        setValve(ALL_VALVES, OFF);
+        setLED(GO_TO_SLEEP_SEQUENCE);
+      }
+      else{
+        setLED(AWAKE_SEQUENCE);
+      }
+  
+      // let the master know
+      safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NODE_SLEEP_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
+      
+      // reset flag
+      hadButtonPress = false;
     }
-    else{
-      setLED(AWAKE_SEQUENCE);
-    }
-
-    // let the master know
-    safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NODE_SLEEP_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
-    
-    // reset flag
-    hadButtonPress = false;
   }
+    
 
   // read in messages
   while(network.available()){

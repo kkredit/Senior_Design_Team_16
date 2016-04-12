@@ -31,7 +31,11 @@ public:
     // if given event is for this node and valve
     if(iter->getNodeID() == node && iter->getValveNum() == valve){
       // if event is active, then return true
-      if(iter->getStartHour() <= hour && iter->getStartMin() <= minute && iter->getEndHour() <= hour && iter->getEndMin() <= minute){
+      // convert time to absolute minutes to simplify comparisons
+      uint16_t currentTime = 60*hour+minute;
+      uint16_t startTime = 60*iter->getStartHour()+iter->getStartMin();
+      uint16_t endTime = 60*iter->getEndHour()+iter->getEndMin();      
+      if(currentTime >= startTime && currentTime < endTime){
         result = true;
         break;
       }

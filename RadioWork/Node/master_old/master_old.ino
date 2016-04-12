@@ -13,7 +13,7 @@
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
-//#include <Time.h>
+#include <Time.h>
 // RF24 Mesh Network
 #include "RF24Network.h"
 #include "RF24.h"
@@ -263,15 +263,23 @@ void setup() {
 
   vc.whichValve = 1;
   vc.onOrOff = ON;
+
+  setTime(15, 0, 0, 12, 4, 2016);
 }
 
 void loop(){
 
+  // test timing stuff
+  if(second()){
+    setTime(now()+59);
+    Serial.print("Time: "); Serial.print(hour()); Serial.print(":"); Serial.print(minute()); Serial.print(":"); Serial.println(second());
+  }
+
   // send message to node to open/close given valves
   //mesh.write(mesh.getAddress(nodeID), &payload, INFO_REQUEST_H, sizeof(payload));
-//  mesh.write(mesh.getAddress(KEVINID), &vc, SET_VALVE_H, sizeof(vc));
-//  vc.whichValve = vc.whichValve % 4 + 1;
-//  if(vc.whichValve == 1) vc.onOrOff = !vc.onOrOff;
+  mesh.write(mesh.getAddress(KEVINID), &vc, SET_VALVE_H, sizeof(vc));
+  vc.whichValve = vc.whichValve % 4 + 1;
+  if(vc.whichValve == 1) vc.onOrOff = !vc.onOrOff;
   
   // refresh the reset////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   refreshReset();////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
