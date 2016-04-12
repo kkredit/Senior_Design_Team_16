@@ -14,13 +14,14 @@ using namespace std;
 
 class Schedule {
 public:
-	Schedule();
-	void insert(int day, scheduleEvent event);
-	void deleteDaysSchedule(int day);
-	scheduleEvent popFrontStartTime(int day);
+  Schedule();
+  void insert(int day, ScheduleEvent event);
+  void deleteDaysSchedule(int day);
+  bool isEmpty(int day);
+  ScheduleEvent popFrontStartTime(int day);
 private:
-	list<scheduleEvent> days[7];
-	friend class ScheduleTester;
+  list<ScheduleEvent> days[7];
+  friend class ScheduleTester;
 };
 
 #endif /* SCHEDULE_H_ */

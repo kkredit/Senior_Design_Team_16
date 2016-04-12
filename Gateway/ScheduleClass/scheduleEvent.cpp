@@ -13,23 +13,27 @@
  * Purpose: Constructor for the scheduleEvent class in
  * which all of its properties are initialized to 0
  */
-scheduleEvent::scheduleEvent() {
+ScheduleEvent::ScheduleEvent() {
 	nodeID = 0;
-	startTime = 0.00;
-	endTime = 0.00;
+	startHour = 0;
+	startMin = 0;
+	endHour = 0;
+	endMin = 0;
 }
 
 /*
  * Author: Charles A. Kingston
- * Parameters: Integer called userNodeID, float called userStartTime, and
+ * Parameters: integer called userNodeID, float called userStartTime, and
  * float called userEndTime
  * Purpose: Constructor for the scheduleEvent class in
  * which all of its properties are initialized to 0
  */
-scheduleEvent::scheduleEvent(int userNodeID, float userStartTime, float userEndTime){
+ScheduleEvent::ScheduleEvent(int userNodeID, int userStartHour, int userStartMin, int userEndHour, int userEndMin){
 	nodeID = userNodeID;
-	startTime = userStartTime;
-	endTime = userEndTime;
+	startHour = userStartHour;
+	startMin = userStartHour;
+	endHour = userEndHour;
+	endMin = userEndMin;
 }
 
 /*
@@ -37,7 +41,7 @@ scheduleEvent::scheduleEvent(int userNodeID, float userStartTime, float userEndT
  * Parameters: None
  * Purpose: Returns the integer nodeID property
  */
-int scheduleEvent::getNodeID(){
+int ScheduleEvent::getNodeID(){
 	return nodeID;
 }
 
@@ -47,8 +51,12 @@ int scheduleEvent::getNodeID(){
  * Purpose: Getter function that returns the
  * float startTime property
  */
-float scheduleEvent::getStartTime(){
-	return startTime;
+int ScheduleEvent::getStartHour(){
+	return startHour;
+}
+
+int ScheduleEvent::getStartMin() {
+	return startMin;
 }
 
 /*
@@ -57,8 +65,12 @@ float scheduleEvent::getStartTime(){
  * Purpose: Getter function that returns the
  * float endTime property
  */
-float scheduleEvent::getEndTime(){
-	return endTime;
+int ScheduleEvent::getEndHour(){
+	return endHour;
+}
+
+int ScheduleEvent::getEndMin() {
+	return endMin;
 }
 
 /*
@@ -67,7 +79,7 @@ float scheduleEvent::getEndTime(){
  * Purpose: Setter function that does not return a
  * value but allows the nodeID property to be set
  */
-void scheduleEvent::setNodeID(int id){
+void ScheduleEvent::setNodeID(int id){
 	nodeID = id;
 }
 
@@ -77,8 +89,12 @@ void scheduleEvent::setNodeID(int id){
  * Purpose: Setter function that does not return a
  * value but allows the startTime property to be set
  */
-void scheduleEvent::setStartTime(float time){
-	startTime = time;
+void ScheduleEvent::setStartHour(int time){
+	startHour = time;
+}
+
+void ScheduleEvent::setStartMin(int time) {
+	startMin = time;
 }
 
 /*
@@ -87,8 +103,12 @@ void scheduleEvent::setStartTime(float time){
  * Purpose: Setter function that does not return a
  * value but allows the endTime property to be set
  */
-void scheduleEvent::setEndTime(float time){
-	endTime = time;
+void ScheduleEvent::setEndHour(int time){
+	endHour = time;
+}
+
+void ScheduleEvent::setEndMin(int time) {
+	endMin = time;
 }
 
 /*
@@ -98,9 +118,18 @@ void scheduleEvent::setEndTime(float time){
  * between to schedule events by comparing their starTime
  * properties
  */
-bool scheduleEvent::operator<(const scheduleEvent& scheduleEvent2) const{
-	if (this->startTime < scheduleEvent2.startTime){
+bool ScheduleEvent::operator<(const ScheduleEvent& scheduleEvent2) const {
+	// comparing hour
+	if (this->startHour < scheduleEvent2.startHour){
 		return true;
+	}
+	// comparing minute
+	else if (this->startHour == scheduleEvent2.startHour) {
+		if (this->startMin < scheduleEvent2.startMin) {
+			return true;
+		} else {
+			return false;
+		}
 	} else {
 		return false;
 	}
@@ -113,9 +142,19 @@ bool scheduleEvent::operator<(const scheduleEvent& scheduleEvent2) const{
  * between to schedule events by comparing their starTime
  * properties
  */
-bool scheduleEvent::operator>(const scheduleEvent& scheduleEvent2) const{
-	if (this->startTime > scheduleEvent2.startTime){
+bool ScheduleEvent::operator>(const ScheduleEvent& scheduleEvent2) const{
+	// comparing hour
+	if (this->startHour > scheduleEvent2.startHour){
 		return true;
+	} 
+	// comparing minute
+	else if (this->startHour == scheduleEvent2.startHour) {
+		if (this->startMin > scheduleEvent2.startMin) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	} else {
 		return false;
 	}
@@ -128,9 +167,14 @@ bool scheduleEvent::operator>(const scheduleEvent& scheduleEvent2) const{
  * between to schedule events by comparing their starTime
  * properties
  */
-bool scheduleEvent::operator==(const scheduleEvent& scheduleEvent2) const{
-	if (this->startTime == scheduleEvent2.startTime){
-		return true;
+bool ScheduleEvent::operator==(const ScheduleEvent& scheduleEvent2) const{
+	if (this->startHour == scheduleEvent2.startHour){
+		if (this->startMin == scheduleEvent2.startMin) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	} else {
 		return false;
 	}

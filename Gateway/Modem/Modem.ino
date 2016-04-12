@@ -19,7 +19,8 @@ String currentString = "";
 volatile int incomingByte = 0;
 
 /******************************** JSON Parsing **********************************/
-ScheduleEvent event0;
+ScheduleEvent tempEvent;
+Schedule weeklySchedule;
 
 /* the setup function configures and initializes the I/O devices: LEDs, push button, serial port, 
  * and 3G Modem
@@ -36,9 +37,19 @@ void loop() {
   // while(PrintModemResponse() > 0);
   while(Modem_Serial.available() > 0) {
     getModemResponse();
+    parseJSON();
   }
-  parseJSON();
-  if(currentString == "NO CARRIER"){
+
+    if(currentString == "DONE") {
+      while(!weeklySchedule.isEmpty(1)) {
+        checkCurrentSchedule(1);
+      }
+    }
+    
+    // checkCurrentSchedule();
+
+  // exceptions
+  if(currentString == "NO CARRIER" || currentString == "ERROR") {
     openSocket();
     currentString = "";
   }
@@ -121,7 +132,9 @@ void getModemIP() {
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
   while(PrintModemResponse() > 0); 
-  delay(7000);
+  
+  // wait for 10s for the modem to retrieve IP address
+  delay(10000);
   while(PrintModemResponse() > 0);  
 }
 
@@ -132,7 +145,6 @@ void getModemIP() {
 void openSocket() {
   // initiate TCP socket dial
   Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
-  // Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",255,0");
   delay(500);
   while(PrintModemResponse() > 0);
 }
@@ -190,6 +202,8 @@ void getModemResponse() {
     currentString = "";
   } else if(currentString != "NO CARRIER") {
     currentString += char(incomingByte);  
+  } else {
+    currentString = currentString;
   }
 }
 
@@ -218,6 +232,7 @@ void parseJSON() {
 }
 
 void createEvent() {
+  int myDay = 0;
   int beginIdx = 0;
   // used to process start time and end time further
   // split the string by double quote
@@ -242,27 +257,41 @@ void createEvent() {
       int myHour = atoi(charBuffer);
       separator = separator + 1;
       int myMin = atoi(separator);
-      event0.setStartHour(myHour);
-      event0.setStartMin(myMin);
+      tempEvent.setStartHour(myHour);
+      tempEvent.setStartMin(myMin);
     } else if (i == 7) {
       char* separator = strchr(charBuffer, '.');
       *separator = 0;
       int myHour = atoi(charBuffer);
       separator = separator + 1;
       int myMin = atoi(separator);
-      event0.setEndHour(myHour);
-      event0.setEndMin(myMin);
+      tempEvent.setEndHour(myHour);
+      tempEvent.setEndMin(myMin);
     } else if (i == 11) {
-      int myDay = dayDecoder(arg);
+      myDay = dayDecoder(arg);
       Serial.print("This event is to be inserted into "); Serial.println(myDay);
     } else if (i == 15) {
       int myID = atoi(charBuffer);
-      event0.setNodeID(myID);
+      tempEvent.setNodeID(myID);
     }
   }
-  Serial.print("Valeve "); Serial.print(event0.getNodeID()); Serial.print(" is set to have a start time of ");
-  Serial.print(event0.getStartHour()); Serial.print(":"); Serial.print(event0.getStartMin());
-  Serial.print(" and an end time of "); Serial.print(event0.getEndHour()); Serial.print(":"); Serial.print(event0.getEndMin());
+//  Serial.print("Valeve "); Serial.print(tempEvent.getNodeID()); Serial.print(" is set to have a start time of ");
+//  Serial.print(tempEvent.getStartHour()); Serial.print(":"); Serial.print(tempEvent.getStartMin());
+//  Serial.print(" and an end time of "); Serial.print(tempEvent.getEndHour()); Serial.print(":"); Serial.print(tempEvent.getEndMin());
+//  Serial.println(".");
+
+  // insert this event to the weekly schedule
+  weeklySchedule.insert(myDay, tempEvent);
+
+  // checkCurrentSchedule(myDay);
+}
+
+void checkCurrentSchedule( int myDay) {
+  ScheduleEvent myEvent = weeklySchedule.popFrontStartTime(myDay);
+  Serial.println("");
+  Serial.print("Valve "); Serial.print(myEvent.getNodeID()); Serial.print(" is set to have a start time of ");
+  Serial.print(myEvent.getStartHour()); Serial.print(":"); Serial.print(myEvent.getStartMin());
+  Serial.print(" and an end time of "); Serial.print(myEvent.getEndHour()); Serial.print(":"); Serial.print(myEvent.getEndMin());
   Serial.println(".");
 }
 
@@ -286,18 +315,6 @@ int dayDecoder(String myDay) {
   }
 }
 
-/*
-beginIdx = 0;
-for(int i = 3; i <= 5; i++) {
-arg = timeString.substring(beginIdx, idx1);
-arg.toCharArray(charBuffer, 16);
-      
-// add error handling for atoi:
-timeArray[i] = atoi(charBuffer);
-beginIdx = idx1 + 1;
-idx1 = timeString.indexOf(":", beginIdx);
-}
-*/
 
 
 
