@@ -13,12 +13,24 @@
 struct Valve_Command{
   uint8_t whichValve;
   bool onOrOff;
+  uint8_t timeToLive;
 };
  
 // Valve_Status struct
 struct Valve_Status{
   bool isConnected;
   bool state;
+};
+
+// Valve_Response struct
+// essentially a combination of a command and a status
+struct Valve_Response{
+  bool nodeIsAwake;
+  uint8_t whichValve;
+  bool isConnected;
+  bool commandedOnOrOff;
+  int8_t actualState;
+  uint8_t timeToLive;
 };
 
 // Node_Status struct
@@ -34,10 +46,6 @@ struct Node_Status{
   uint8_t numConnectedValves;
   uint8_t numOpenValves;
   Valve_Status valveStates[5];
-  //Valve_Status valveState1;           // DEPRICATED
-  //Valve_Status valveState2;           // DEPRICATED
-  //Valve_Status valveState3;           // DEPRICATED
-  //Valve_Status valveState4;           // DEPRICATED
   uint8_t meshState;
   uint8_t nodeID;
   int16_t nodeMeshAddress;
@@ -130,12 +138,11 @@ struct Garden_Status{
 
 // valve command errors
 #define NO_VALVE_ERROR        -1      // when no valve connected in given slot
-#define NODE_IS_ASLEEP_ERROR  -2      // when node is asleep
 
 
 // other settings
-#define ON                    1
-#define OFF                   0
+#define ON                    true
+#define OFF                   false
 #define ALL_VALVES            5
 #define BAUD_RATE             9600    // serial communication baud rate
 #define TIMER1_PERIOD         4000000 /* 10s */ // timer period in microseconds (1000000 = 1 sec)
@@ -147,3 +154,4 @@ struct Garden_Status{
 #define MIN_MEASUREABLE_GPM   0.2642  // is 1 LPM, minimum measuring threshold for our meter
 #define MAX_MEASUREABLE_GPM   7.92516 // is 29 LPM, maximumm measureing threshold for our meter
 #define FLOW_RATE_SAMPLE_SIZE 100
+#define VALVE_COMMAND_TTL     5       // number of tries to execute a valve command

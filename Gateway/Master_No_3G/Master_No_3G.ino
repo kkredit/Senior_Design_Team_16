@@ -534,14 +534,16 @@ void checkSchedule(){
     if(gardenStatus.nodeStatusPtrs[node] != NULL){
       // if connected
       if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
-        Serial.print("checking node "); Serial.println(node);
+//        Serial.print("checking node "); Serial.println(node);
         // for each valve
         uint8_t valve;
         for(valve=1; valve<=4; valve++){
-          Serial.print("checking valve "); Serial.print(valve);
+//          Serial.print("checking valve "); Serial.print(valve);
           bool shouldBeOn;
           shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday()-1, hour(), minute(), node, valve);
-          Serial.print(": should be "); shouldBeOn ? Serial.println("ON") : Serial.println("OFF") ;
+//          Serial.print(": should be "); shouldBeOn ? Serial.println("ON") : Serial.println("OFF");
+
+//          Serial.print("And said valve is: "); Serial.println(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state);
           
           // if schedule says should be open and is closed
           if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
@@ -549,6 +551,7 @@ void checkSchedule(){
             Valve_Command vc;
             vc.whichValve = valve;
             vc.onOrOff = ON;
+            vc.timeToLive = VALVE_COMMAND_TTL;
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
           // else if schedule says should be closed and is open
@@ -557,6 +560,7 @@ void checkSchedule(){
             Valve_Command vc;
             vc.whichValve = valve;
             vc.onOrOff = OFF;
+            vc.timeToLive = VALVE_COMMAND_TTL;
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
           // else the state is as it should be
@@ -601,6 +605,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     else{
       if(mesh.getNodeID(destination) != -1 && gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)] != NULL){
         gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)]->meshState = MESH_DISCONNECTED; // TODO is this the only way to tell?
+        gardenStatus.numConnectedNodes--;
       }
       return false;
     }
@@ -622,7 +627,10 @@ bool checkNodeRegistered(uint8_t nodeID){
   return true;
 }
 
-void readMeshMessages(){
+void readMeshMessages(){  
+  mesh.update();
+  mesh.DHCP();
+  
   while(network.available()){
     RF24NetworkHeader header;
     network.peek(header);
@@ -635,8 +643,36 @@ void readMeshMessages(){
       //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
       //  don't have endless cycle in case things fail?
 
+      // read in message
+      Valve_Response vr;
+      network.read(header, &vr, sizeof(vr));
+
+      // parse results
+      gardenStatus.nodeStatusPtrs[header.from_node]->isAwake = vr.nodeIsAwake;
+      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].isConnected = vr.isConnected;
+      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].state = vr.actualState;
+      Serial.print("valve message from "); Serial.println(header.from_node);
+      if(vr.nodeIsAwake == false){
+        // then all valves are closed too
+        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[1].state = OFF;
+        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[2].state = OFF;
+        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[3].state = OFF;
+        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[4].state = OFF;
+        // nothing else to be done
+        break;
+      }
+      if(vr.actualState == NO_VALVE_ERROR){
+        // do anything? already updated the data in the gardenStatus struct
+      }
+      else if(vr.timeToLive){
+        // try again, if time to live hasn't run out
+        Valve_Command vc;
+        vc.whichValve = vr.whichValve;
+        vc.onOrOff = vr.commandedOnOrOff;
+        vc.timeToLive = vr.timeToLive - 1;
+        safeMeshWrite(mesh.getAddress(header.from_node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+      }
       
-      // TODO implement the above
       break;
     case SEND_NODE_STATUS_H:
       // A node is reporting its status. Update its status in gardenStatus
@@ -650,10 +686,13 @@ void readMeshMessages(){
     case SEND_JUST_RESET_H:
       // means that a node has recovered from reset; true means it was told to do so, false means a crash
 
+      // check that it's registered
+      checkNodeRegistered(mesh.getNodeID(header.from_node));
+
       bool toldToReset;      
       network.read(header, &toldToReset, sizeof(toldToReset));
       
-      // TODO what to do with this information? ask for status update?
+      // TODO what to do with this information? ask for status update? -> will get this automatically...
       
       break;
     case SEND_NODE_SLEEP_H:
@@ -751,6 +790,19 @@ void updateGardenStatus(){
   }
   
   //////////// CHECK NODE_STATUSES ////////////
+
+  // manually check for unregistered nodes
+  Serial.print("Num addresses in list: "); Serial.println(mesh.addrListTop);
+  if(mesh.addrListTop-1 != gardenStatus.numRegisteredNodes){
+    // if numbers don't match, check each registered address
+    for(uint8_t i=1; i<mesh.addrListTop; i++){
+      // if have a node registered in mesh but not in struct, request a status
+      //    (will add it after the status is responded to)
+      if(gardenStatus.nodeStatusPtrs[mesh.addrList[i].nodeID] == NULL){
+        safeMeshWrite(mesh.addrList[i].address, NULL, GET_NODE_STATUS_H, sizeof(NULL), DEFAULT_SEND_TRIES);
+      }
+    }
+  }
 
   gardenStatus.gardenState = GARDEN_ALL_IS_WELL;
   // cycle through CONNECTED nodes, and if any have an error, report
@@ -984,12 +1036,12 @@ void setup(){
  */ 
 void loop() {  
   // refresh the mesh
-  mesh.update();
-  mesh.DHCP();
+//  mesh.update();
+//  mesh.DHCP();
 
   // speed up time
-  if(second()){// == 1){
-    setTime(now()+59);
+  if(second() > 0 && second() < 10 ){
+    setTime(now()+55-second());
   }
   // and loop it to repeat the test schedule
   if(now() > startTime + 3600/2){
@@ -1025,7 +1077,7 @@ void loop() {
 
   // check if need to open/close valves according to schedule
   // to occur at the beginning of each new minute
-  if(now() > lastTime + 60){
+  if(now() >= lastTime + 60){
     if(gardenStatus.isAwake){
       checkSchedule();
     }
@@ -1051,7 +1103,8 @@ void loop() {
             // send command to turn off all valves
             Valve_Command vc;
             vc.whichValve = ALL_VALVES;
-            vc.onOrOff = OFF;
+            vc.onOrOff = OFF;            
+            vc.timeToLive = VALVE_COMMAND_TTL;
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
         }

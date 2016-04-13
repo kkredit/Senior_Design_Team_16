@@ -13,6 +13,7 @@
  */
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////  Preprocessor   ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +49,7 @@
 #define VIN_REF   A7  //note: analog input only, no internal pullup--no external pullup
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////     Globals     ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,9 +75,11 @@ uint8_t statusCounter = 0;
 const uint8_t VALVE_PINS[5] = {255, VALVE_1, VALVE_2, VALVE_3, VALVE_4};
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////     ISRs        ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* 
  * handleButtonISR()
@@ -93,6 +97,7 @@ void handleButtonISR(){
   }
 }
 
+
 /* 
  * updateNodeStatusISR()
  *
@@ -104,6 +109,7 @@ void handleButtonISR(){
 void updateNodeStatusISR(){
   updateNodeStatusFlag = true;
 }
+
 
 /* 
  * SIGNAL()
@@ -148,6 +154,7 @@ SIGNAL(TIMER0_COMPA_vect){
     }
   }
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// Helper Functions///////////////////////////////////////////
@@ -196,6 +203,7 @@ void initPins(){
   pinMode(VIN_REF, INPUT);
 }
 
+
 /* 
  * readMyID()
  *
@@ -214,6 +222,7 @@ uint8_t readMyID(){
   return id;
 }
 
+
 /* 
  * hardReset()
  *
@@ -228,6 +237,7 @@ void hardReset(){
   delay(1000);
   // arduino resets here
 }
+
 
 /* 
  * refreshReset()
@@ -244,6 +254,7 @@ void refreshReset(){
   delay(50); // 95% charged: 3*tau = 3*RC = 3*200*100*10^-6 = 60 ms
   pinMode(RESET_PIN, INPUT);
 }
+
 
 /* 
  * setLED()
@@ -320,6 +331,7 @@ void setLED(uint8_t setTo){
   }
 }
 
+
 /* 
  * setValve()
  *
@@ -356,71 +368,13 @@ int8_t setValve(uint8_t whichValve, bool setTo){
   else{
     return NO_VALVE_ERROR;
   }
-  /*switch(whichValve){
-  case 1:
-  case 2:
-  case 3:
-  case 4:
-    
-    break;
-  case ALL_VALVES:
-    break;
-  default:
-    break;*/
-  /*case 1:
-    if(myStatus.valveState1.isConnected == false) return NO_VALVE_ERROR;
-    else{
-      digitalWrite(VALVE_1, setTo);
-      myStatus.valveState1.state = setTo;
-    }
-    break;
-  case 2:
-    if(myStatus.valveState2.isConnected == false) return NO_VALVE_ERROR;
-    else{
-      digitalWrite(VALVE_2, setTo);
-      myStatus.valveState2.state = setTo;
-    }
-    break;
-  case 3:
-    if(myStatus.valveState3.isConnected == false) return NO_VALVE_ERROR;
-    else{
-      digitalWrite(VALVE_3, setTo);
-      myStatus.valveState3.state = setTo;
-    }
-    break;
-  case 4:
-    if(myStatus.valveState4.isConnected == false) return NO_VALVE_ERROR;
-    else{
-      digitalWrite(VALVE_4, setTo);
-      myStatus.valveState4.state = setTo;
-    }
-    break;
-  case ALL_VALVES:
-    if(myStatus.valveState1.isConnected){
-      digitalWrite(VALVE_1, setTo);
-      myStatus.valveState1.state = setTo;
-    }
-    if(myStatus.valveState2.isConnected){
-      digitalWrite(VALVE_2, setTo);
-      myStatus.valveState2.state = setTo;
-    }
-    if(myStatus.valveState3.isConnected){
-      digitalWrite(VALVE_3, setTo);
-      myStatus.valveState3.state = setTo;
-    }
-    if(myStatus.valveState4.isConnected){
-      digitalWrite(VALVE_4, setTo);
-      myStatus.valveState4.state = setTo;
-    }
-    break;
-  default:
-    return NO_VALVE_ERROR;
-    break;
-  }*/
   myStatus.numOpenValves = myStatus.valveStates[1].state + myStatus.valveStates[2].state
                           + myStatus.valveStates[3].state + myStatus.valveStates[4].state;
-  return setTo;
+  uint8_t result = 0;
+  if(setTo) result = 1;
+  return result;
 }
+
 
 /* 
  * safeMeshWrite()
@@ -495,6 +449,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
   }
 }
 
+
 /* 
  * initStatus()
  *
@@ -560,33 +515,6 @@ void initStatus(){
     digitalWrite(VALVE_PINS[valve], LOW);
     myStatus.valveStates[valve].state = OFF;
   }
-  /*pinMode(VALVE_1, INPUT_PULLUP);
-  myStatus.valveStates[1].isConnected = !digitalRead(VALVE_1);
-  pinMode(VALVE_1, OUTPUT);
-  if(myStatus.valveStates[1].isConnected) myStatus.numConnectedValves++;
-  digitalWrite(VALVE_1, LOW); // TODO: use setValve() to handle this and next line?
-  myStatus.valveState1.state = OFF;
-
-  pinMode(VALVE_2, INPUT_PULLUP);
-  myStatus.valveStates[2].isConnected = !digitalRead(VALVE_2);
-  pinMode(VALVE_2, OUTPUT);
-  if(myStatus.valveStates[2].isConnected) myStatus.numConnectedValves++;
-  digitalWrite(VALVE_2, LOW);
-  myStatus.valveStates[2].state = OFF;
-
-  pinMode(VALVE_3, INPUT_PULLUP);
-  myStatus.valveStates[3].isConnected = !digitalRead(VALVE_3);
-  pinMode(VALVE_3, OUTPUT);
-  if(myStatus.valveStates[3].isConnected) myStatus.numConnectedValves++;
-  digitalWrite(VALVE_3, LOW);
-  myStatus.valveStates[3].state = OFF;
-
-  pinMode(VALVE_4, INPUT_PULLUP);
-  myStatus.valveStates[4].isConnected = !digitalRead(VALVE_4);
-  pinMode(VALVE_4, OUTPUT);
-  if(myStatus.valveState4.isConnected) myStatus.numConnectedValves++;
-  digitalWrite(VALVE_4, LOW);
-  myStatus.valveState1.state = OFF;*/
 
   // meshState
   myStatus.meshState = MESH_DISCONNECTED;
@@ -597,6 +525,7 @@ void initStatus(){
   // nodeMeshAddress
   myStatus.nodeMeshAddress = -1;
 }
+
 
 /* 
  * updateNodeStatus()
@@ -699,8 +628,9 @@ void updateNodeStatus(){
   // update mesh address in case it changed
   int16_t tempvar = mesh.getAddress(myStatus.nodeID);
   // this sometimes fails, but does not mean disconnected; simply check to see it worked
-  if(tempvar != -1) myStatus.nodeMeshAddress = tempvar;
+  if(tempvar > 0) myStatus.nodeMeshAddress = tempvar;
 }
+
 
 /* 
  * printNodeStatus()
@@ -745,22 +675,6 @@ void printNodeStatus(){
       myStatus.valveStates[valve].state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
     }
   }
-  /*if(myStatus.valveState1.isConnected){
-    Serial.print(F("Valve 1 is        : ")); 
-    myStatus.valveState1.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
-  }
-  if(myStatus.valveState2.isConnected){
-    Serial.print(F("Valve 2 is        : ")); 
-    myStatus.valveState2.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
-  }
-  if(myStatus.valveState3.isConnected){
-    Serial.print(F("Valve 3 is        : ")); 
-    myStatus.valveState3.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
-  }
-  if(myStatus.valveState4.isConnected){
-    Serial.print(F("Valve 4 is        : ")); 
-    myStatus.valveState4.state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
-  }*/
 
   // tell mesh state
   Serial.print(F("Node ID, address  : ")); Serial.print(myStatus.nodeID); Serial.print(F(", ")); 
@@ -770,9 +684,11 @@ void printNodeStatus(){
 }
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////     Setup       ////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* 
  * setup()
@@ -843,14 +759,7 @@ void setup(){
       Serial.println(F("disconnected"));
     }
   }
-  /*Serial.print(F("Valve 1: ")); 
-  myStatus.valveState1.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
-  Serial.print(F("Valve 2: ")); 
-  myStatus.valveState2.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
-  Serial.print(F("Valve 3: ")); 
-  myStatus.valveState3.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));
-  Serial.print(F("Valve 4: ")); 
-  myStatus.valveState4.isConnected ? Serial.println(F("CONNECTED")) : Serial.println(F("disconnected"));*/
+  
   // should use myStatus.hasFlowRateMeter, but in case of false negative, check again
   Serial.print(F("FRate:   "));
   digitalRead(FRATE) ? Serial.println(F("CONNECTED\n")) : Serial.println(F("disconnected\n"));
@@ -914,9 +823,11 @@ void setup(){
 }
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////     Loop        ////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* 
  * loop()
@@ -982,19 +893,27 @@ void loop() {
       network.read(header, &vc, sizeof(vc));
       Serial.print(F("Command is to turn valve ")); Serial.print(vc.whichValve); Serial.print(F(" ")); vc.onOrOff ? Serial.println(F("ON")) : Serial.println(F("OFF"));
       int8_t result;
+
+      Valve_Response vr;
+      vr.nodeIsAwake = myStatus.isAwake;
+      vr.whichValve = vc.whichValve;
+      vr.isConnected = myStatus.valveStates[vc.whichValve].isConnected;
+      vr.commandedOnOrOff = vc.onOrOff;
+      vr.actualState = myStatus.valveStates[vc.whichValve].state;
+      vr.timeToLive = vc.timeToLive;
       
       // if node is asleep, throw error
       if(myStatus.isAwake == false){
         Serial.println(F("But I am asleep, so I am ignoring it."));
-        result = NODE_IS_ASLEEP_ERROR;
-        safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
       }
-
-      // else, read command, execute, and return result
+      // else execute instruction and return result
       else{
-        result = setValve(vc.whichValve, vc.onOrOff);
-        safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
+        //vr.actualState = setValve(vc.whichValve, vc.onOrOff);
+        setValve(vc.whichValve, vc.onOrOff);
+        vr.actualState = myStatus.valveStates[vc.whichValve].state;  
+        Serial.print("valve is now "); Serial.println(vr.actualState); 
       }
+      //safeMeshWrite(MASTER_ADDRESS, &vr, SEND_VALVE_H, sizeof(vr), DEFAULT_SEND_TRIES);
       safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
       break;
 

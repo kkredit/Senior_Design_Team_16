@@ -22,8 +22,8 @@
 #include "RF24Mesh.h"
 #include <EEPROM.h>
 #include <TimerOne.h>
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
@@ -33,8 +33,10 @@
 #include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
 #include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
 #include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/schedule/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/schedule/ScheduleEvent.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -82,7 +84,7 @@ volatile bool updateStatusFlag = false;
 Garden_Status gardenStatus;
 Schedule weeklySchedule;
 uint8_t statusCounter = 0;
-uint8_t lastMinute = 0;
+time_t lastTime = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -452,6 +454,41 @@ void checkCurrentSchedule(int myDay) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+void handleButtonPress(){
+  // toggle states between asleep and awake
+  gardenStatus.isAwake = !gardenStatus.isAwake;
+
+  // if asleep, tell valves to shut
+  if(gardenStatus.isAwake == false){
+    // TODO set light sequence
+    
+    // for each node, shut off all valves
+    uint8_t node;
+    for(node=1; node<=16; node++){
+      // if registered
+      if(gardenStatus.nodeStatusPtrs[node] != NULL){
+        // if connected
+        if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+          // send command to turn off all valves
+          Valve_Command vc;
+          vc.whichValve = ALL_VALVES;
+          vc.onOrOff = OFF;
+          vc.timeToLive = VALVE_COMMAND_TTL;
+          safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+        }
+      }
+    }
+  }
+  else{
+    // TODO set light sequence
+  }
+
+  // TODO report state to the server/website?
+  
+  // reset flag
+  hadButtonPress = false;
+}
+
 void initPins(){  
   // BUTTON
   pinMode(BUTTON, INPUT_PULLUP);
@@ -550,7 +587,7 @@ void checkSchedule(){
         uint8_t valve;
         for(valve=1; valve<=4; valve++){
           bool shouldBeOn;
-          shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday(), hour(), minute(), node, valve);
+          shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday()-1, hour(), minute(), node, valve);
           
           // if schedule says should be open and is closed
           if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
@@ -558,6 +595,7 @@ void checkSchedule(){
             Valve_Command vc;
             vc.whichValve = valve;
             vc.onOrOff = ON;
+            vc.timeToLive = VALVE_COMMAND_TTL;
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
           // else if schedule says should be closed and is open
@@ -566,6 +604,7 @@ void checkSchedule(){
             Valve_Command vc;
             vc.whichValve = valve;
             vc.onOrOff = OFF;
+            vc.timeToLive = VALVE_COMMAND_TTL;
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
           // else the state is as it should be
@@ -610,6 +649,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     else{
       if(mesh.getNodeID(destination) != -1 && gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)] != NULL){
         gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)]->meshState = MESH_DISCONNECTED; // TODO is this the only way to tell?
+        gardenStatus.numConnectedNodes--;
       }
       return false;
     }
@@ -632,6 +672,9 @@ bool checkNodeRegistered(uint8_t nodeID){
 }
 
 void readMeshMessages(){
+  mesh.update();
+  mesh.DHCP();
+  
   while(network.available()){
     RF24NetworkHeader header;
     network.peek(header);
@@ -644,7 +687,36 @@ void readMeshMessages(){
       //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
       //  don't have endless cycle in case things fail?
 
-      // TODO implement the above
+      // read in message
+      Valve_Response vr;
+      network.read(header, &vr, sizeof(vr));
+
+      // parse results
+      gardenStatus.nodeStatusPtrs[header.from_node]->isAwake = vr.nodeIsAwake;
+      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].isConnected = vr.isConnected;
+      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].state = vr.actualState;
+      Serial.print("valve message from "); Serial.println(header.from_node);
+      if(vr.nodeIsAwake == false){
+        // then all valves are closed too
+        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[1].state = OFF;
+        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[2].state = OFF;
+        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[3].state = OFF;
+        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[4].state = OFF;
+        // nothing else to be done
+        break;
+      }
+      if(vr.actualState == NO_VALVE_ERROR){
+        // do anything? already updated the data in the gardenStatus struct
+      }
+      else if(vr.timeToLive){
+        // try again, if time to live hasn't run out
+        Valve_Command vc;
+        vc.whichValve = vr.whichValve;
+        vc.onOrOff = vr.commandedOnOrOff;
+        vc.timeToLive = vr.timeToLive - 1;
+        safeMeshWrite(mesh.getAddress(header.from_node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+      }
+      
       break;
     case SEND_NODE_STATUS_H:
       // A node is reporting its status. Update its status in gardenStatus
@@ -658,10 +730,13 @@ void readMeshMessages(){
     case SEND_JUST_RESET_H:
       // means that a node has recovered from reset; true means it was told to do so, false means a crash
 
+      // check that it's registered
+      checkNodeRegistered(mesh.getNodeID(header.from_node));
+
       bool toldToReset;      
       network.read(header, &toldToReset, sizeof(toldToReset));
       
-      // TODO what to do with this information? ask for status update?
+      // TODO what to do with this information? ask for status update? -> will get this automatically...
       
       break;
     case SEND_NODE_SLEEP_H:
@@ -740,7 +815,7 @@ void updateGardenStatus(){
 
   //////////// CHECK 3G CONNECTION ////////////  
 
-  // TODO
+  // TODO -- handled outside of this function?
   
 
   //////////// CHECK MESH CONNECTION ////////////
@@ -757,6 +832,19 @@ void updateGardenStatus(){
   }
   
   //////////// CHECK NODE_STATUSES ////////////
+
+  // manually check for unregistered nodes
+  Serial.print("Num addresses in list: "); Serial.println(mesh.addrListTop);
+  if(mesh.addrListTop-1 != gardenStatus.numRegisteredNodes){
+    // if numbers don't match, check each registered address
+    for(uint8_t i=1; i<mesh.addrListTop; i++){
+      // if have a node registered in mesh but not in struct, request a status
+      //    (will add it after the status is responded to)
+      if(gardenStatus.nodeStatusPtrs[mesh.addrList[i].nodeID] == NULL){
+        safeMeshWrite(mesh.addrList[i].address, NULL, GET_NODE_STATUS_H, sizeof(NULL), DEFAULT_SEND_TRIES);
+      }
+    }
+  }
 
   gardenStatus.gardenState = GARDEN_ALL_IS_WELL;
   // cycle through CONNECTED nodes, and if any have an error, report
@@ -793,6 +881,9 @@ void updateGardenStatus(){
 void printGardenStatus(){
   // print number of times executed
   Serial.println(F("")); Serial.println(statusCounter++);
+
+  // print time
+  digitalClockDisplay();
 
   if(gardenStatus.isAwake == false) Serial.println(F("GARDEN IS IN STANDBY"));
 
@@ -909,18 +1000,35 @@ void timeInit() {
 */
 void digitalClockDisplay(){
   // digital clock display of the time
-  Serial.print(hour());
-  printDigits(minute());
-  printDigits(second());
-  Serial.print(" ");
-  Serial.print(month());
-  Serial.print(" ");
-  Serial.print(day());
-  Serial.print(" ");
-  Serial.print(year()); 
-  Serial.print(" ");
-  Serial.print(weekday());  // Sun = 1, Mon = 2, so on and so forth...
-  Serial.println(); 
+  Serial.print(hour()); printDigits(minute()); printDigits(second());
+  Serial.println();
+  switch(weekday()-1){
+    case 0:
+      Serial.print(F("Sunday, "));
+      break;
+    case 1:
+      Serial.print(F("Monday, "));
+      break;
+    case 2:
+      Serial.print(F("Tuesday, "));
+      break;
+    case 3:
+      Serial.print(F("Wednesday, "));
+      break;
+    case 4:
+      Serial.print(F("Thursday, "));
+      break;
+    case 5:
+      Serial.print(F("Friday, "));
+      break;
+    case 6:
+      Serial.print(F("Saturday, "));
+      break;
+    default: 
+      break;
+  }
+  Serial.print(month()); Serial.print(F("/")); Serial.print(day());
+  Serial.print(F("/")); Serial.println(year());
 }
 
 /* This function process the display of the minute and second of the internal 
@@ -931,9 +1039,9 @@ void digitalClockDisplay(){
 */
 void printDigits(int digits){
   // utility function for digital clock display: pruint8_ts preceding colon and leading 0
-  Serial.print(":");
+  Serial.print(F(":"));
   if(digits < 10)
-    Serial.print('0');
+    Serial.print(F("0"));
   Serial.print(digits);
 }
 
@@ -1021,10 +1129,14 @@ void setup(){
  * @preconditions: asetup() has successfully completed
  * @postconditions: none--runs forever
  */ 
-void loop() {  
-  // refresh the mesh
-  mesh.update();
-  mesh.DHCP();
+void loop() {
+
+  //////////////////////// Time acceleration for testing /////////////////////////////
+  // jump to 58 seconds
+  if(second() > 0 && second() < 10 ){
+    setTime(now()+58-second());
+  }
+  ////////////////////////////////////////////////////////////////////////////////////
 
   // Communicate with server via 3G
   while(Modem_Serial.available() > 0) {
@@ -1059,7 +1171,7 @@ void loop() {
   }
  
   // refresh the reset
-  // refreshReset();
+  // refreshReset(); --> currently done once per minute while checking the schedule
 
   // update node status if necessary
   if(updateStatusFlag){
@@ -1074,60 +1186,20 @@ void loop() {
 
   // check if need to open/close valves according to schedule
   // to occur at the beginning of each new minute
-  if(lastMinute != minute()){
+  if(now() >= lastTime + 60){
     if(gardenStatus.isAwake){
       checkSchedule();
     }
-    lastMinute = minute();
+    lastTime = now();
     refreshReset();
   }
 
   // if had buttonpress, toggle between awake and asleep
   if(hadButtonPress){
-    // toggle states between asleep and awake
-    gardenStatus.isAwake = !gardenStatus.isAwake;
-
-    // if asleep, tell valves to shut
-    if(gardenStatus.isAwake == false){
-      // TODO set light sequence
-      
-      // for each node, shut off all valves
-      uint8_t node;
-      for(node=1; node<=16; node++){
-        // if registered
-        if(gardenStatus.nodeStatusPtrs[node] != NULL){
-          // if connected
-          if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
-            // send command to turn off all valves
-            Valve_Command vc;
-            vc.whichValve = ALL_VALVES;
-            vc.onOrOff = OFF;
-            safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
-          }
-        }
-      }
-    }
-    else{
-      // TODO set light sequence
-    }
-
-    // TODO report state to the server/website?
-    
-    // reset flag
-    hadButtonPress = false;
+    handleButtonPress();
   }
 
-
-  // for testing purpose only
-//  if(currentString == "DONE") {
-//    while(!weeklySchedule.isEmpty(1)) {
-//      checkCurrentSchedule(1);
-//    }
-//  }
-
   // read in and respond to mesh messages
-  readMeshMessages();
-
- 
+  readMeshMessages(); 
 }
 
