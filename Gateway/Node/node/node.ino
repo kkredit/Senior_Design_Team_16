@@ -985,7 +985,7 @@ void loop() {
       
       // if node is asleep, throw error
       if(myStatus.isAwake == false){
-        Serial.println(F("But I am asleep, so I am ingnoring it."));
+        Serial.println(F("But I am asleep, so I am ignoring it."));
         result = NODE_IS_ASLEEP_ERROR;
         safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
       }
@@ -995,6 +995,7 @@ void loop() {
         result = setValve(vc.whichValve, vc.onOrOff);
         safeMeshWrite(MASTER_ADDRESS, &result, SEND_VALVE_H, sizeof(result), DEFAULT_SEND_TRIES);
       }
+      safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
       break;
 
     case GET_NODE_STATUS_H:
