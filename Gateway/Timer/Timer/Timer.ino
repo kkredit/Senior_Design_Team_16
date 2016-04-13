@@ -30,8 +30,9 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
   setupModem();
+  getModemIP();
   timeInit();
-  // disconnectModem();
+  disconnectModem();
 
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
@@ -43,130 +44,15 @@ void setup() {
 }
 
 void loop() {
-  Schedule thisSchedule;
-  ScheduleEvent event0;
-  ScheduleEvent event1;
-  ScheduleEvent event2;
-
-  getModemResponse();
-  
-  if(hour() == 1 && minute() == 10) {
-    setFlag = 1;
-  } else if (hour() == 1 && minute() == 13) {
-    setFlag = 0;
-  }
-  
-  if(now() != previousSec && actFlag == 1) {
-    interruptCounter = interruptCounter + 1;
-    previousSec = now();
-  } else if(actFlag == 0) {
-    interruptCounter = 0;
-  }
-  
-  // getModemResponse();
-  if(setFlag == 1) {
-    event0 = createEvent(0, 1, 10, 1, 12);
-    event1 = createEvent(1, 1, 12, 1, 13);
-    // event2 = createEvent(2, 1, 10, 1, 14);
-    thisSchedule.insert(0, event0);
-    thisSchedule.insert(0, event1);
-    // thisSchedule.insert(0, event2);
-
-    actFlag = 1;
-  } else {
-    actFlag = 0;
+  while(Modem_Serial.available() > 0) {
+    getModemResponse();
   }
 
-  if(actFlag == 1) {
-      checkEvents(thisSchedule);
-      if(interruptCounter == 11) {
-        wateringEvents(thisSchedule);
-        interruptCounter = 0;
-      } 
-  }
 }
 
 /*****************************************************************
 ********************* Function Declarations **********************
 ******************************************************************/
-
-/************************ Schedule *******************************/
-
-ScheduleEvent createEvent(int myID, int myStartHour, int myStartMin, int myEndHour, int myEndMin) {
-  ScheduleEvent myEvent;
-  myEvent.setNodeID(myID);
-  myEvent.setStartHour(myStartHour);
-  myEvent.setStartMin(myStartMin);
-  myEvent.setEndHour(myEndHour);
-  myEvent.setEndMin(myEndMin);
-  return myEvent;
-}
-
-/* This function checks all events within a specific day of a schedule
- * and makes necessary changes to the current event list
- * @param: mySchedule, a schedule
- * @return: none
-*/
-void checkEvents(Schedule mySchedule) {
-  while(!mySchedule.isEmpty(0)) {
-    ScheduleEvent myEvent = mySchedule.popFrontStartTime(0);
-    checkEvent(myEvent);
-  }
-}
-
-/* When the time kept by our internal timer is the same as the parameter's 
- * start time, the parameter's ID is appended to the list where we keep the
- * current watering events. Similarly, when the internal time is the same as
- * the end time of the parameter, it ID is removed from the current event list.
- * @param: myEvent, a member of the ScheduleEvent class
- * @return: none
-*/
-void checkEvent(ScheduleEvent myEvent) {
-  if (myEvent.getStartHour() == hour() && myEvent.getStartMin() == minute() && isCurrentEvent(myEvent.getNodeID()) != 1) {
-    currentEvents.push_front(myEvent.getNodeID());
-  } else if (myEvent.getEndHour() == hour() && myEvent.getEndMin() == minute()){
-    currentEvents.remove(myEvent.getNodeID());
-  }
-}
-
-/* This function sends out instructions to the mesh network based on the current
- * event list.
- * @param: mySchedule, a schedule
- * @return: none
-*/
-void wateringEvents(Schedule mySchedule) {
-  while(!mySchedule.isEmpty(0)) {
-    ScheduleEvent myEvent = mySchedule.popFrontStartTime(0);
-    wateringEvent(myEvent);
-  }
-}
-
-/* This function send an instruction to the mesh network depending on whether an event is
- * abscent or present in the list that we keep the current events.
- * @param: myEvent, a member of the ScheduleEvent class
- * @return: none
-*/
-void wateringEvent(ScheduleEvent myEvent) {
-  if(isCurrentEvent(myEvent.getNodeID()) == 1) {
-    Serial.print("Valve "); Serial.print(myEvent.getNodeID()); Serial.print(" is watering..."); Serial.println();
-  } else {
-    Serial.print("Valve "); Serial.print(myEvent.getNodeID()); Serial.print(" is not watering..."); Serial.println();
-  }
-}
-
-/* This function supplements the wateringEvent function. It detects whether a specific ID
- * is present in the current event list and returns a 0 or 1.
- * @param: myList, a linked int list
- *         myItem, an integer representing an event ID
- * @return: 0 or 1
-*/
-int isCurrentEvent(int myItem) {
-  if(find(currentEvents.begin(), currentEvents.end(), myItem) != currentEvents.end()) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
 
 /***************************** Modem ******************************/
 
@@ -217,6 +103,21 @@ void setupModem() {
   while(PrintModemResponse() > 0);
 }
 
+void getModemIP() {
+  //  setup TCP socket
+  Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
+  delay(500);
+  while(PrintModemResponse() > 0);
+
+  Modem_Serial.println("at#sgact=1,1");
+  delay(500);
+  while(PrintModemResponse() > 0); 
+  
+  // wait for 10s for the modem to retrieve IP address
+  delay(10000);
+  while(PrintModemResponse() > 0);  
+}
+
 /* This function disconnect the 3G modem from the network and reports 
  * the current data usage
  * @param: none
@@ -245,37 +146,10 @@ void disconnectModem() {
 */
 void timeInit() {
   int timeArray[6];
-  //  setup TCP socket
-  Modem_Serial.println("AT#SGACT=1,0");
-  delay(250);
-  while(PrintModemResponse() > 0);
 
-  delay(2000);
-
-  Modem_Serial.println("AT#SGACT=1,1");
-  delay(250);
-  while(PrintModemResponse() > 0); 
-
-  delay(2000);
-
-  Modem_Serial.println("AT#SKTTO=0");
-  delay(500);
-  while(PrintModemResponse() > 0);
-
-  Modem_Serial.println("#CDMADC=1");
-  delay(500);
-  while(PrintModemResponse() > 0);
-
-  Modem_Serial.println("AT#SCFG=1,1,100,0,600,50");
-  delay(500);
-  while(PrintModemResponse() > 0);
-  
-  // Modem_Serial.println("AT#SKTD=0,13,\"time.nist.gov\",255");
   Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",255,0");
   delay(250);
-  
-  // while(PrintModemResponse() > 0); 
-  // currentString = "";
+
   boolean timeGood = false;
   int setTimeFlag = 0;
   while(!timeGood) {
@@ -329,6 +203,9 @@ void timeInit() {
     } 
   }
   setTime(timeArray[3], timeArray[4], timeArray[5], timeArray[2], timeArray[1], timeArray[0]);
+  time_t t = now(); // current time in UTC
+  t = t - (60 * 60 * 4);  // convert to EST
+  setTime(t);
 }
 
 /* This function prints out the current time recorded by the internal timer

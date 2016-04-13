@@ -1,4 +1,4 @@
-/* 
+ /* 
  * master.ino
  * 
  * This sketch is for master (gateway) in the GardeNet system. Functions include:
@@ -189,11 +189,23 @@ void getModemIP() {
 
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
-  while(PrintModemResponse() > 0); 
-  
+  // while(PrintModemResponse() > 0); 
+
+  boolean IPGood = false;
+  while(!IPGood) {
+    while(Modem_Serial.available() > 0) {
+      getModemResponse();
+    }
+
+    // if the modem already has an IP
+    if(currentString == "ERROR" || currentString == "OK") {
+      IPGood = true;
+      currentString = "";
+    } 
   // wait for 10s for the modem to retrieve IP address
-  delay(10000);
-  while(PrintModemResponse() > 0);  
+//  delay(10000);
+//  while(PrintModemResponse() > 0);  
+  }
 }
 
 /* 
@@ -208,7 +220,13 @@ void openSocket() {
   // initiate TCP socket dial
   Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
   delay(500);
-  while(PrintModemResponse() > 0);
+  while(Modem_Serial.available() > 0) {
+    getModemResponse();
+  }
+
+  Serial.println("");
+
+  
 }
 
 /* 
@@ -275,14 +293,13 @@ void getModemResponse() {
   incomingByte = Modem_Serial.read();
   if(incomingByte != -1) {
     Serial.write(incomingByte); 
-  }
-  // NO CARRIER is an exception in which we need to reopen the socket
-  if(incomingByte == '\n' && currentString != "NO CARRIER") {
-    currentString = "";
-  } else if(currentString != "NO CARRIER") {
-    currentString += char(incomingByte);  
-  } else {
-    currentString = currentString;
+    if (currentString != "NO CARRIER" && currentString != "ERROR") {
+      if(incomingByte == '\n') {
+        currentString = "";
+      } else {
+        currentString += char(incomingByte);
+      } 
+    }
   }
 }
 
@@ -336,7 +353,7 @@ void createEvent() {
   char charBuffer[16];
   String arg;
 
-  for(int i = 0; i <= 15; i++) {
+  for(int i = 0; i <= 99; i++) {
     arg = currentString.substring(beginIdx, idx);
     arg.toCharArray(charBuffer, 16);
           
@@ -365,7 +382,7 @@ void createEvent() {
       tempEvent.setEndMin(myMin);
     } else if (i == 11) {
       myDay = dayDecoder(arg);
-      Serial.print("This event is to be inserted into "); Serial.println(myDay);
+      // Serial.print("This event is to be inserted into "); Serial.println(myDay);
     } else if (i == 15) {
       int myID = atoi(charBuffer);
       tempEvent.setNodeID(myID);
@@ -816,6 +833,74 @@ void printGardenStatus(){
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////     Timer       ////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+/* This function initializes the internal timer on the gateway and 
+ * synchronizes it with the NIST server time
+ * @param: none
+ * @return: none
+*/
+void timeInit() {
+  int timeArray[6];
+
+  Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",255,0");
+  delay(250);
+
+  boolean timeGood = false;
+  int setTimeFlag = 0;
+  while(!timeGood) {
+    while(Modem_Serial.available() > 0) {
+      getModemResponse();
+      if(currentString.substring(currentString.length()-11,currentString.length()) == "UTC(NIST) *") {
+      // when the time string is received from NIST server
+        // grab the substring containing time information
+        String dateString = currentString.substring(6,14);
+        String timeString = currentString.substring(15,23);
+        
+        Serial.println();
+        Serial.println("Detected time string!");
+        Serial.println(dateString);
+        Serial.println(timeString);
+
+        // assign time info to time array    
+        int beginIdx = 0;
+        int idx0 = dateString.indexOf("-");
+        int idx1 = timeString.indexOf(":");
+        char charBuffer[16];
+        String arg;
+
+        for(int i = 0; i <= 2; i++) {
+          arg = dateString.substring(beginIdx, idx0);
+          arg.toCharArray(charBuffer, 16);
+      
+          // add error handling for atoi:
+          timeArray[i] = atoi(charBuffer);
+          beginIdx = idx0 + 1;
+          idx0 = dateString.indexOf("-", beginIdx);
+        }
+
+        beginIdx = 0;
+        for(int i = 3; i <= 5; i++) {
+          arg = timeString.substring(beginIdx, idx1);
+          arg.toCharArray(charBuffer, 16);
+      
+          // add error handling for atoi:
+          timeArray[i] = atoi(charBuffer);
+          beginIdx = idx1 + 1;
+          idx1 = timeString.indexOf(":", beginIdx);
+        }
+      }
+      if(currentString == "NO CARRIER") {
+        timeGood = true;
+        currentString = "";
+      }
+    } 
+  }
+  setTime(timeArray[3], timeArray[4], timeArray[5], timeArray[2], timeArray[1], timeArray[0]);
+  time_t t = now(); // current time in UTC
+  t = t - (60 * 60 * 4);  // convert to EST
+  setTime(t);
+}
+
+
 
 /* This function prints out the current time recorded by the internal timer
  * in a readable way
@@ -894,11 +979,13 @@ void setup(){
   // Setup 3G Modem
   setupModem();
   getModemIP();
+  timeInit();
   openSocket();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
-  while(!mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT)){
+  // while(!mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT)){
+  while(!mesh.begin(15, DATA_RATE, CONNECT_TIMEOUT)){
     Serial.println(F("Trouble setting up the mesh, trying again..."));
     delay(1000);
   }
@@ -914,7 +1001,7 @@ void setup(){
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
-  setTime(15, 0, 0, 12, 4, 16);
+  // setTime(15, 0, 0, 12, 4, 16);
 
   initPins2();
 }
@@ -942,15 +1029,35 @@ void loop() {
   // Communicate with server via 3G
   while(Modem_Serial.available() > 0) {
     getModemResponse();
+
+    // turn off interrupt when there are incoming JSON strings
+    if(currentString == "START") {
+      Serial.println("");
+      Serial.println("Detected schedules!");
+      Timer1.detachInterrupt();
+      updateStatusFlag = false;
+    } else if (currentString == "DONE") {
+      Serial.println("");
+      Serial.println("Schedules are all set!");
+      Timer1.initialize(TIMER1_PERIOD);
+      Timer1.attachInterrupt(updateStatusISR);
+    }
     parseJSON();
   }
-    
-  // exceptions
-  if(currentString == "NO CARRIER" || currentString == "ERROR") {
-    openSocket();
-    currentString = "";
-  }
   
+  // check 3G status
+  if (currentString == "NO CARRIER" || currentString == "ERROR") {
+    gardenStatus.threeGState = TR_G_DISCONNECTED;   // then we need to reprovision 
+  } else {
+   gardenStatus.threeGState = TR_G_CONNECTED;       // then assume we are connected since modem has not sent an error message
+  }
+
+  // exceptions: if 3G is disconnected, then we need to attempt to open the socket again
+  if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
+    currentString = "";    //reset current string
+    Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
+  }
+ 
   // refresh the reset
   // refreshReset();
 
@@ -959,6 +1066,7 @@ void loop() {
     updateGardenStatus();
     printGardenStatus();
     digitalClockDisplay();
+    // Serial.println(currentString);
     
     // reset the flag
     updateStatusFlag = false;
@@ -1010,7 +1118,7 @@ void loop() {
   }
 
 
-//  // for testing purpose only
+  // for testing purpose only
 //  if(currentString == "DONE") {
 //    while(!weeklySchedule.isEmpty(1)) {
 //      checkCurrentSchedule(1);
@@ -1019,5 +1127,7 @@ void loop() {
 
   // read in and respond to mesh messages
   readMeshMessages();
+
+ 
 }
 
