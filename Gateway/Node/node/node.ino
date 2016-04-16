@@ -792,6 +792,8 @@ void setup(){
   myStatus.meshState = MESH_CONNECTED;
 
   // report the reset to the master
+  //    reset flag is read from RESET_PIN, meaning that this was either a timeout reset or software reset 
+  //    (as opposed to hitting the reset button)
   if(resetFlag){
     bool toldToReset;
     EEPROM.get(RESET_EEPROM_ADDR, toldToReset);
@@ -918,24 +920,31 @@ void loop() {
       break;
 
     case GET_NODE_STATUS_H:
+      char placeholder1;
+      network.read(header, &placeholder1, sizeof(placeholder1));
       Serial.print(F("Command is to tell my status: ")); printNodeStatus();
       safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
       break;
     
     case FORCE_RESET_H:
+      char placeholder2;
+      network.read(header, &placeholder2, sizeof(placeholder2));
       Serial.println(F("Command is to reset--RESETTING"));
       EEPROM.put(RESET_EEPROM_ADDR, true);
       hardReset();
       break;
 
     case IS_NEW_DAY_H:
+      char placeholder3;
+      network.read(header, &placeholder3, sizeof(placeholder3));
       Serial.println(F("It is a new day!"));
       myStatus.accumulatedFlow = 0;
       EEPROM.put(ACC_FLOW_EEPROM_ADDR, myStatus.accumulatedFlow);
       myStatus.maxedOutFlowMeter = false;
       myStatus.isAwake = true;
       setLED(AWAKE_SEQUENCE);
-      safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NEW_DAY_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
+      //safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NEW_DAY_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
+      safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
       break;
       
     default:

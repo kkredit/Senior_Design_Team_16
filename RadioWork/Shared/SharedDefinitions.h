@@ -60,6 +60,8 @@ struct Garden_Status{
   uint8_t numRegisteredNodes;
   uint8_t numConnectedNodes;
   Node_Status* nodeStatusPtrs[17];
+  // % 3G uptime
+  // % Mesh uptime
 };
  
 // mesh settings
@@ -85,11 +87,11 @@ struct Garden_Status{
 #define FORCE_RESET_H       'R'
 #define IS_NEW_DAY_H        'D'
 // nodes to master
-#define SEND_VALVE_H        'v'
+//#define SEND_VALVE_H        'v'       // DEPRICATED
 #define SEND_NODE_STATUS_H  's'
 #define SEND_JUST_RESET_H   'r'
 #define SEND_NODE_SLEEP_H   'l'
-#define SEND_NEW_DAY_H      'd'
+//#define SEND_NEW_DAY_H      'd'       // DEPRICATED
 
 
 // master states
@@ -140,12 +142,20 @@ struct Garden_Status{
 #define NO_VALVE_ERROR        -1      // when no valve connected in given slot
 
 
+// alert engine op code
+#define DAILY_REPORT          00
+#define BAD_VALVE_STATE       01
+#define MESH_DOWN             02
+#define GATEWAY_RESET         03
+#define BAD_VOLTAGE_STATE     04
+
+
 // other settings
 #define ON                    true
 #define OFF                   false
 #define ALL_VALVES            5
 #define BAUD_RATE             9600    // serial communication baud rate
-#define TIMER1_PERIOD         4000000 /* 10s */ // timer period in microseconds (1000000 = 1 sec)
+#define TIMER1_PERIOD         5000000 /* 5s */ // timer period in microseconds (1000000 = 1 sec)
 #define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data
 #define VIN_EEPROM_ADDR       0       // address of the input voltage reading in EEPROM
 #define RESET_EEPROM_ADDR     4       // address of the toldToReset bool in EEPROM
