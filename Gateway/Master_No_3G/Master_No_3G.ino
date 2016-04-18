@@ -423,17 +423,17 @@ int dayDecoder(String myDay) {
  * @preconditions: there are schedule events on a certain weekday in the weekly schedule
  * @postconditions: there is no events on a certain weekday in the weekly schedule
 */
-void checkCurrentSchedule(int myDay) {
-  while(weeklySchedule.isEmpty(myDay) == false){
-    ScheduleEvent myEvent = weeklySchedule.popFrontStartTime(myDay);
-    Serial.println("");
-    Serial.print("At node "); Serial.print(myEvent.getNodeID());
-    Serial.print(", valve "); Serial.print(myEvent.getValveNum()); Serial.print(" is set to have a start time of ");
-    Serial.print(myEvent.getStartHour()); Serial.print(":"); Serial.print(myEvent.getStartMin());
-    Serial.print(" and an end time of "); Serial.print(myEvent.getEndHour()); Serial.print(":"); Serial.print(myEvent.getEndMin());
-    Serial.println(".");
-  }
-}
+//void checkCurrentSchedule(int myDay) {
+//  while(weeklySchedule.isEmpty(myDay) == false){
+//    ScheduleEvent myEvent = weeklySchedule.popFrontStartTime(myDay);
+//    Serial.println("");
+//    Serial.print("At node "); Serial.print(myEvent.getNodeID());
+//    Serial.print(", valve "); Serial.print(myEvent.getValveNum()); Serial.print(" is set to have a start time of ");
+//    Serial.print(myEvent.getStartHour()); Serial.print(":"); Serial.print(myEvent.getStartMin());
+//    Serial.print(" and an end time of "); Serial.print(myEvent.getEndHour()); Serial.print(":"); Serial.print(myEvent.getEndMin());
+//    Serial.println(".");
+//  }
+//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// Helper Functions///////////////////////////////////////////
@@ -627,7 +627,7 @@ bool checkNodeRegistered(uint8_t nodeID){
   return true;
 }
 
-void readMeshMessages(){  
+void readMeshMessages(){
   mesh.update();
   mesh.DHCP();
   
@@ -799,7 +799,7 @@ void updateGardenStatus(){
       // if have a node registered in mesh but not in struct, request a status
       //    (will add it after the status is responded to)
       if(gardenStatus.nodeStatusPtrs[mesh.addrList[i].nodeID] == NULL){
-        safeMeshWrite(mesh.addrList[i].address, NULL, GET_NODE_STATUS_H, sizeof(NULL), DEFAULT_SEND_TRIES);
+        safeMeshWrite(mesh.addrList[i].address, '0', GET_NODE_STATUS_H, sizeof('0'), DEFAULT_SEND_TRIES);
       }
     }
   }
@@ -1034,10 +1034,7 @@ void setup(){
  * @preconditions: asetup() has successfully completed
  * @postconditions: none--runs forever
  */ 
-void loop() {  
-  // refresh the mesh
-//  mesh.update();
-//  mesh.DHCP();
+void loop() {
 
   // speed up time
   if(second() > 0 && second() < 10 ){
@@ -1103,7 +1100,7 @@ void loop() {
             // send command to turn off all valves
             Valve_Command vc;
             vc.whichValve = ALL_VALVES;
-            vc.onOrOff = OFF;            
+            vc.onOrOff = OFF;
             vc.timeToLive = VALVE_COMMAND_TTL;
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
