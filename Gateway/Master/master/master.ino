@@ -142,9 +142,11 @@ void setupModem() {
   pinMode(ThreeG, INPUT);
 
   // initialize serial port to communicate with modem
-  Modem_Serial.println("Initializing modem COM port...");
+  Serial.println("Initializing modem COM port...");
   Modem_Serial.begin(115200);
   while (!Modem_Serial);
+
+  // Modem_Serial.println("+++");
 
   // Soft reset of modem
   Serial.println("Reseting modem");
@@ -367,19 +369,23 @@ void createEvent() {
 
     // only four pieces of information are needed
     if(i == 3) {
-      char* separator = strchr(charBuffer, '.');
-      *separator = 0;
-      int myHour = atoi(charBuffer);
-      separator = separator + 1;
-      int myMin = atoi(separator);
+//      char* separator = strchr(charBuffer, '.');
+//      *separator = 0;
+//      int myHour = atoi(charBuffer);
+//      separator = separator + 1;
+//      int myMin = atoi(separator);
+      float myTime = atof(charBuffer);
+      uint8_t myHour = (uint8_t) myTime;
+      uint8_t myMin = (uint8_t) (100 * (myTime - myHour));
       tempEvent.setStartHour(myHour);
       tempEvent.setStartMin(myMin);
     } else if (i == 7) {
-      char* separator = strchr(charBuffer, '.');
-      *separator = 0;
-      int myHour = atoi(charBuffer);
-      separator = separator + 1;
-      int myMin = atoi(separator);
+      float myTime = atof(charBuffer);
+      uint8_t myHour = (uint8_t) myTime;
+      uint8_t myMin = (uint8_t) (100 * (myTime - myHour));
+//      Serial.print("myTime: "); Serial.println(myTime);
+//      Serial.print("myHour: "); Serial.println(myHour);
+//      Serial.print("myMin: "); Serial.println(myMin);
       tempEvent.setEndHour(myHour);
       tempEvent.setEndMin(myMin);
     } else if (i == 11) {
@@ -387,7 +393,8 @@ void createEvent() {
       // Serial.print("This event is to be inserted into "); Serial.println(myDay);
     } else if (i == 15) {
       int myID = atoi(charBuffer);
-      tempEvent.setNodeID(myID);
+      // tempEvent.setNodeID(myID);
+      tempEvent.setNodeID(1);
     } else if (i == 19) {
       int myValve = atoi(charBuffer);
       tempEvent.setValveNum(myValve);
@@ -395,7 +402,20 @@ void createEvent() {
     }
   }
   // insert this event to the weekly schedule
-  weeklySchedule.insert(myDay, tempEvent);
+  if(myDay == 7) {
+    for(int i = 0; i <= 6; i++) {
+      weeklySchedule.insert(i, tempEvent);
+    }
+  } else {
+    weeklySchedule.insert(myDay, tempEvent);
+  }
+
+  Serial.println("");
+  Serial.print("At node "); Serial.print(tempEvent.getNodeID());
+  Serial.print(", valve "); Serial.print(tempEvent.getValveNum()); Serial.print(" is set to have a start time of ");
+  Serial.print(tempEvent.getStartHour()); Serial.print(":"); Serial.print(tempEvent.getStartMin());
+  Serial.print(" and an end time of "); Serial.print(tempEvent.getEndHour()); Serial.print(":"); Serial.print(tempEvent.getEndMin());
+  Serial.println(".");
 
 }
 
@@ -422,6 +442,8 @@ int dayDecoder(String myDay) {
     return 6;
   } else if (myDay == "Sunday") {
     return 0;
+  } else if(myDay == "Everyday") {
+    return 7;
   } else { 
     // then somethign is not right and we need to do something about it?
     return 11;
@@ -583,11 +605,16 @@ void checkSchedule(){
     if(gardenStatus.nodeStatusPtrs[node] != NULL){
       // if connected
       if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+        Serial.print(F("Checking node: ")); Serial.println(node);
         // for each valve
         uint8_t valve;
         for(valve=1; valve<=4; valve++){
+          Serial.print(F("Checking valve: ")); Serial.println(valve);
           bool shouldBeOn;
           shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday()-1, hour(), minute(), node, valve);
+          Serial.print(F("Valve is ")); Serial.print(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state);
+          Serial.print(F(" and should be ")); Serial.println(shouldBeOn);
+          
           
           // if schedule says should be open and is closed
           if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
@@ -834,6 +861,7 @@ void updateGardenStatus(){
   //////////// CHECK NODE_STATUSES ////////////
 
   // manually check for unregistered nodes
+  Serial.println("");
   Serial.print("Num addresses in list: "); Serial.println(mesh.addrListTop);
   if(mesh.addrListTop-1 != gardenStatus.numRegisteredNodes){
     // if numbers don't match, check each registered address
@@ -932,7 +960,7 @@ void printGardenStatus(){
 void timeInit() {
   int timeArray[6];
 
-  Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",255,0");
+  Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0");
   delay(250);
 
   boolean timeGood = false;
@@ -1045,6 +1073,15 @@ void printDigits(int digits){
   Serial.print(digits);
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////     Alert Engine       ////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+void checkAlerts() {
+  String myAlert = DAILY_REPORT + "%";
+  Serial.println(myAlert);
+}
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1087,13 +1124,14 @@ void setup(){
   // Setup 3G Modem
   setupModem();
   getModemIP();
-  timeInit();
+  // timeInit();
+  setTime(15, 10, 0, 15, 4, 16);
   openSocket();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
-  // while(!mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT)){
-  while(!mesh.begin(15, DATA_RATE, CONNECT_TIMEOUT)){
+  // while(!mesh.begin(15, DATA_RATE, CONNECT_TIMEOUT)){
+  while(!mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT)){
     Serial.println(F("Trouble setting up the mesh, trying again..."));
     delay(1000);
   }
@@ -1132,41 +1170,46 @@ void setup(){
 void loop() {
 
   //////////////////////// Time acceleration for testing /////////////////////////////
-  // jump to 58 seconds
-  if(second() > 0 && second() < 10 ){
-    setTime(now()+58-second());
+  // jump to 50 seconds
+  if(second() > 0 && second() < 15 ){
+    setTime(now()+50-second());
   }
   ////////////////////////////////////////////////////////////////////////////////////
 
   // Communicate with server via 3G
   while(Modem_Serial.available() > 0) {
     getModemResponse();
-
     // turn off interrupt when there are incoming JSON strings
     if(currentString == "START") {
       Serial.println("");
       Serial.println("Detected schedules!");
       Timer1.detachInterrupt();
       updateStatusFlag = false;
+
+      // Erase all schedule events in the current weekly schedule
+      for(int i = 0; i <= 6; i++) {
+        weeklySchedule.deleteDaysSchedule(i);
+      }
+      
     } else if (currentString == "DONE") {
       Serial.println("");
       Serial.println("Schedules are all set!");
       Timer1.initialize(TIMER1_PERIOD);
       Timer1.attachInterrupt(updateStatusISR);
-    }
+    } 
     parseJSON();
   }
-  
-  // check 3G status
-  if (currentString == "NO CARRIER" || currentString == "ERROR") {
-    gardenStatus.threeGState = TR_G_DISCONNECTED;   // then we need to reprovision 
-  } else {
-   gardenStatus.threeGState = TR_G_CONNECTED;       // then assume we are connected since modem has not sent an error message
-  }
 
+    // check 3G status
+    if (currentString == "NO CARRIER" || currentString == "ERROR") {
+      gardenStatus.threeGState = TR_G_DISCONNECTED;   // then we need to reprovision
+      currentString = "";    //reset current string 
+    } else {
+      gardenStatus.threeGState = TR_G_CONNECTED; 
+    }
+  
   // exceptions: if 3G is disconnected, then we need to attempt to open the socket again
   if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
-    currentString = "";    //reset current string
     Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
   }
  
@@ -1177,7 +1220,7 @@ void loop() {
   if(updateStatusFlag){
     updateGardenStatus();
     printGardenStatus();
-    digitalClockDisplay();
+    // digitalClockDisplay();
     // Serial.println(currentString);
     
     // reset the flag

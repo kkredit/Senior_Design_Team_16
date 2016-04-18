@@ -60,6 +60,8 @@ struct Garden_Status{
   uint8_t numRegisteredNodes;
   uint8_t numConnectedNodes;
   Node_Status* nodeStatusPtrs[17];
+  // % 3G uptime
+  // % Mesh uptime
 };
  
 // mesh settings
@@ -138,6 +140,13 @@ struct Garden_Status{
 
 // valve command errors
 #define NO_VALVE_ERROR        -1      // when no valve connected in given slot
+
+// alert engine op code
+#define DAILY_REPORT          00
+#define BAD_VALVE_STATE       01
+#define MESH_DOWN             02
+#define GATEWAY_RESET         03
+#define BAD_VOLTAGE_STATE     04
 
 
 // other settings
