@@ -8,13 +8,15 @@
  *    - Tracking several variables with regards to its and the garden's status
  * 
  * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
- * Last Modified: 4/11/16
+ * Last Modified: 4/18/16
  */
+
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////  Preprocessor   ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // includes
 #include "RF24.h"
@@ -22,21 +24,21 @@
 #include "RF24Mesh.h"
 #include <EEPROM.h>
 #include <TimerOne.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -63,9 +65,11 @@
 #define Modem_Serial Serial1
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////     Globals     ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // mesh network
 RF24 radio(RF24_CE, RF24_CS);
@@ -87,9 +91,11 @@ uint8_t statusCounter = 0;
 time_t lastTime = 0;
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////     ISRs        ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* 
  * handleButtonISR()
@@ -119,9 +125,12 @@ void updateStatusISR(){
   updateStatusFlag = true;
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////    3G Modem     ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* 
  * setupModem()
@@ -176,11 +185,13 @@ void setupModem() {
   while(PrintModemResponse() > 0);
 }
 
+
 /* 
  * getModemIP()
  *  
  * This function gets an IP address for the 3G modem by resetting the modem's
  * PDP context once
+ * 
  * @preconditions: the modem is connected to the 3G cell network, but does not have an IP
  * @postconditions: the modem retrieves its IP address or throws an error message if it
  * already has one
@@ -212,6 +223,7 @@ void getModemIP() {
   }
 }
 
+
 /* 
  * openSocket()
  *  
@@ -228,10 +240,9 @@ void openSocket() {
     getModemResponse();
   }
 
-  Serial.println("");
-
-  
+  Serial.println("");  
 }
+
 
 /* 
  * disconnectModem()
@@ -260,13 +271,13 @@ void disconnectModem() {
   while(PrintModemResponse() > 0);
 }
 
+
 /* 
  * PrintModemResponse()
  *  
  * This function prints the modem response and monitors the availability of
  * TX1/RX1, which are used by the modem
  * 
- * @param: none
  * @return: Modem_Serial.available() -- 1 if more bytes are still avaialble
  *  in the UART buffer, 0 if false
  * @preconditions: there might be incoming bytes buffered in the modem
@@ -282,6 +293,7 @@ int PrintModemResponse() {
   //return number of characters in modem response buffer -- should be zero, but some may have come in since last test
   return Modem_Serial.available();
 }
+
 
 /* 
  * getModemResponse()
@@ -307,9 +319,12 @@ void getModemResponse() {
   }
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////  JSON Parsing   ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 // JSON format: 
 // {"start_time" : "1.10", "stop_time" : "2.30", "day" : "Monday", "zone_ID" : "3"}
@@ -323,7 +338,7 @@ void getModemResponse() {
  * set up a new schedule, turn on the entire garden, or turn off the entire garden
  * 
  * @preconditions: currentString contains a JSON string or is true/false
- * @postconditions: a message is forwarded to the mesh network
+ * @postconditions: the event is added to the schedule using createEvent
 */
 void parseJSON() {
   if ((currentString.substring(currentString.length()-18,currentString.length()-9) == "valve_num")) {
@@ -338,6 +353,7 @@ void parseJSON() {
     Serial.println("I need to shut down the full garden.");
   }
 }
+
 
 /*
  * createEvent()
@@ -416,8 +432,8 @@ void createEvent() {
   Serial.print(tempEvent.getStartHour()); Serial.print(":"); Serial.print(tempEvent.getStartMin());
   Serial.print(" and an end time of "); Serial.print(tempEvent.getEndHour()); Serial.print(":"); Serial.print(tempEvent.getEndMin());
   Serial.println(".");
-
 }
+
 
 /*
  * dayDecoder(String myDay)
@@ -476,6 +492,15 @@ void checkCurrentSchedule(int myDay) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+/* 
+ * handleButtonPress()
+ *
+ * Called when the button is pressed; toggles between garden awake and garden asleep
+ * 
+ * @preconditions: garden is initializes
+ * @postconditions: garden state is toggled between asleep/awake; if turned asleep,
+ *                  turns off all valves
+ */ 
 void handleButtonPress(){
   // toggle states between asleep and awake
   gardenStatus.isAwake = !gardenStatus.isAwake;
@@ -511,6 +536,15 @@ void handleButtonPress(){
   hadButtonPress = false;
 }
 
+
+/* 
+ * initPins()
+ *
+ * Sets the usage of each pin.
+ * 
+ * @preconditions: none
+ * @postconditions: pins are ready to be used for radio, 3G modem, buttons, and LEDs
+ */ 
 void initPins(){  
   // BUTTON
   pinMode(BUTTON, INPUT_PULLUP);
@@ -531,6 +565,15 @@ void initPins(){
   digitalWrite(RESET_PIN, LOW);
 }
 
+
+/* 
+ * initPins2()
+ *
+ * Called at the end of setup(), inits some additional pins
+ * 
+ * @preconditions: initPins() has already been called
+ * @postconditions: button attached to interrupt and reset circuit is enabled
+ */ 
 void initPins2(){
   // attach interrupt to button
   attachInterrupt(digitalPinToInterrupt(BUTTON), handleButtonISR, FALLING);
@@ -543,6 +586,7 @@ void initPins2(){
   pinMode(RESET_GND, OUTPUT);
   digitalWrite(RESET_GND, LOW);
 }
+
 
 /* 
  * flashLED()
@@ -566,6 +610,7 @@ void flashLED(uint8_t whichLED, uint8_t myNum, uint8_t myTime){
   }  
 }
 
+
 /* 
  * hardReset()
  *
@@ -580,6 +625,7 @@ void hardReset(){
   delay(1000);
   // arduino resets here
 }
+
 
 /* 
  * refreshReset()
@@ -597,6 +643,17 @@ void refreshReset(){
   pinMode(RESET_PIN, INPUT);
 }
 
+
+/* 
+ * checkSchedule()
+ *
+ * For each connected node, looks through the schedule to see if there are
+ * any relevant events. If it detects that a valve is in a state that it 
+ * should not be, it sends a command to open or close it.
+ * 
+ * @preconditions: mesh established and schedule available
+ * @postconditions: schedule applied to nodes
+ */ 
 void checkSchedule(){
   // for each node
   uint8_t node;
@@ -676,7 +733,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     else{
       if(mesh.getNodeID(destination) != -1 && gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)] != NULL){
         gardenStatus.nodeStatusPtrs[mesh.getNodeID(destination)]->meshState = MESH_DISCONNECTED; // TODO is this the only way to tell?
-        gardenStatus.numConnectedNodes--;
+        //gardenStatus.numConnectedNodes--;
       }
       return false;
     }
@@ -688,6 +745,20 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
   }
 }
 
+
+/* 
+ * checkNodeRegistered()
+ *
+ * If a node is detected in the mesh but unregistered in the list of nodes,
+ * this function adds it.
+ * 
+ * @preconditions: mesh established
+ * @postconditions: new node is registered, if hasn't been already
+ * 
+ * @param uint8_t nodeID: the ID of the node (not the address)
+ * 
+ * @return bool: true if was already registered, false if was not
+ */ 
 bool checkNodeRegistered(uint8_t nodeID){
   if(gardenStatus.nodeStatusPtrs[nodeID] == NULL){
     gardenStatus.nodeStatusPtrs[nodeID] = new Node_Status;
@@ -698,6 +769,16 @@ bool checkNodeRegistered(uint8_t nodeID){
   return true;
 }
 
+
+/* 
+ * readMeshMessages()
+ *
+ * Checks if the mesh has any available messages on it; if it does, it reads
+ * and responds to them as appropriate.
+ * 
+ * @preconditions: mesh established
+ * @postconditions: incoming messages read and handled
+ */ 
 void readMeshMessages(){
   mesh.update();
   mesh.DHCP();
@@ -709,42 +790,6 @@ void readMeshMessages(){
     Serial.print(F(" type message from node ")); Serial.println(mesh.getNodeID(header.from_node));
 
     switch(header.type){
-    case SEND_VALVE_H:
-      // A node is responding to a valve command. Read the response; if not what is expected, send
-      //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
-      //  don't have endless cycle in case things fail?
-
-      // read in message
-      Valve_Response vr;
-      network.read(header, &vr, sizeof(vr));
-
-      // parse results
-      gardenStatus.nodeStatusPtrs[header.from_node]->isAwake = vr.nodeIsAwake;
-      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].isConnected = vr.isConnected;
-      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].state = vr.actualState;
-      Serial.print("valve message from "); Serial.println(header.from_node);
-      if(vr.nodeIsAwake == false){
-        // then all valves are closed too
-        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[1].state = OFF;
-        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[2].state = OFF;
-        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[3].state = OFF;
-        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[4].state = OFF;
-        // nothing else to be done
-        break;
-      }
-      if(vr.actualState == NO_VALVE_ERROR){
-        // do anything? already updated the data in the gardenStatus struct
-      }
-      else if(vr.timeToLive){
-        // try again, if time to live hasn't run out
-        Valve_Command vc;
-        vc.whichValve = vr.whichValve;
-        vc.onOrOff = vr.commandedOnOrOff;
-        vc.timeToLive = vr.timeToLive - 1;
-        safeMeshWrite(mesh.getAddress(header.from_node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
-      }
-      
-      break;
     case SEND_NODE_STATUS_H:
       // A node is reporting its status. Update its status in gardenStatus
 
@@ -780,24 +825,13 @@ void readMeshMessages(){
       // TODO what else to do with this information?
       
       break;
-    case SEND_NEW_DAY_H:
-      // node is responding that it got the "new day" message; should respond "true", meaning that it is awake
-      
-      // check that it's registered
-      checkNodeRegistered(mesh.getNodeID(header.from_node));
-
-      bool response;
-      network.read(header, &response, sizeof(response));
-
-      // TODO what else to do with this information?
-      
-      break;
     default:
       Serial.println(F("Unknown message type."));
       break;
     }
   }
 }
+
 
 /* 
  * initStatus()
@@ -830,6 +864,7 @@ void initGardenStatus(){
   *gardenStatus.nodeStatusPtrs = {0};
 }
 
+
 /* 
  * updateGardenStatus()
  *
@@ -844,19 +879,6 @@ void updateGardenStatus(){
 
   // TODO -- handled outside of this function?
   
-
-  //////////// CHECK MESH CONNECTION ////////////
-
-  // assume began, so just check ratio of connected nodes
-  if(gardenStatus.numConnectedNodes == gardenStatus.numRegisteredNodes){
-    gardenStatus.meshState = MESH_ALL_NODES_GOOD;
-  }
-  else if(gardenStatus.numConnectedNodes == 0){
-    gardenStatus.meshState = MESH_ALL_NODES_DOWN;
-  }
-  else{
-    gardenStatus.meshState = MESH_SOME_NODES_DOWN;
-  }
   
   //////////// CHECK NODE_STATUSES ////////////
 
@@ -873,15 +895,31 @@ void updateGardenStatus(){
       }
     }
   }
+  
 
+  //////////// CHECK GARDEN STATE ////////////
+
+  gardenStatus.numRegisteredNodes = 0;
+  gardenStatus.numConnectedNodes = 0;
+  
   gardenStatus.gardenState = GARDEN_ALL_IS_WELL;
   // cycle through CONNECTED nodes, and if any have an error, report
   uint8_t node;
   for(node=1; node<=16; node++){
     // if registered
     if(gardenStatus.nodeStatusPtrs[node] != NULL){
+      gardenStatus.numRegisteredNodes++;
+      
+      // check connected
+      char placeHolder = '0';
+      bool success = safeMeshWrite(mesh.getAddress(node), &placeHolder, CONNECTION_TEST_H, sizeof(placeHolder), DEFAULT_SEND_TRIES);
+      gardenStatus.nodeStatusPtrs[node]->meshState = success ? MESH_CONNECTED : MESH_DISCONNECTED;
+      
       // if connected
-      if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+      //if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+      if(success){
+        gardenStatus.numConnectedNodes++;
+        
         // check if it has any errors; if so, report
         if(gardenStatus.nodeStatusPtrs[node]->voltageState != GOOD_VOLTAGE){
           gardenStatus.gardenState = GARDEN_NODE_ERROR;
@@ -895,8 +933,22 @@ void updateGardenStatus(){
         }
       }
     }
-  }   
+  }
+  
+  //////////// CHECK OVERALL MESH CONNECTION ////////////
+
+  // assume began, so just check ratio of connected nodes
+  if(gardenStatus.numConnectedNodes == gardenStatus.numRegisteredNodes){
+    gardenStatus.meshState = MESH_ALL_NODES_GOOD;
+  }
+  else if(gardenStatus.numConnectedNodes == 0){
+    gardenStatus.meshState = MESH_ALL_NODES_DOWN;
+  }
+  else{
+    gardenStatus.meshState = MESH_SOME_NODES_DOWN;
+  }  
 }
+
 
 /* 
  * printGardenStatus()
@@ -949,14 +1001,21 @@ void printGardenStatus(){
   }
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////     Timer       ////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-/* This function initializes the internal timer on the gateway and 
+
+/* 
+ * timeInit()
+ *
+ * This function initializes the internal timer on the gateway and 
  * synchronizes it with the NIST server time
- * @param: none
- * @return: none
-*/
+ * 
+ * @preconditions: 3G established
+ * @postconditions: internal timer is set to EST
+ */
 void timeInit() {
   int timeArray[6];
 
@@ -1020,12 +1079,15 @@ void timeInit() {
 }
 
 
-
-/* This function prints out the current time recorded by the internal timer
+/* 
+ * digitalClockDisplay()
+ *
+ * This function prints out the current time recorded by the internal timer
  * in a readable way
- * @param: none
- * @return: none
-*/
+ * 
+ * @preconditions: internal timer is set
+ * @postconditions: time is displayed in nice format through Serial port
+ */
 void digitalClockDisplay(){
   // digital clock display of the time
   Serial.print(hour()); printDigits(minute()); printDigits(second());
@@ -1059,13 +1121,19 @@ void digitalClockDisplay(){
   Serial.print(F("/")); Serial.println(year());
 }
 
-/* This function process the display of the minute and second of the internal 
- * timer
- * @param: digits, a digit between 0 and 60 which represents the current 
+
+/* 
+ * printDigits()
+ *
+ * This function process the display of the minute and second of the internal timer
+ * 
+ * @preconditions: called from digitalClockDisplay()
+ * @postconditions: minutes or seconds are printed to Serial port
+ * 
+ * @param uint8_t digits: a digit between 0 and 60 which represents the current 
  *         minute or second recorded by the internal timer
- * @return: none
-*/
-void printDigits(int digits){
+ */
+void printDigits(uint8_t digits){
   // utility function for digital clock display: pruint8_ts preceding colon and leading 0
   Serial.print(F(":"));
   if(digits < 10)
@@ -1073,9 +1141,13 @@ void printDigits(int digits){
   Serial.print(digits);
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////     Alert Engine       ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 void checkAlerts() {
   String myAlert = DAILY_REPORT + "%";
   Serial.println(myAlert);
@@ -1083,10 +1155,10 @@ void checkAlerts() {
 
 
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////     Setup       ////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* 
  * setup()
@@ -1153,9 +1225,11 @@ void setup(){
 }
 
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////     Loop        ////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /* 
  * loop()
@@ -1168,6 +1242,8 @@ void setup(){
  * @postconditions: none--runs forever
  */ 
 void loop() {
+  // refresh the reset
+  refreshReset();
 
   //////////////////////// Time acceleration for testing /////////////////////////////
   // jump to 50 seconds
@@ -1212,9 +1288,6 @@ void loop() {
   if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
     Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
   }
- 
-  // refresh the reset
-  // refreshReset(); --> currently done once per minute while checking the schedule
 
   // update node status if necessary
   if(updateStatusFlag){
@@ -1234,7 +1307,6 @@ void loop() {
       checkSchedule();
     }
     lastTime = now();
-    refreshReset();
   }
 
   // if had buttonpress, toggle between awake and asleep

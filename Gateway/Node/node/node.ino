@@ -946,6 +946,12 @@ void loop() {
       //safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NEW_DAY_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
       safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
       break;
+
+    case CONNECTION_TEST_H:
+      // read in message to clear buffer, but do nothing
+      char placeholder4;
+      network.read(header, &placeholder4, sizeof(placeholder4));
+      break;
       
     default:
       Serial.println(F("Unknown message type."));

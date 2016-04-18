@@ -86,6 +86,7 @@ struct Garden_Status{
 #define GET_NODE_STATUS_H   'S'
 #define FORCE_RESET_H       'R'
 #define IS_NEW_DAY_H        'D'
+#define CONNECTION_TEST_H   'T'
 // nodes to master
 //#define SEND_VALVE_H        'v'       // DEPRICATED
 #define SEND_NODE_STATUS_H  's'
