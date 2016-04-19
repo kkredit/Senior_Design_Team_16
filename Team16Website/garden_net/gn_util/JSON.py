@@ -12,7 +12,7 @@ class JSON_Interface:
 		return "{" + str(zone.to_JSON()) + "[\n\t" + event.to_JSON() + "\n]}"
 
 	def to_JSON(self, event_list: list, zone: Zone, comma: bool):
-		temp = str(zone.to_JSON()) + ""
+		temp = "{" + str(zone.to_JSON()) + ""
 		i = 0
 		for event in event_list:
 			if i == 0:
@@ -27,7 +27,7 @@ class JSON_Interface:
 			else:
 				temp += ","
 			i+=1
-		temp += "\n"
+		temp += "\n}"
 
 		return temp
 
@@ -65,12 +65,16 @@ class JSON_Interface:
 						stop_time = float(temp_stop.replace(":", "."))
 						if (zone_id != i):
 							zone_id = i
-						valve = parsed[zone_string][event_string]['valve_num']
+						valve = int(parsed[zone_string][event_string]['valve_num'])
 						event = Event(start_time, stop_time, day, zone_id, valve)
 						#print(start_time)
 						#print(parsed[zone_string][event_string])
 						#print(event)
-						db.add_event(event)
+						try:
+							if str(event.start_time) != "0.0":
+								db.add_event(event)
+						except:
+							pass
 						j += 1
 					except(KeyError):
 						temp2 = False
@@ -88,7 +92,7 @@ class JSON_Interface:
 			events= []
 			try:
 				try:
-					events = db.get_events_on_day_for_zone('Sunday', i)
+					events += db.get_events_on_day_for_zone('Sunday', i)
 				except ValueError:
 					pass
 				try:

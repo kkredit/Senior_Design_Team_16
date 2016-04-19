@@ -15,8 +15,8 @@ class Forecast:
 		total_forecast = ""
 		if self._fio.has_hourly() is True:
 			hourly = FIOHourly.FIOHourly(self._fio)
-			time = self.get_current_time()
 			for hour in range(0, 24):
+				time = self.get_current_time(hour)
 				total_forecast += 'Hour' + str(hour+1) + "\n"
 				curr = time + timedelta(hours=hour)
 				total_forecast += str(curr) + "\n"
@@ -28,6 +28,30 @@ class Forecast:
 			return total_forecast
 		else:
 			return 'No Hourly data'
+
+	def check_rain_prob(self, threshold):
+		sum = 0
+		if self._fio.has_hourly() is True:
+			hourly = FIOHourly.FIOHourly(self._fio)
+			for hour in range(0, 24):
+				if hourly.get_hour(hour)['precipProbability'] > threshold:
+					sum += 1
+			if sum >= 6:
+				return True
+			else:
+				return False
+
+	def check_temp(self, threshold):
+		temp = False
+		if self._fio.has_hourly() is True:
+			hourly = FIOHourly.FIOHourly(self._fio)
+			for hour in range(0, 24):
+				if hourly.get_hour(hour)['temperature'] > threshold:
+					temp = True
+			if temp:
+				return True
+			else:
+				return False
 
 	def get_total_24_rain_forecast(self):
 		total = 0
@@ -81,4 +105,9 @@ if __name__ == "__main__":
 	#forecast_string = forecast.get_forecast()
 	#print(days_rainfall)
 	#print(forecast_string)
-	print(forecast.get_current_day())
+	rain = forecast.check_rain_prob(.80)
+	temp = forecast.check_temp(92)
+	day = forecast.get_current_day()
+	print(rain)
+	print(temp)
+	print(day)

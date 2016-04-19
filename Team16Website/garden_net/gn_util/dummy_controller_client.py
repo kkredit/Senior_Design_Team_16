@@ -14,11 +14,9 @@ def start_connection(sock: socket):
 		print("Unable to connect")
 		exit()
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-<<<<<<< HEAD
 soc = start_connection(soc)
-=======
 host = socket.gethostname()
-port = 5533
+port = 5530
 print("My local hostname: " + host)
 
 
@@ -27,10 +25,11 @@ try:
 	soc = socket.create_connection(('gardenet.ddns.net', port))
 	#soc = socket.create_connection(('153.106.112.199', port))
 	#socket.create_connection((host, port))
+	hello = "Hello"
+	soc.send(hello.encode('utf-8'))
 except:
 	print("Unable to connect")
 	exit()
->>>>>>> b2fa73f1e65c8eb3f4b4417c28762e00ac2145cd
 
 print('Connected to remote host. You can start sending messages')
 print('Type quit to close the connection with the server')
