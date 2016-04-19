@@ -1,1 +1,1 @@
-{"Zone1":{"name":"Gangly Raptor","node":"1","valve":"3","openevents":"4"},"Zone2":{"name":"Tony the Buff-a-nator","node":"5","valve":"6","openevents":"6"},"Zone3":{"name":"Chuck Binsky","node":"8","valve":"4","openevents":"8"}}
+{"Zone1":{"name":"Gangly Raptor","node":"1","valve":"1","openevents":"2"},"Zone2":{"name":"Tony the Buff-a-nator","node":"2","valve":"2","openevents":"2"},"Zone3":{"name":"Chuck Binsky","node":"3","valve":"4","openevents":"3"}}

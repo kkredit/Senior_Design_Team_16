@@ -12,109 +12,156 @@
 </head>
 
 <body>
-<ul id="dropdown1" class="dropdown-content">
-   <li><a class="light black-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
-   <li class="divider"></li>
-   <li><a class="light black-text" href="http://eighthdayfarm.org/">Eighth Day Farm</a></li>
- </ul>
- <ul id="dropdown2" class="dropdown-content">
-   <li><a class="light black-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
-   <li class="divider"></li>
-   <li><a class="light black-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
- </ul>
- <ul id="dropdown3" class="dropdown-content">	
-  <li><a class="light black-text" href="index.html#documents">Documents</a></li>
-  <li class="divider"></li>
-  <li><a class="light black-text" href="about.html">About Us</a></li>
-  <li class="active"><a class="light black-text" href="blog.html">Blog</a></li>
-</ul>
-
-<div class = "navbar-fixed">
-  <nav class="white" role="navigation">
-    <a id="logo-container" href="index.html" class="brand-logo"><i>Garde<b>Net  </b><img src="photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
-    <div class="nav-wrapper container">
-      
-      <ul class="right hide-on-med-and-down">
-        <li><a href="index.html">Home</a></li>
-        <li><a class="dropdown-button" data-beloworigin="true" href="#!" data-activates="dropdown3">Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a></li>
-        <li><a class="dropdown-button" data-beloworigin="true" href="#!" data-activates="dropdown1">Community Gardens<i class="mdi-navigation-arrow-drop-down right"></i></a></li>
-        <li><a class="dropdown-button" data-beloworigin="true" href="#!" data-activates="dropdown2">Calvin College<i class="mdi-navigation-arrow-drop-down right"></i></a></li>
-        <li><a href="GardeNetControl/index.html">GardeNet Control</a></li>
-      </ul>
+  <ul id="dropdown1" class="dropdown-content">
+    <li><a class="light black-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+    <li class="divider"></li>
+  </ul>
+  <ul id="dropdown2" class="dropdown-content">
+    <li><a class="light black-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
+    <li class="divider"></li>
+    <li><a class="light black-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
+  </ul>
+  <ul id="dropdown3" class="dropdown-content">  
+    <li><a class="light black-text" href="#documents">Documents</a></li>
+    <li class="divider"></li>
+    <li><a class="light black-text" href="about.html">About Us</a></li>
+    <li><a class="light black-text" href="blog.html">Blog</a></li>
+  </ul>
 
 
-      <!-- Mobile Navbar -->
-      <ul id="nav-mobile" class="side-nav teal text-white">
-        <li class= "white"><a class = "teal-text" href="index.html">Home</a></li>
-        <li><a class = "white-text" href="about.html">About Us</a></li>
-        <li class="no-padding">
-         <ul class="collapsible collapsible-accordion">
-          <li>
-            <a class="white-text collapsible-header">Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a>
-            <div class="collapsible-body teal">
-              <ul>
-                <li><a class="white-text" href="index.html#documents">Documents</a></li>
-                <li><a class = "white-text" href="about.html">About Us</a></li>
-              </ul>
-            </div>
-          </li>
+
+  <div class = "navbar-fixed">
+    <nav class="white" role="navigation">
+      <div class="nav-wrapper container"  style="z-index: 3">
+        <a id="logo-container" href="index.html" class="brand-logo"><i>Garde<b>Net  </b><img src="photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
+        <ul class="right hide-on-med-and-down">
+          <li class="active"><a href="index.html">Home</a></li>
+          <li><a href="GardeNetControl/index.html">GardeNet Controller</a></li>
+          <li><a href="GardeNetControl/Admin/admin.html">Admin Access</a></li>
         </ul>
-      </li>
-      <li class="no-padding">
-       <ul class="collapsible collapsible-accordion">
-        <li>
-          <a class="white-text collapsible-header">Community Gardens<i class="mdi-navigation-arrow-drop-down right"></i></a>
-          <div class="collapsible-body teal">
-            <ul>
-              <li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
-              <li><a class = "white-text" href="http://eighthdayfarm.org/">Eighth Day Farm</a></li>
+
+
+        <!-- Mobile Navbar -->
+        <ul id="nav-mobile" class="side-nav teal text-white">
+          <li  class= "active"><a class= "teal-text" href="../../index.html">Home: </a></li>
+          <li class="no-padding">
+            <ul class="collapsible collapsible-accordion">
+              <li><a class="white-text collapsible-header" style="padding-left:2em; ">- Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a>
+                <div class="collapsible-body teal">
+                  <ul>
+                    <li><a class="white-text" href="index.html#documents">Documents</a></li>
+                    <li><a class = "white-text" href="about.html">About Us</a></li>
+                    <li><a class="white-text" href="blog.html">Blog</a></li>
+                  </ul>
+                </div>
+              </li>
             </ul>
-          </div>
-        </li>
-      </ul>
-    </li>
-    <li class="no-padding">
-     <ul class="collapsible collapsible-accordion">
-      <li>
-        <a class="white-text collapsible-header">Calvin College<i class="mdi-navigation-arrow-drop-down right"></i></a>
-        <div class="collapsible-body teal">
-          <ul>
-            <li><a class="white-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
-            <li><a class = "white-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
-          </ul>
-        </div>
-      </li>
-    </ul>
-  </li>
-  <li><a class = "white-text" href="GardeNetControl/index.html">GardeNet Control</a></li>
-</ul>
-<a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
-</div>
-</nav>
-</div>
-<div class="container">
- <div class="row">
- 	<h1 class="teal-text center"> Welcome to the GardeNet Blog!</h1>
-      <div class="divider"></div>
-      <div class="divider"></div>
-      <div class="col s12">
-      <h3 class="teal-text"> Blog Update #1 </h3> <span  id="time">Fri Feb 19 2016 14:36:56 GMT-0500 (Eastern Standard Time)</span> 
-        <div class="card-panel teal">
-          <span class="white-text"> The GardeNet team has been working hard on updating their project to be fully functional. Currently, they are working on coding for the GardeNet Controller to operate the garden sprinklers. Most of the hardware functionality is finished for operating flow sensors and solenoids that will be dispersed over the garden. The team has successfully achieved wireless functionality on the flow sensors and solenoids using the RF signals. Now focus has shifted to connecting the hardware components to the cloud server via 3G modem.
-          </span>
-        </div>
+          </li>
+          <li class="no-padding">
+            <ul class="collapsible collapsible-accordion">
+              <li>
+                <a class="white-text collapsible-header" style="padding-left:2em;">- Community Gardens<i class="mdi-navigation-arrow-drop-down right"></i></a>
+                <div class="collapsible-body teal">
+                  <ul>
+                    <li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <li class="no-padding">
+            <ul class="collapsible collapsible-accordion">
+              <li>
+                <a class="white-text collapsible-header" style="padding-left:2em;">- Calvin College<i class="mdi-navigation-arrow-drop-down right"></i></a>
+                <div class="collapsible-body teal">
+                  <ul>
+                    <li><a class="white-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
+                    <li><a class = "white-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <div class="divider white"></div>
+          <li><a class = "white-text" href="/GardeNetControl/index.html">GardeNet Controller:</a></li>
+          <li><a class= "white-text" href="/GardeNetControl/index.html" style="padding-left:2em;">- Schedule</a></li>
+          <li><a class= "white-text" href="#" style="padding-left:2em;">- Historical Data</a></li>
+          <div class="divider white"></div>
+          <li><a class= "white-text" href="/GardeNetControl/Admin/admin.html">Admin Access</a></li>
+        </ul>
+        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
       </div>
-      <div class="divider"></div>
-      <div class="col s12">
-      <h3 class="teal-text"> Blog Update #2 </h3> <span  id="time">Fri Apr 8 2016 13:58:42 GMT-0500 (Eastern Standard Time)</span> 
-        <div class="card-panel teal">
-          <span class="white-text"> Team GardeNet has made great breakthroughs in the last few months. The team successfully sent messages from the website controller through the database, to the 3G Modem, and finally to the node which then opened a valve. This was encouraging to the team as all of the components were "talking" to each other. Scheduling functionality is the next big hurdle for the team as the end of the year draws closer. They are also trying to send information back "upstream" from the node to the website in order to display data of the current condition of the garden and also historical data of water usage over time.
-          </span>
-        </div>
+    </nav>
+  </div>
+  <div class = "navbar-fixed container hide-on-med-and-down" style="z-index: 2">
+    <nav class="teal darken-2 container subnav z-depth-0" role="navigation">
+      <div class="nav-wrapper">
+        <ul class="right">
+          <li class="active"><a class="dropdown-button white-text" data-beloworigin="true" href="#!" data-activates="dropdown3">Documents/About Us</a></li>
+          <li><a class="dropdown-button white-text" data-beloworigin="true" href="#!" data-activates="dropdown1">Community Gardens</a></li>
+          <li><a class="dropdown-button white-text" data-beloworigin="true" href="#!" data-activates="dropdown2">Calvin College</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="container">
+   <div class="row">
+    <h1 class="teal-text center"> Welcome to the GardeNet Blog!</h1>
+    <div class="divider"></div>
+    <div class="divider"></div>
+    <div class="col s12">
+      <h3 class="teal-text"> Blog Update #1 </h3> <span  id="time">Fri Feb 19 2016 14:36:56 GMT-0500 (Eastern Standard Time)</span> 
+      <div class="card-panel teal">
+        <span class="white-text"> The GardeNet team has been working hard on updating their project to be fully functional. Currently, they are working on coding for the GardeNet Controller to operate the garden sprinklers. Most of the hardware functionality is finished for operating flow sensors and solenoids that will be dispersed over the garden. The team has successfully achieved wireless functionality on the flow sensors and solenoids using the RF signals. Now focus has shifted to connecting the hardware components to the cloud server via 3G modem.
+        </span>
       </div>
     </div>
+    <div class="divider"></div>
+    <div class="col s12">
+      <h3 class="teal-text"> Blog Update #2 </h3> <span  id="time">Fri Apr 8 2016 13:58:42 GMT-0500 (Eastern Standard Time)</span> 
+      <div class="card-panel teal">
+        <span class="white-text"> Team GardeNet has made great breakthroughs in the last few months. The team successfully sent messages from the website controller through the database, to the 3G Modem, and finally to the node which then opened a valve. This was encouraging to the team as all of the components were "talking" to each other. Scheduling functionality is the next big hurdle for the team as the end of the year draws closer. They are also trying to send information back "upstream" from the node to the website in order to display data of the current condition of the garden and also historical data of water usage over time.
+        </span>
+      </div>
+    </div>
+  </div>
 </div>
+<footer class="page-footer teal">
+  <div class="container">
+    <div class="row">
+      <div class="col l5 s13">
+        <h5 class="white-text">Company Bio</h5>
+        <p class="grey-text text-lighten-4">We are a team of college students working on this project for our Senior Design Project at Calvin College. Feel free to email us with any questions. Any help would also be greatly appreciated.</p>
 
+
+      </div>
+      <div class="col l3 s12">
+        <h5 class="white-text">Gardens</h5>
+        <ul>
+          <li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+          <li><a class="white-text" href="http://www.eighthdayfarm.org/">Eighth Day Farm</a></li>
+        </ul>
+      </div>
+      <div class="col l2 s12">
+        <h5 class="white-text">Connect</h5>
+        <ul>
+          <li><a class="white-text" href="mailto:jrc32@students.calvin.edu">John Connell</a></li>
+          <li><a class="white-text" href="mailto:xj22@students.calvin.edu">Anthony Jin</a></li>
+          <li><a class="white-text" href="mailto:cak33@students.calvin.edu">Charles Kingston</a></li>
+          <li><a class="white-text" href="mailto:knk9@students.calvin.edu">Kevin Kredit</a></li>
+        </ul>
+      </div>
+      <div class="col l1 s12">
+        <a href = "http://www.calvin.edu"><img src= "photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    <div class="container">
+      Website by John Connell made with Template by <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a> <a href = "http://i.imgur.com/UyDbQ7S.gif" class = "right-align teal-text text-darken-1">secrets are best kept by friends</a>
+    </div>
+  </div>
+</footer>
 
 
 

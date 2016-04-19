@@ -136,6 +136,7 @@ function genTitle(){
 			$('input[name="Zone'+i+'[event'+j+'[start_time]]"]').prop("disabled", true);
 			$('input[name="Zone'+i+'[event'+j+'[stop_time]]"]').prop("disabled", true);
 			$('input[name="Zone'+i+'[event'+j+'[zone_ID]]"]').prop("disabled", true);
+			$('input[name="Zone'+i+'[event'+j+'[valve_num]]"]').prop("disabled", true);
 		}
 
 	}
@@ -146,6 +147,7 @@ function genTitle(){
 			$('input[name="Zone'+i+'[event'+j+'[start_time]]"]').prop("disabled", false);
 			$('input[name="Zone'+i+'[event'+j+'[stop_time]]"]').prop("disabled", false);
 			$('input[name="Zone'+i+'[event'+j+'[zone_ID]]"]').prop("disabled", false);
+			$('input[name="Zone'+i+'[event'+j+'[valve_num]]"]').prop("disabled", false);
 		}
 
 	}
@@ -214,7 +216,10 @@ function changeNV(){
 			$('input[name="Zone'+i+'[event'+j+'[start_time]]"]').prop("disabled", true);
 			$('input[name="Zone'+i+'[event'+j+'[stop_time]]"]').prop("disabled", true);
 			$('input[name="Zone'+i+'[event'+j+'[zone_ID]]"]').prop("disabled", true);
+			$('input[name="Zone'+i+'[event'+j+'[valve_num]]"]').prop("disabled", true);
+
 		}
+
 
 	}
 	var myForm = $("#myForm").serializeJSON();
@@ -224,9 +229,13 @@ function changeNV(){
 			$('input[name="Zone'+i+'[event'+j+'[start_time]]"]').prop("disabled", false);
 			$('input[name="Zone'+i+'[event'+j+'[stop_time]]"]').prop("disabled", false);
 			$('input[name="Zone'+i+'[event'+j+'[zone_ID]]"]').prop("disabled", false);
+			$('input[name="Zone'+i+'[event'+j+'[valve_num]]"]').prop("disabled", false);
 		}
 
 	}
+
+
+
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
 
@@ -243,6 +252,7 @@ function changeNV(){
 		
 
 	});
+	location.reload();
 }
 
 
@@ -292,20 +302,23 @@ function deleteTabs()
 }
 function submit(){
 	for(i=tab1num-1; i<22; i++ ){
-		$('select[name="Zone1[event'+i+'[day]]"').val("");
-		$('input[name="Zone1[event'+i+'[start_time]]"').val("");
-		$('input[name="Zone1[event'+i+'[stop_time]]"').val("");
+		$('select[name="Zone1[event'+i+'[day]]"').val("Monday");
+		$('input[name="Zone1[event'+i+'[start_time]]"').val("00:00");
+		$('input[name="Zone1[event'+i+'[stop_time]]"').val("01:00");
 	}
 	for(i=tab2num-1; i<22; i++ ){
-		$('select[name="Zone2[event'+i+'[day]]"').val("");
-		$('input[name="Zone2[event'+i+'[start_time]]"').val("");
-		$('input[name="Zone2[event'+i+'[stop_time]]"').val("");
+		$('select[name="Zone2[event'+i+'[day]]"').val("Monday");
+		$('input[name="Zone2[event'+i+'[start_time]]"').val("00:00");
+		$('input[name="Zone2[event'+i+'[stop_time]]"').val("01:00");
 	}
 	for(i=tab3num-1; i<22; i++ ){
-		$('select[name="Zone3[event'+i+'[day]]"').val("");
-		$('input[name="Zone3[event'+i+'[start_time]]"').val("");
-		$('input[name="Zone3[event'+i+'[stop_time]]"').val("");
+		$('select[name="Zone3[event'+i+'[day]]"').val("Monday");
+		$('input[name="Zone3[event'+i+'[start_time]]"').val("00:00");
+		$('input[name="Zone3[event'+i+'[stop_time]]"').val("01:00");
 	}
+
+	
+
 
 
 	for(i=1; i<10; i++){
@@ -326,18 +339,61 @@ function submit(){
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
 
-	// $.ajax({
-	// 	url: "../savejson.php",
-	// 	cache: false,
-	// 	dataType: "text",
-	// 	type: 'POST',
-	// 	data: {jsonString: jsonString},
-	// 	success: function(data) {
-	// 		alert(data);
-	// 	}
+	$.ajax({
+		url: "../savejson.php",
+		cache: false,
+		dataType: "text",
+		type: 'POST',
+		data: {jsonString: jsonString},
+		success: function(data) {
+			alert(data);
+		}
 		
 
-	// });
+	});
+
+
+
+	for(i=0; i<21; i++){
+		for(j=0; j<21; j++){
+			$('select[name="Zone'+i+'[event'+j+'[day]]"]').prop("disabled", true);
+			$('input[name="Zone'+i+'[event'+j+'[start_time]]"]').prop("disabled", true);
+			$('input[name="Zone'+i+'[event'+j+'[stop_time]]"]').prop("disabled", true);
+			$('input[name="Zone'+i+'[event'+j+'[zone_ID]]"]').prop("disabled", true);
+			$('input[name="Zone'+i+'[event'+j+'[valve_num]]"]').prop("disabled", true);
+		}
+
+	}
+	var myForm = $("#myForm").serializeJSON();
+	for(i=0; i<21; i++){
+		for(j=0; j<21; j++){
+			$('select[name="Zone'+i+'[event'+j+'[day]]"]').prop("disabled", false);
+			$('input[name="Zone'+i+'[event'+j+'[start_time]]"]').prop("disabled", false);
+			$('input[name="Zone'+i+'[event'+j+'[stop_time]]"]').prop("disabled", false);
+			$('input[name="Zone'+i+'[event'+j+'[zone_ID]]"]').prop("disabled", false);
+			$('input[name="Zone'+i+'[event'+j+'[valve_num]]"]').prop("disabled", false);
+		}
+
+	}
+
+
+
+	var jsonString = JSON.stringify(myForm);
+	console.log(jsonString);
+
+
+	$.ajax({
+		url: "../saveinfo.php",
+		cache: false,
+		dataType: "text",
+		type: 'POST',
+		data: {jsonString: jsonString},
+		success: function(data) {
+			alert(data);
+		}
+		
+
+	});
 	
 
 }

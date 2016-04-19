@@ -22,29 +22,81 @@
 </head>
 <body>
 
-  <div class = "navbar-fixed">
+  <div class = "navbar-fixed" >
     <nav class="white" role="navigation">
-      <div class="nav-wrapper container">
+      <div class="nav-wrapper container" style="z-index: 3">
         <a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-down"><i>Garde<b>Net  </b> Controller  <img src="../../photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
 		<a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-up text-align right"><i>Garde<b>Net  </b> Controller  </i></a>
         <ul class="right hide-on-med-and-down">
-          <li class="active"><a href="index.html">Home</a></li>
-          <li><a href="../index.html">GardeNet Home</a></li>
+          <li><a href="../index.html">Home</a></li>
+          <li class="active"><a href="index.html">GardeNet Controller</a></li>
           <li><a href="Admin/admin.html">Admin Access</a></li>
         </ul>
 
         <!-- Mobile NavBar -->
-        <ul id="nav-mobile" class="side-nav teal text-white left">
-          <li class= "white"><a class = "teal-text" href="index.html">Home</a></li>
-          <li><a class = "white-text" href="../index.html">GardeNet Home</a></li>
-          <li><a class = "white-text" href="Admin/admin.html">Admin Access</a></li>
+        <ul id="nav-mobile" class="side-nav teal text-white">
+          <li><a class= "white-text" href="../index.html">Home: </a></li>
+          <li class="no-padding">
+            <ul class="collapsible collapsible-accordion">
+              <li><a class="white-text collapsible-header" style="padding-left:2em;">- Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a>
+                <div class="collapsible-body teal">
+                  <ul>
+                    <li><a class="white-text" href="../index.html#documents">Documents</a></li>
+                    <li><a class = "white-text" href="../about.html">About Us</a></li>
+                    <li><a class="white-text" href="../blog.html">Blog</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <li class="no-padding">
+            <ul class="collapsible collapsible-accordion">
+              <li>
+                <a class="white-text collapsible-header" style="padding-left:2em;">- Community Gardens<i class="mdi-navigation-arrow-drop-down right"></i></a>
+                <div class="collapsible-body teal">
+                  <ul>
+                    <li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <li class="no-padding">
+            <ul class="collapsible collapsible-accordion">
+              <li>
+                <a class="white-text collapsible-header" style="padding-left:2em;">- Calvin College<i class="mdi-navigation-arrow-drop-down right"></i></a>
+                <div class="collapsible-body teal">
+                  <ul>
+                    <li><a class="white-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
+                    <li><a class = "white-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </li>
+          <div class="divider white"></div>
+          <li class= "active"><a class = "teal-text" href="index.html">GardeNet Controller:</a></li>
+          <div class="divider teal"></div>
+          <li class= "active"><a class= "teal-text" href="index.html" style="padding-left:2em;">- Schedule</a></li>
+          <li><a class= "white-text" href="#" style="padding-left:2em;">- Historical Data</a></li>
+          <div class="divider white"></div>
+          <li><a class= "white-text" href="Admin/admin.html">Admin Access</a></li>
         </ul>
         <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
       </div>
     </nav>
   </div>
-  <br>
-  <br>
+
+  <div class = "navbar-fixed container hide-on-med-and-down" style=" z-index: 2;">
+    <nav class="teal darken-2 container subnav z-depth-0" role="navigation">
+      <div class="nav-wrapper">
+        <ul class="right">
+          <li class="active"><a class="white-text" href="index.html">Schedule</a></li>
+          <li><a class="white-text" href="#">Historical Data</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
 
   <section>
   <div class="container">

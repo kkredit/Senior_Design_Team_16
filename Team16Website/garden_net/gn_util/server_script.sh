@@ -15,7 +15,7 @@ else
 nohup python3 /var/www/Team16Website/garden_net/gn_util/controller_interface.py 
 fi
 
-rm output.txt
-rm python_sockets.txt
-rm temp.txt
-rm pid.txt 
+#rm output.txt
+#rm python_sockets.txt
+#rm temp.txt
+#rm pid.txt 

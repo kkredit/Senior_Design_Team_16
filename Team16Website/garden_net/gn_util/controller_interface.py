@@ -237,6 +237,7 @@ while True:
 			client_sock, addr = server_socket.accept()
 			SOCKET_LIST.append(client_sock)
 			client_sock.settimeout(1)
+<<<<<<< HEAD
 			if args.verbose:
 				print("Client (%s, %s) connected" % addr)
 			welcome = "Welcome to GardeNet"
@@ -261,12 +262,35 @@ while True:
 			ipc.close()
 			if args.verbose:
 				print("Closed the socket")
+=======
+			print("Client (%s, %s) connected" % addr)
+			welcome = "BIG COCK"
+			#client_sock.send(welcome.encode('utf-8'))
+		elif sock == test_server_socket:
+			test, test_addr = test_server_socket.accept()
+			print("Got a connection from test")
+			test_response = "true"
+			print("Sending true")
+			test.send(test_response.encode('utf-8'))
+			test.close()
+			print("Closed the test socket")
+		elif sock == ipc_socket:
+			print("Got a connection from myself")
+			ipc, addr = ipc_socket.accept()
+			print("Accepted the socket")
+			ipc.close()
+			print("Closed the socket")
+>>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df
 			f = open(ipc_file, 'r')
 			file_data = ""
 			for line in f:
 				file_data += line
+<<<<<<< HEAD
 			if args.verbose:
 				print(file_data)
+=======
+			print(file_data)
+>>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df
 			f.close()
 
 			if file_data == "true" or file_data == "false":
@@ -282,6 +306,7 @@ while True:
 				f2.write(file_data)
 				f2.close()
 
+<<<<<<< HEAD
 				# broadcast(converted, SOCKET_LIST)
 				# broadcast(file_data, SOCKET_LIST)
 				if args.verbose:
@@ -301,6 +326,23 @@ while True:
 				# broadcast(file_data, SOCKET_LIST)
 				# print(file_data)
 				# broadcast(file_data, SOCKET_LIST)
+=======
+				#broadcast(converted, SOCKET_LIST)
+				#broadcast(file_data, SOCKET_LIST)
+				#print("Creating the event list")
+				for item in EVENT_LIST:
+					EVENT_LIST.remove(item)
+				create_event_list(converted)
+				#print("Event list created")
+				#send_event()
+				for event in EVENT_LIST:
+					print(str(event))
+				#sock.close()
+				#print(file_data)
+				#broadcast(file_data, SOCKET_LIST)
+				#print(file_data)
+				#broadcast(file_data, SOCKET_LIST)
+>>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df
 
 		try:
 			data = sock.recv(RECV_BUFFER)
@@ -317,6 +359,10 @@ while True:
 		except:
 			continue
 
+<<<<<<< HEAD
 """
 #######################################################################################################################
 """
+=======
+
+>>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df

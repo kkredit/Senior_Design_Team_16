@@ -71,8 +71,12 @@ class JSON_Interface:
 						#print(parsed[zone_string][event_string])
 						#print(event)
 						try:
+<<<<<<< HEAD
 							if str(event.start_time) != "0.0":
 								db.add_event(event)
+=======
+							db.add_event(event)
+>>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df
 						except:
 							pass
 						j += 1
@@ -149,3 +153,4 @@ if __name__ == "__main__":
 	parsed = json.loads(string)
 
 	print(parsed['zone3']['event0']['day'])
+
