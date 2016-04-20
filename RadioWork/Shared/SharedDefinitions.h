@@ -20,6 +20,7 @@ struct Valve_Command{
 struct Valve_Status{
   bool isConnected;
   bool state;
+  uint32_t timeSpentWatering; // in seconds
 };
 
 // Valve_Response struct
@@ -49,6 +50,7 @@ struct Node_Status{
   uint8_t meshState;
   uint8_t nodeID;
   int16_t nodeMeshAddress;
+  float percentAwake;
 };
 
 // Garden_Status struct
@@ -60,8 +62,9 @@ struct Garden_Status{
   uint8_t numRegisteredNodes;
   uint8_t numConnectedNodes;
   Node_Status* nodeStatusPtrs[17];
-  // % 3G uptime
-  // % Mesh uptime
+  float percentAwake;               // TODO: implement
+  float percent3GUptime;            // TODO: implement
+  float percentMeshUptime;          // TODO: implement
 };
  
 // mesh settings

@@ -9,7 +9,7 @@
  *    - Relaying information to the master
  * 
  * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
- * Last Modified: 4/3/16
+ * Last Modified: 4/19/16
  */
 
 
@@ -71,7 +71,7 @@ volatile bool updateNodeStatusFlag = false;
 
 // other
 Node_Status myStatus;
-uint8_t statusCounter = 0;
+uint16_t statusCounter = 0;
 const uint8_t VALVE_PINS[5] = {255, VALVE_1, VALVE_2, VALVE_3, VALVE_4};
 
 
@@ -524,6 +524,14 @@ void initStatus(){
 
   // nodeMeshAddress
   myStatus.nodeMeshAddress = -1;
+
+  // percentAwake;
+  myStatus.percentAwake = 100;
+
+  // timeSpentWatering
+  for(uint8_t valve=1; valve<=4; valve++){
+    myStatus.valveStates[valve].timeSpentWatering = 0;
+  }
 }
 
 
@@ -536,6 +544,7 @@ void initStatus(){
  * @postconditions: myStatus is updated
  */
 void updateNodeStatus(){
+  statusCounter++;
 
   //////////// CHECK INPUT VOLTAGE ////////////
 
@@ -629,6 +638,13 @@ void updateNodeStatus(){
   int16_t tempvar = mesh.getAddress(myStatus.nodeID);
   // this sometimes fails, but does not mean disconnected; simply check to see it worked
   if(tempvar > 0) myStatus.nodeMeshAddress = tempvar;
+
+
+  //////////// STAT TRACKING ////////////
+  myStatus.percentAwake = (myStatus.percentAwake * statusCounter-1 + (myStatus.isAwake ? 100 : 0))/statusCounter;
+  for(uint8_t valve=1; valve<=4; valve++){
+    myStatus.valveStates[valve].timeSpentWatering += (myStatus.valveStates[valve].state ? TIMER1_PERIOD/1000000 : 0);
+  }
 }
 
 
@@ -642,9 +658,10 @@ void updateNodeStatus(){
  */ 
 void printNodeStatus(){
   // print number of times executed
-  Serial.println(F("")); Serial.println(statusCounter++);
+  Serial.println(F("")); Serial.println(statusCounter);
 
   if(myStatus.isAwake == false) Serial.println(F("NODE IS IN STANDBY"));
+  Serial.print(F("Percent time spent awake: ")); Serial.print(myStatus.percentAwake); Serial.println(F("%"));
 
   Serial.print(F("Input voltage     : "));
   Serial.print(analogRead(VIN_REF)*3*4.8/1023.0); Serial.print(F(" V  : "));
@@ -673,6 +690,11 @@ void printNodeStatus(){
     if(myStatus.valveStates[valve].isConnected){
       Serial.print(F("Valve ")); Serial.print(valve); Serial.print(F(" is        : ")); 
       myStatus.valveStates[valve].state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
+      if(myStatus.valveStates[valve].timeSpentWatering > 0){
+        Serial.print(F("  and has been open for "));
+        float minutes = myStatus.valveStates[valve].timeSpentWatering/60.0;
+        Serial.print(minutes); Serial.println(F(" minutes today"));
+      }
     }
   }
 
@@ -821,7 +843,7 @@ void setup(){
 
   // send status so that master knows I exist
   Serial.print(F("Registering myself with the gateway\n"));
-  safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
+  safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);  
 }
 
 
@@ -942,6 +964,11 @@ void loop() {
       EEPROM.put(ACC_FLOW_EEPROM_ADDR, myStatus.accumulatedFlow);
       myStatus.maxedOutFlowMeter = false;
       myStatus.isAwake = true;
+      myStatus.percentAwake = 100;
+      for(uint8_t valve=1; valve<=4; valve++){
+        myStatus.valveStates[valve].timeSpentWatering = 0;
+      }
+      statusCounter = 0;
       setLED(AWAKE_SEQUENCE);
       //safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NEW_DAY_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
       safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
