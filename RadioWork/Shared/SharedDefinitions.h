@@ -62,9 +62,9 @@ struct Garden_Status{
   uint8_t numRegisteredNodes;
   uint8_t numConnectedNodes;
   Node_Status* nodeStatusPtrs[17];
-  float percentAwake;               // TODO: implement
-  float percent3GUptime;            // TODO: implement
-  float percentMeshUptime;          // TODO: implement
+  float percentAwake;
+  float percent3GUptime;
+  float percentMeshUptime;
 };
  
 // mesh settings

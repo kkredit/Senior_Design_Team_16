@@ -87,7 +87,7 @@ volatile bool updateStatusFlag = false;
 // other
 Garden_Status gardenStatus;
 Schedule weeklySchedule;
-uint8_t statusCounter = 0;
+uint16_t statusCounter = 0;
 time_t lastTime = 0;
 
 
@@ -112,6 +112,7 @@ void handleButtonISR(){
     Serial.println(F("\n[Detected buttonpress]"));
   }
 }
+
 
 /* 
  * updateStatusISR()
@@ -862,6 +863,15 @@ void initGardenStatus(){
 
   // nodeStatusPrts -- initiate all to NULL
   *gardenStatus.nodeStatusPtrs = {0};
+
+  // percentAwake
+  gardenStatus.percentAwake = 100;
+
+  // percent3GUptime
+  gardenStatus.percent3GUptime = 100;
+
+  // percentMeshUptime
+  gardenStatus.percentMeshUptime = 100;
 }
 
 
@@ -935,6 +945,7 @@ void updateGardenStatus(){
     }
   }
   
+  
   //////////// CHECK OVERALL MESH CONNECTION ////////////
 
   // assume began, so just check ratio of connected nodes
@@ -947,6 +958,15 @@ void updateGardenStatus(){
   else{
     gardenStatus.meshState = MESH_SOME_NODES_DOWN;
   }  
+
+
+  //////////// STAT TRACKING ////////////
+
+  gardenStatus.percentAwake = (gardenStatus.percentAwake * statusCounter-1 + (gardenStatus.isAwake ? 100 : 0))/statusCounter;
+  bool threeGGood = (gardenStatus.threeGState == TR_G_CONNECTED);
+  gardenStatus.percent3GUptime = (gardenStatus.percent3GUptime * statusCounter-1 + (threeGGood ? 100 : 0))/statusCounter;
+  bool meshGood = (gardenStatus.meshState == MESH_ALL_NODES_GOOD);
+  gardenStatus.percentMeshUptime = (gardenStatus.percentMeshUptime * statusCounter-1 + (meshGood ? 100 : 0))/statusCounter;
 }
 
 
@@ -966,6 +986,7 @@ void printGardenStatus(){
   digitalClockDisplay();
 
   if(gardenStatus.isAwake == false) Serial.println(F("GARDEN IS IN STANDBY"));
+  Serial.print(F("Percent time spent awake: ")); Serial.print(gardenStatus.percentAwake); Serial.println(F("%"));
 
   Serial.print(gardenStatus.numConnectedNodes); Serial.print(F("/"));
   Serial.print(gardenStatus.numRegisteredNodes); Serial.println(F(" nodes are connected"));
@@ -977,6 +998,7 @@ void printGardenStatus(){
   else if(gardenStatus.threeGState == TR_G_DISCONNECTED){
     Serial.println(F("DISCONNECTED"));
   }
+  Serial.print(F("  (")); Serial.print(gardenStatus.percent3GUptime); Serial.println(F("%)"));
 
   Serial.print(F("Mesh status:    "));
   if(gardenStatus.meshState == MESH_ALL_NODES_GOOD){
@@ -991,6 +1013,7 @@ void printGardenStatus(){
   else if(gardenStatus.meshState == MESH_ALL_NODES_DOWN){
     Serial.println(F("ALL NODES DOWN!"));
   }
+  Serial.print(F("  (")); Serial.print(gardenStatus.percentMeshUptime); Serial.println(F("%)"));
 
   Serial.print(F("Node statuses:  "));
   if(gardenStatus.gardenState == GARDEN_ALL_IS_WELL){
