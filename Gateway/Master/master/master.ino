@@ -1,3 +1,5 @@
+#include <EEPROM.h>
+
  /* 
  * master.ino
  * 
@@ -143,14 +145,26 @@ void setupModem() {
 
   // initialize serial port to communicate with modem
   Serial.println("Initializing modem COM port...");
+  // delay(1000);
   Modem_Serial.begin(115200);
-  while (!Modem_Serial);
+  while(!Modem_Serial);
 
-  // Modem_Serial.println("+++");
-
-  // Soft reset of modem
+  // Reset modem
   Serial.println("Reseting modem");
+  
+  Modem_Serial.println("AT#MODE=RESET");
+  delay(500);
+  while(PrintModemResponse() > 0);
+  
   Modem_Serial.println("ATZ");
+  delay(500);
+  while(PrintModemResponse() > 0);
+
+  Modem_Serial.println("AT#MODE=ONLINE");
+  delay(500);
+  while(PrintModemResponse() > 0);
+
+  Modem_Serial.println("AT#MODE=?");
   delay(500);
   while(PrintModemResponse() > 0);
 
@@ -222,15 +236,7 @@ void getModemIP() {
 */
 void openSocket() {
   // initiate TCP socket dial
-  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
-  delay(500);
-  while(Modem_Serial.available() > 0) {
-    getModemResponse();
-  }
-
-  Serial.println("");
-
-  
+  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,0");
 }
 
 /* 
@@ -297,7 +303,7 @@ void getModemResponse() {
   incomingByte = Modem_Serial.read();
   if(incomingByte != -1) {
     Serial.write(incomingByte); 
-    if (currentString != "NO CARRIER" && currentString != "ERROR") {
+    if (currentString != "NO CARRIER" && currentString != "ERROR" && currentString != "SRING: 1") {
       if(incomingByte == '\n') {
         currentString = "";
       } else {
@@ -709,42 +715,42 @@ void readMeshMessages(){
     Serial.print(F(" type message from node ")); Serial.println(mesh.getNodeID(header.from_node));
 
     switch(header.type){
-    case SEND_VALVE_H:
-      // A node is responding to a valve command. Read the response; if not what is expected, send
-      //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
-      //  don't have endless cycle in case things fail?
-
-      // read in message
-      Valve_Response vr;
-      network.read(header, &vr, sizeof(vr));
-
-      // parse results
-      gardenStatus.nodeStatusPtrs[header.from_node]->isAwake = vr.nodeIsAwake;
-      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].isConnected = vr.isConnected;
-      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].state = vr.actualState;
-      Serial.print("valve message from "); Serial.println(header.from_node);
-      if(vr.nodeIsAwake == false){
-        // then all valves are closed too
-        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[1].state = OFF;
-        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[2].state = OFF;
-        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[3].state = OFF;
-        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[4].state = OFF;
-        // nothing else to be done
-        break;
-      }
-      if(vr.actualState == NO_VALVE_ERROR){
-        // do anything? already updated the data in the gardenStatus struct
-      }
-      else if(vr.timeToLive){
-        // try again, if time to live hasn't run out
-        Valve_Command vc;
-        vc.whichValve = vr.whichValve;
-        vc.onOrOff = vr.commandedOnOrOff;
-        vc.timeToLive = vr.timeToLive - 1;
-        safeMeshWrite(mesh.getAddress(header.from_node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
-      }
-      
-      break;
+//    case SEND_VALVE_H:
+//      // A node is responding to a valve command. Read the response; if not what is expected, send
+//      //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
+//      //  don't have endless cycle in case things fail?
+//
+//      // read in message
+//      Valve_Response vr;
+//      network.read(header, &vr, sizeof(vr));
+//
+//      // parse results
+//      gardenStatus.nodeStatusPtrs[header.from_node]->isAwake = vr.nodeIsAwake;
+//      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].isConnected = vr.isConnected;
+//      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].state = vr.actualState;
+//      Serial.print("valve message from "); Serial.println(header.from_node);
+//      if(vr.nodeIsAwake == false){
+//        // then all valves are closed too
+//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[1].state = OFF;
+//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[2].state = OFF;
+//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[3].state = OFF;
+//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[4].state = OFF;
+//        // nothing else to be done
+//        break;
+//      }
+//      if(vr.actualState == NO_VALVE_ERROR){
+//        // do anything? already updated the data in the gardenStatus struct
+//      }
+//      else if(vr.timeToLive){
+//        // try again, if time to live hasn't run out
+//        Valve_Command vc;
+//        vc.whichValve = vr.whichValve;
+//        vc.onOrOff = vr.commandedOnOrOff;
+//        vc.timeToLive = vr.timeToLive - 1;
+//        safeMeshWrite(mesh.getAddress(header.from_node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+//      }
+//      
+//      break;
     case SEND_NODE_STATUS_H:
       // A node is reporting its status. Update its status in gardenStatus
 
@@ -780,18 +786,18 @@ void readMeshMessages(){
       // TODO what else to do with this information?
       
       break;
-    case SEND_NEW_DAY_H:
-      // node is responding that it got the "new day" message; should respond "true", meaning that it is awake
-      
-      // check that it's registered
-      checkNodeRegistered(mesh.getNodeID(header.from_node));
-
-      bool response;
-      network.read(header, &response, sizeof(response));
-
-      // TODO what else to do with this information?
-      
-      break;
+//    case SEND_NEW_DAY_H:
+//      // node is responding that it got the "new day" message; should respond "true", meaning that it is awake
+//      
+//      // check that it's registered
+//      checkNodeRegistered(mesh.getNodeID(header.from_node));
+//
+//      bool response;
+//      network.read(header, &response, sizeof(response));
+//
+//      // TODO what else to do with this information?
+//      
+//      break;
     default:
       Serial.println(F("Unknown message type."));
       break;
@@ -1124,8 +1130,8 @@ void setup(){
   // Setup 3G Modem
   setupModem();
   getModemIP();
-  // timeInit();
-  setTime(15, 10, 0, 15, 4, 16);
+  timeInit();
+  // setTime(15, 10, 0, 15, 4, 16);
   openSocket();
 
   // Setup mesh
@@ -1180,7 +1186,12 @@ void loop() {
   while(Modem_Serial.available() > 0) {
     getModemResponse();
     // turn off interrupt when there are incoming JSON strings
-    if(currentString == "START") {
+/*  if(currentString == "SRING: 1") {
+    Modem_Serial.println("AT#SRECV=1,1500");
+    currentString = "";
+    break;
+  } */
+  if(currentString == "START") {
       Serial.println("");
       Serial.println("Detected schedules!");
       Timer1.detachInterrupt();
@@ -1197,7 +1208,7 @@ void loop() {
       Timer1.initialize(TIMER1_PERIOD);
       Timer1.attachInterrupt(updateStatusISR);
     } 
-    parseJSON();
+    parseJSON(); 
   }
 
     // check 3G status
@@ -1210,7 +1221,8 @@ void loop() {
   
   // exceptions: if 3G is disconnected, then we need to attempt to open the socket again
   if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
-    Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
+    // Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
+    openSocket();
   }
  
   // refresh the reset

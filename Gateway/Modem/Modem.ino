@@ -36,26 +36,40 @@ void setup() {
 }
 
 void loop() {
-  // while(PrintModemResponse() > 0);
   while(Modem_Serial.available() > 0) {
     getModemResponse();
-    parseJSON();
+    if(currentString == "SRING: 1") {
+      Modem_Serial.println("AT#SRECV=1,1500");
+      currentString = "";
+    }
   }
 
-    if(currentString == "DONE") {
-      while(!weeklySchedule.isEmpty(1)) {
-        checkCurrentSchedule(1);
-      }
-    }
-    
-    // checkCurrentSchedule();
-
-  // exceptions
   if(currentString == "NO CARRIER" || currentString == "ERROR") {
-    openSocket();
-    currentString = "";
+//    openSocket();
+//    currentString = "";
   }
 }
+  
+  // while(PrintModemResponse() > 0);
+//  while(Modem_Serial.available() > 0) {
+//    getModemResponse();
+//    parseJSON();
+//  }
+//
+//    if(currentString == "DONE") {
+//      while(!weeklySchedule.isEmpty(1)) {
+//        checkCurrentSchedule(1);
+//      }
+//    }
+//    
+//    // checkCurrentSchedule();
+//
+//  // exceptions
+//  if(currentString == "NO CARRIER" || currentString == "ERROR") {
+//    openSocket();
+//    currentString = "";
+//  }
+//}
 
 
 /*******************************************************************************************
@@ -86,11 +100,26 @@ void setupModem() {
   Modem_Serial.begin(115200);
   while (!Modem_Serial);
 
-  // Soft reset of modem
-//  Serial.println("Reseting modem");
-//  Modem_Serial.println("ATZ");
-//  delay(500);
-//  while(PrintModemResponse() > 0);
+  // Reset modem
+  Serial.println("Reseting modem");
+
+  disconnectModem();
+  
+  Modem_Serial.println("AT#MODE=RESET");
+  delay(500);
+  while(PrintModemResponse() > 0);
+  
+  Modem_Serial.println("ATZ");
+  delay(500);
+  while(PrintModemResponse() > 0);
+
+  Modem_Serial.println("AT#MODE=ONLINE");
+  delay(500);
+  while(PrintModemResponse() > 0);
+
+  Modem_Serial.println("AT#MODE=?");
+  delay(500);
+  while(PrintModemResponse() > 0);
 
   // Connect to 3G cellular network
   Serial.println("Waiting for network connection...");
@@ -127,17 +156,21 @@ void getModemIP() {
   delay(500);
   while(PrintModemResponse() > 0);
 
-//  Modem_Serial.println("AT#TCPMAXDAT=1420");
-//  delay(500);
-//  while(PrintModemResponse() > 0);
-
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
-  while(PrintModemResponse() > 0); 
-  
-  // wait for 10s for the modem to retrieve IP address
-  delay(10000);
-  while(PrintModemResponse() > 0);  
+
+  boolean IPGood = false;
+  while(!IPGood) {
+    while(Modem_Serial.available() > 0) {
+      getModemResponse();
+    }
+
+    // if the modem already has an IP
+    if(currentString == "ERROR" || currentString == "OK") {
+      IPGood = true;
+      currentString = "";
+    } 
+  }
 }
 
 /* This function opens a TCP socket to the GardeNet server and send a message to the server
@@ -145,10 +178,9 @@ void getModemIP() {
  * @return: none
 */
 void openSocket() {
-  // initiate TCP socket dial
-  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
-  delay(500);
-  while(PrintModemResponse() > 0);
+  // initiate TCP socket dial in command mode
+  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,1");
+  // Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,1");
 }
 
 /* This function disconnects the 3G modem from the network and reports the data usage from 
@@ -183,8 +215,10 @@ void disconnectModem() {
 int PrintModemResponse() {
   while(Modem_Serial.available() > 0) {
     //read incoming byte from modem and write byte out to debug serial over USB
-    getModemResponse();
+    // getModemResponse();
+    Serial.write(Modem_Serial.read());
   } 
+  Serial.println("");
   //return number of characters in modem response buffer -- should be zero, but some may have come in since last test
   return Modem_Serial.available();
 }
@@ -198,14 +232,13 @@ void getModemResponse() {
   incomingByte = Modem_Serial.read();
   if(incomingByte != -1) {
     Serial.write(incomingByte); 
-  }
-  // NO CARRIER is an exception in which we need to reopen the socket
-  if(incomingByte == '\n' && currentString != "NO CARRIER") {
-    currentString = "";
-  } else if(currentString != "NO CARRIER") {
-    currentString += char(incomingByte);  
-  } else {
-    currentString = currentString;
+    if (currentString != "NO CARRIER" && currentString != "ERROR" && currentString != "SRING: 1") {
+      if(incomingByte == '\n') {
+        currentString = "";
+      } else {
+        currentString += char(incomingByte);
+      } 
+    }
   }
 }
 
