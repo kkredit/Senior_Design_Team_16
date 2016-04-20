@@ -20,6 +20,7 @@ struct Valve_Command{
 struct Valve_Status{
   bool isConnected;
   bool state;
+  uint32_t timeSpentWatering; // in seconds
 };
 
 // Valve_Response struct
@@ -49,6 +50,8 @@ struct Node_Status{
   uint8_t meshState;
   uint8_t nodeID;
   int16_t nodeMeshAddress;
+  float percentAwake;
+  float percentMeshUptime;
 };
 
 // Garden_Status struct
@@ -60,8 +63,9 @@ struct Garden_Status{
   uint8_t numRegisteredNodes;
   uint8_t numConnectedNodes;
   Node_Status* nodeStatusPtrs[17];
-  // % 3G uptime
-  // % Mesh uptime
+  float percentAwake;
+  float percent3GUptime;
+  float percentMeshUptime;
 };
  
 // mesh settings
@@ -86,6 +90,7 @@ struct Garden_Status{
 #define GET_NODE_STATUS_H   'S'
 #define FORCE_RESET_H       'R'
 #define IS_NEW_DAY_H        'D'
+#define CONNECTION_TEST_H   'T'
 // nodes to master
 //#define SEND_VALVE_H        'v'       // DEPRICATED
 #define SEND_NODE_STATUS_H  's'
