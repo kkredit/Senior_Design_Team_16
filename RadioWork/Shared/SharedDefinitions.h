@@ -51,6 +51,7 @@ struct Node_Status{
   uint8_t nodeID;
   int16_t nodeMeshAddress;
   float percentAwake;
+  float percentMeshUptime;
 };
 
 // Garden_Status struct

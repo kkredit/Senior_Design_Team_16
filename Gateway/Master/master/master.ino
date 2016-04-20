@@ -527,9 +527,9 @@ void handleButtonPress(){
       }
     }
   }
-  else{
-    // TODO set light sequence
-  }
+//  else{
+//    // TODO set light sequence
+//  }
 
   // TODO report state to the server/website?
   
@@ -827,10 +827,53 @@ void readMeshMessages(){
       
       break;
     default:
+      char placeholder;
+      network.read(header, &placeholder, sizeof(placeholder));
       Serial.println(F("Unknown message type."));
       break;
     }
   }
+}
+
+
+/* 
+ * isNewDay()
+ *
+ * Handles activities that must occur once per day (at midnight). Includes reseting 
+ * some variables and sending a message to the nodes. 
+ * 
+ * @preconditions: 3G connection and mesh are established
+ * @postconditions: variables and daily stats are reset
+ */ 
+void isNewDay(){
+  gardenStatus.isAwake = true;
+  gardenStatus.percentAwake = 100;
+  gardenStatus.percent3GUptime = (gardenStatus.threeGState == TR_G_CONNECTED) ? 100 : 0;
+  gardenStatus.percentMeshUptime = (gardenStatus.meshState == MESH_ALL_NODES_GOOD) ? 100 : 0;
+  statusCounter = 0;
+  // for each node
+  uint8_t node;
+  for(node=1; node<=16; node++){
+    // if registered
+    if(gardenStatus.nodeStatusPtrs[node] != NULL){
+      // if connected
+      if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+        char placeholder = '0';
+        safeMeshWrite(mesh.getAddress(node), &placeholder, IS_NEW_DAY_H, sizeof(placeholder), DEFAULT_SEND_TRIES);
+      }
+      else{
+        // if not connected, must manually reset some of its properties
+        gardenStatus.nodeStatusPtrs[node]->isAwake = true;
+        gardenStatus.nodeStatusPtrs[node]->accumulatedFlow = 0;
+        gardenStatus.nodeStatusPtrs[node]->maxedOutFlowMeter = false;
+        gardenStatus.nodeStatusPtrs[node]->percentAwake = 100;
+        gardenStatus.nodeStatusPtrs[node]->percentMeshUptime = 0;
+        for(uint8_t valve = 1; valve<=4; valve++){
+          gardenStatus.nodeStatusPtrs[node]->valveStates[valve].timeSpentWatering = 0;
+        }
+      }
+    }
+  }            
 }
 
 
@@ -884,6 +927,7 @@ void initGardenStatus(){
  * @postconditions: gardenStatus is updated
  */
 void updateGardenStatus(){
+  statusCounter++;
 
   //////////// CHECK 3G CONNECTION ////////////  
 
@@ -962,11 +1006,11 @@ void updateGardenStatus(){
 
   //////////// STAT TRACKING ////////////
 
-  gardenStatus.percentAwake = (gardenStatus.percentAwake * statusCounter-1 + (gardenStatus.isAwake ? 100 : 0))/statusCounter;
+  gardenStatus.percentAwake = (gardenStatus.percentAwake * (statusCounter-1) + (gardenStatus.isAwake ? 100 : 0))/statusCounter;
   bool threeGGood = (gardenStatus.threeGState == TR_G_CONNECTED);
-  gardenStatus.percent3GUptime = (gardenStatus.percent3GUptime * statusCounter-1 + (threeGGood ? 100 : 0))/statusCounter;
+  gardenStatus.percent3GUptime = (gardenStatus.percent3GUptime * (statusCounter-1) + (threeGGood ? 100 : 0))/statusCounter;
   bool meshGood = (gardenStatus.meshState == MESH_ALL_NODES_GOOD);
-  gardenStatus.percentMeshUptime = (gardenStatus.percentMeshUptime * statusCounter-1 + (meshGood ? 100 : 0))/statusCounter;
+  gardenStatus.percentMeshUptime = (gardenStatus.percentMeshUptime * (statusCounter-1) + (meshGood ? 100 : 0))/statusCounter;
 }
 
 
@@ -980,7 +1024,7 @@ void updateGardenStatus(){
  */ 
 void printGardenStatus(){
   // print number of times executed
-  Serial.println(F("")); Serial.println(statusCounter++);
+  Serial.println(F("")); Serial.println(statusCounter);
 
   // print time
   digitalClockDisplay();

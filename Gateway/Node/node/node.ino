@@ -532,6 +532,9 @@ void initStatus(){
   for(uint8_t valve=1; valve<=4; valve++){
     myStatus.valveStates[valve].timeSpentWatering = 0;
   }
+
+  // percentMeshUptime
+  myStatus.percentMeshUptime = 100;
 }
 
 
@@ -641,10 +644,12 @@ void updateNodeStatus(){
 
 
   //////////// STAT TRACKING ////////////
-  myStatus.percentAwake = (myStatus.percentAwake * statusCounter-1 + (myStatus.isAwake ? 100 : 0))/statusCounter;
+  myStatus.percentAwake = (myStatus.percentAwake * (statusCounter-1) + (myStatus.isAwake ? 100 : 0))/statusCounter;
   for(uint8_t valve=1; valve<=4; valve++){
     myStatus.valveStates[valve].timeSpentWatering += (myStatus.valveStates[valve].state ? TIMER1_PERIOD/1000000 : 0);
-  }
+  }  
+  bool meshGood = (myStatus.meshState == MESH_CONNECTED);
+  myStatus.percentMeshUptime = (myStatus.percentMeshUptime * (statusCounter-1) + (meshGood ? 100 : 0))/statusCounter;
 }
 
 
@@ -703,6 +708,7 @@ void printNodeStatus(){
   Serial.print(myStatus.nodeMeshAddress); Serial.print(F("     : "));
   if(myStatus.meshState == MESH_CONNECTED) Serial.println(F("good"));
   else if(myStatus.meshState == MESH_DISCONNECTED) Serial.println(F("DISCONNECTED!"));
+  Serial.print(F("  (")); Serial.print(myStatus.percentMeshUptime); Serial.println(F("%)"));
 }
 
 
@@ -965,6 +971,7 @@ void loop() {
       myStatus.maxedOutFlowMeter = false;
       myStatus.isAwake = true;
       myStatus.percentAwake = 100;
+      myStatus.percentMeshUptime = (myStatus.meshState == MESH_CONNECTED) ? 100 : 0;
       for(uint8_t valve=1; valve<=4; valve++){
         myStatus.valveStates[valve].timeSpentWatering = 0;
       }
@@ -981,6 +988,8 @@ void loop() {
       break;
       
     default:
+      char placeholder;
+      network.read(header, &placeholder, sizeof(placeholder));
       Serial.println(F("Unknown message type."));
       break;
     }
