@@ -23,19 +23,27 @@ void checkAlerts(uint8_t opcode) {
   String myAlert;
   // daily report
   if (opcode == 0) {
-    myAlert = "0" + (String) opcode + "%";
+    myAlert = "0" + (String) opcode + "%" + (String) gardenStatus.percentAwake;
+    // percentGardenAwake
+    // percentMeshUptime
+    // percent3GUptime
+    
   // bad valve state
   } else if (opcode == 1) {
     myAlert = "0" + (String) opcode + "%";
+    
   // mesh down
   } else if (opcode == 2) {
     myAlert = "0" + (String) opcode;
+    
   // gateway self-reset
   } else if (opcode == 3) {
     myAlert = "0" + (String) opcode;
+    
   // bad voltage state
   } else if (opcode == 4) {
     myAlert = "0" + (String) opcode + "%";
+    
   }
 
   // print out alert message to serial port

@@ -26,21 +26,21 @@
 #include "RF24Mesh.h"
 #include <EEPROM.h>
 #include <TimerOne.h>
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -80,11 +80,11 @@ RF24Mesh mesh(radio, network);
 
 // 3G Modem 
 String currentString = "";
-volatile int incomingByte = 0;
 
 // flags
 volatile bool hadButtonPress = false;
 volatile bool updateStatusFlag = false;
+volatile bool modemReceivingJSON = false;
 
 // other
 Garden_Status gardenStatus;
@@ -144,15 +144,7 @@ void updateStatusISR(){
  * @postconditions: modem is connected to the network
 */
 void setupModem() {
-  Serial.println("Starting Cellular Modem");
-  // properly toggle 3G Modem I/O pin 
-  digitalWrite(ThreeG, LOW);
-  pinMode(ThreeG, OUTPUT);
-  digitalWrite(ThreeG, LOW);
-  delay(1100); // modem requires >1s pulse
-  // return I/O pin 12 to input/hi-Z state  
-  pinMode(ThreeG, INPUT);
-
+  Serial.println("Starting Cellular Modem"); 
   // initialize serial port to communicate with modem
   Serial.println("Initializing modem COM port...");
   // delay(1000);
@@ -163,19 +155,15 @@ void setupModem() {
   Serial.println("Reseting modem");
   
   Modem_Serial.println("AT#MODE=RESET");
-  delay(500);
+  delay(1000);
   while(PrintModemResponse() > 0);
   
   Modem_Serial.println("ATZ");
-  delay(500);
+  delay(1000);
   while(PrintModemResponse() > 0);
 
   Modem_Serial.println("AT#MODE=ONLINE");
-  delay(500);
-  while(PrintModemResponse() > 0);
-
-  Modem_Serial.println("AT#MODE=?");
-  delay(500);
+  delay(1000);
   while(PrintModemResponse() > 0);
 
   // Connect to 3G cellular network
@@ -219,7 +207,6 @@ void getModemIP() {
 
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
-  // while(PrintModemResponse() > 0); 
 
   boolean IPGood = false;
   while(!IPGood) {
@@ -231,13 +218,9 @@ void getModemIP() {
     if(currentString == "ERROR" || currentString == "OK") {
       IPGood = true;
       currentString = "";
-    } 
-  // wait for 10s for the modem to retrieve IP address
-//  delay(10000);
-//  while(PrintModemResponse() > 0);  
+    }  
   }
 }
-
 
 /* 
  * openSocket()
@@ -248,18 +231,9 @@ void getModemIP() {
  * @postconditions: the modem is connected to the GardeNet server via a TCP socket
 */
 void openSocket() {
-  // initiate TCP socket dial
-<<<<<<< HEAD
-  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,0");
-=======
-  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
-  delay(500);
-  while(Modem_Serial.available() > 0) {
-    getModemResponse();
-  }
-
-  Serial.println("");  
->>>>>>> 8e2cb4c33810b45455323ba28540cb47200ad974
+  // initiate TCP socket dial in command mode
+  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,1");
+  // Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,1");
 }
 
 
@@ -289,7 +263,6 @@ void disconnectModem() {
   delay(250);
   while(PrintModemResponse() > 0);
 }
-
 
 /* 
  * PrintModemResponse()
@@ -325,19 +298,17 @@ int PrintModemResponse() {
  *  line character is detected and the current message is not an exception
 */
 void getModemResponse() {
-  incomingByte = Modem_Serial.read();
+  uint8_t incomingByte = Modem_Serial.read();
   if(incomingByte != -1) {
-    Serial.write(incomingByte); 
-    if (currentString != "NO CARRIER" && currentString != "ERROR" && currentString != "SRING: 1") {
-      if(incomingByte == '\n') {
-        currentString = "";
-      } else {
-        currentString += char(incomingByte);
-      } 
-    }
+    Serial.write(incomingByte);
+    // reset currentString at the end of a line if it is not a special case
+    if(incomingByte == '\n') {
+      currentString = "";
+    } else {
+      currentString += char(incomingByte);
+    } 
   }
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -574,7 +545,12 @@ void initPins(){
   pinMode(LEDG, OUTPUT);  
 
   // ThreeG
-  // handle in modem-specific code; has very specific behavior
+  digitalWrite(ThreeG, LOW);
+  pinMode(ThreeG, OUTPUT);
+  digitalWrite(ThreeG, LOW);
+  delay(1100); // modem requires >1s pulse
+  // return 3G I/O pin to input/hi-Z state  
+  pinMode(ThreeG, INPUT);
 
   // RESET_GND
   // initialize at the end of setup() in initPins2()
@@ -809,7 +785,6 @@ void readMeshMessages(){
     Serial.print(F(" type message from node ")); Serial.println(mesh.getNodeID(header.from_node));
 
     switch(header.type){
-<<<<<<< HEAD
 //    case SEND_VALVE_H:
 //      // A node is responding to a valve command. Read the response; if not what is expected, send
 //      //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
@@ -846,8 +821,6 @@ void readMeshMessages(){
 //      }
 //      
 //      break;
-=======
->>>>>>> 8e2cb4c33810b45455323ba28540cb47200ad974
     case SEND_NODE_STATUS_H:
       // A node is reporting its status. Update its status in gardenStatus
 
@@ -883,7 +856,6 @@ void readMeshMessages(){
       // TODO what else to do with this information?
       
       break;
-<<<<<<< HEAD
 //    case SEND_NEW_DAY_H:
 //      // node is responding that it got the "new day" message; should respond "true", meaning that it is awake
 //      
@@ -896,8 +868,6 @@ void readMeshMessages(){
 //      // TODO what else to do with this information?
 //      
 //      break;
-=======
->>>>>>> 8e2cb4c33810b45455323ba28540cb47200ad974
     default:
       char placeholder;
       network.read(header, &placeholder, sizeof(placeholder));
@@ -1003,7 +973,7 @@ void updateGardenStatus(){
 
   //////////// CHECK 3G CONNECTION ////////////  
 
-  // TODO -- handled outside of this function?
+  // Handled in the main loop based on modem response
   
   
   //////////// CHECK NODE_STATUSES ////////////
@@ -1287,8 +1257,28 @@ void printDigits(uint8_t digits){
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void checkAlerts() {
-  String myAlert = DAILY_REPORT + "%";
+void checkAlerts(uint8_t opcode) {
+  String myAlert;
+  // daily report
+  if (opcode == 0) {
+    myAlert = "0" + (String) opcode + "%" + (String) gardenStatus.percentAwake
+    + (String) gardenStatus.percentMeshUptime + (String) gardenStatus.percent3GUptime;
+  // bad valve state
+  } else if (opcode == 1) {
+    myAlert = "0" + (String) opcode + "%";
+  // mesh down
+  } else if (opcode == 2) {
+    myAlert = "0" + (String) opcode;
+  // gateway self-reset
+  } else if (opcode == 3) {
+    myAlert = "0" + (String) opcode;
+  // bad voltage state
+  } else if (opcode == 4) {
+    myAlert = "0" + (String) opcode + "%";
+  }
+
+
+  
   Serial.println(myAlert);
 }
 
@@ -1336,8 +1326,6 @@ void setup(){
   setupModem();
   getModemIP();
   timeInit();
-  // setTime(15, 10, 0, 15, 4, 16);
-  openSocket();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
@@ -1381,63 +1369,68 @@ void setup(){
  * @postconditions: none--runs forever
  */ 
 void loop() {
-  // refresh the reset
-  refreshReset();
 
   //////////////////////// Time acceleration for testing /////////////////////////////
   // jump to 50 seconds
-  if(second() > 0 && second() < 15 ){
-    setTime(now()+50-second());
-  }
+//  if(second() > 0 && second() < 15 ){
+//    setTime(now()+50-second());
+//  }
   ////////////////////////////////////////////////////////////////////////////////////
 
   // Communicate with server via 3G
   while(Modem_Serial.available() > 0) {
     getModemResponse();
+    // there is an incoming message
+    if(currentString == "SRING: 1") {
+      Modem_Serial.println("AT#SRECV=1,1500");
     // turn off interrupt when there are incoming JSON strings
-/*  if(currentString == "SRING: 1") {
-    Modem_Serial.println("AT#SRECV=1,1500");
-    currentString = "";
-    break;
-  } */
-  if(currentString == "START") {
-      Serial.println("");
-      Serial.println("Detected schedules!");
+    } else if(currentString == "START") {
+      modemReceivingJSON = true;
       Timer1.detachInterrupt();
       updateStatusFlag = false;
+      Serial.println("Detected schedules!");
 
-      // Erase all schedule events in the current weekly schedule
-      for(int i = 0; i <= 6; i++) {
-        weeklySchedule.deleteDaysSchedule(i);
-      }
-      
+//      // Erase all schedule events in the current weekly schedule
+//      for(int i = 0; i <= 6; i++) {
+//        weeklySchedule.deleteDaysSchedule(i);
+//      }
+
+    // turn the interrupt back on since we have received all JSON strings
     } else if (currentString == "DONE") {
       Serial.println("");
       Serial.println("Schedules are all set!");
       Timer1.initialize(TIMER1_PERIOD);
       Timer1.attachInterrupt(updateStatusISR);
-    } 
-    parseJSON(); 
+      modemReceivingJSON = false;
+    // reprovision socket dial if previous connection is lost or bad
+    } else if (currentString == "NO CARRIER") {
+      gardenStatus.threeGState = TR_G_DISCONNECTED;
+    // the modem is receiving good response from the server 
+    } else if (currentString == "ERROR") {
+      gardenStatus.threeGState = TR_G_DISCONNECTED;
+      // SEND ERROR MESSAGE TO USER
+    } else if (currentString == "OK") {
+      gardenStatus.threeGState = TR_G_CONNECTED;
+    } else {
+      parseJSON(); 
+    }
   }
 
-    // check 3G status
-    if (currentString == "NO CARRIER" || currentString == "ERROR") {
-      gardenStatus.threeGState = TR_G_DISCONNECTED;   // then we need to reprovision
-      currentString = "";    //reset current string 
-    } else {
-      gardenStatus.threeGState = TR_G_CONNECTED; 
-    }
-  
-  // exceptions: if 3G is disconnected, then we need to attempt to open the socket again
+  // reprovision socket dial when 3G is disconnected
   if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
-    // Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0");
     openSocket();
+  }
+
+  if(modemReceivingJSON == false) {
+    // refresh the reset
+    refreshReset();
   }
 
   // update node status if necessary
   if(updateStatusFlag){
     updateGardenStatus();
     printGardenStatus();
+    checkAlerts(0);
     // digitalClockDisplay();
     // Serial.println(currentString);
     

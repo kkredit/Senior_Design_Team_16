@@ -117,10 +117,6 @@ void setupModem() {
   delay(500);
   while(PrintModemResponse() > 0);
 
-  Modem_Serial.println("AT#MODE=?");
-  delay(500);
-  while(PrintModemResponse() > 0);
-
   // Connect to 3G cellular network
   Serial.println("Waiting for network connection...");
   boolean connectionGood = false;
