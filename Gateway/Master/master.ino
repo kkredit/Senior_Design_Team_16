@@ -784,57 +784,19 @@ void readMeshMessages(){
     Serial.print(F("Received ")); Serial.print(char(header.type));
     Serial.print(F(" type message from node ")); Serial.println(mesh.getNodeID(header.from_node));
 
-    switch(header.type){
-//    case SEND_VALVE_H:
-//      // A node is responding to a valve command. Read the response; if not what is expected, send
-//      //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
-//      //  don't have endless cycle in case things fail?
-//
-//      // read in message
-//      Valve_Response vr;
-//      network.read(header, &vr, sizeof(vr));
-//
-//      // parse results
-//      gardenStatus.nodeStatusPtrs[header.from_node]->isAwake = vr.nodeIsAwake;
-//      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].isConnected = vr.isConnected;
-//      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].state = vr.actualState;
-//      Serial.print("valve message from "); Serial.println(header.from_node);
-//      if(vr.nodeIsAwake == false){
-//        // then all valves are closed too
-//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[1].state = OFF;
-//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[2].state = OFF;
-//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[3].state = OFF;
-//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[4].state = OFF;
-//        // nothing else to be done
-//        break;
-//      }
-//      if(vr.actualState == NO_VALVE_ERROR){
-//        // do anything? already updated the data in the gardenStatus struct
-//      }
-//      else if(vr.timeToLive){
-//        // try again, if time to live hasn't run out
-//        Valve_Command vc;
-//        vc.whichValve = vr.whichValve;
-//        vc.onOrOff = vr.commandedOnOrOff;
-//        vc.timeToLive = vr.timeToLive - 1;
-//        safeMeshWrite(mesh.getAddress(header.from_node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
-//      }
-//      
-//      break;
-    case SEND_NODE_STATUS_H:
-      // A node is reporting its status. Update its status in gardenStatus
+    // check that it's registered
+    checkNodeRegistered(mesh.getNodeID(header.from_node));
 
-      // check that it's registered
-      checkNodeRegistered(mesh.getNodeID(header.from_node));
+    switch(header.type){
+    case SEND_NODE_STATUS_H:
+      // A node is reporting its status. Update its status in gardenStatus      
       
       // read in the new status
       network.read(header, gardenStatus.nodeStatusPtrs[mesh.getNodeID(header.from_node)], sizeof(Node_Status));
+      
       break;
     case SEND_JUST_RESET_H:
       // means that a node has recovered from reset; true means it was told to do so, false means a crash
-
-      // check that it's registered
-      checkNodeRegistered(mesh.getNodeID(header.from_node));
 
       bool toldToReset;      
       network.read(header, &toldToReset, sizeof(toldToReset));
@@ -844,9 +806,6 @@ void readMeshMessages(){
       break;
     case SEND_NODE_SLEEP_H:
       // node had its button pressed and toggled sleep; update its status and TODO let the website know?
-
-      // check that it's registered
-      checkNodeRegistered(mesh.getNodeID(header.from_node));
       
       bool nodeIsAwake;
       network.read(header, &nodeIsAwake, sizeof(nodeIsAwake));
@@ -856,18 +815,6 @@ void readMeshMessages(){
       // TODO what else to do with this information?
       
       break;
-//    case SEND_NEW_DAY_H:
-//      // node is responding that it got the "new day" message; should respond "true", meaning that it is awake
-//      
-//      // check that it's registered
-//      checkNodeRegistered(mesh.getNodeID(header.from_node));
-//
-//      bool response;
-//      network.read(header, &response, sizeof(response));
-//
-//      // TODO what else to do with this information?
-//      
-//      break;
     default:
       char placeholder;
       network.read(header, &placeholder, sizeof(placeholder));
@@ -1019,14 +966,19 @@ void updateGardenStatus(){
         // check if it has any errors; if so, report
         if(gardenStatus.nodeStatusPtrs[node]->voltageState != GOOD_VOLTAGE){
           gardenStatus.gardenState = GARDEN_NODE_ERROR;
+          // TODO report this (e.g. server, text message)
           break;
         }
         else if(gardenStatus.nodeStatusPtrs[node]->flowState != HAS_NO_METER &&
                 gardenStatus.nodeStatusPtrs[node]->flowState != NO_FLOW_GOOD &&
                 gardenStatus.nodeStatusPtrs[node]->flowState != FLOWING_GOOD){
           gardenStatus.gardenState = GARDEN_NODE_ERROR;
+          // TODO report this (e.g. server, text message)
           break;
         }
+      }
+      else{
+        // TODO report have disconnected node
       }
     }
   }
