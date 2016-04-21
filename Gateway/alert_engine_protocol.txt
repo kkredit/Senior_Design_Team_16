@@ -32,7 +32,7 @@ Alert cases:
 1. Bad flow rate  (stuck on / stuck off)
 01
 %nodeID(uint8_t)
-%{Valve_Status->flowState}(uint8_t)	(see SharedDefinitions.h)
+%{Node_Status->flowState}(uint8_t)	(see SharedDefinitions.h)
 %{Node_Status->currentFlowRate}(float)
 
 Ex.) 01%1%5%0.00

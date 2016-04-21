@@ -691,7 +691,8 @@ void checkSchedule(){
       }
       // else node is not connected to mesh
       else{
-        // TODO alert the server?
+        // alert the server
+        checkAlerts(MESH_DOWN,0);
       }
     }
     // else unregistered
@@ -888,6 +889,11 @@ void readMeshMessages(){
  * @postconditions: variables and daily stats are reset
  */ 
 void isNewDay(){
+  // TODO: get most updated statuses (I initiate this?)
+  // send alert 00 to the server
+  // resynchronize timer
+
+  // reset garden status
   gardenStatus.isAwake = true;
   gardenStatus.percentAwake = 100;
   gardenStatus.percent3GUptime = (gardenStatus.threeGState == TR_G_CONNECTED) ? 100 : 0;
@@ -1105,7 +1111,7 @@ void printGardenStatus(){
   if(gardenStatus.gardenState == GARDEN_ALL_IS_WELL){
     Serial.println(F("good"));
   }
-  else if(gardenStatus.meshState == GARDEN_NODE_ERROR){
+  else if(gardenStatus.gardenState == GARDEN_NODE_ERROR){
     Serial.println(F("at least one connected node has an error!"));
   }
 }
@@ -1128,7 +1134,7 @@ void printGardenStatus(){
 void timeInit() {
   int timeArray[6];
 
-  Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0");
+  Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,0");
   delay(250);
 
   boolean timeGood = false;
@@ -1177,7 +1183,6 @@ void timeInit() {
       }
       if(currentString == "NO CARRIER") {
         timeGood = true;
-        currentString = "";
       }
     } 
   }
@@ -1257,28 +1262,88 @@ void printDigits(uint8_t digits){
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void checkAlerts(uint8_t opcode) {
+void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   String myAlert;
   // daily report
-  if (opcode == 0) {
-    myAlert = "0" + (String) opcode + "%" + (String) gardenStatus.percentAwake
-    + (String) gardenStatus.percentMeshUptime + (String) gardenStatus.percent3GUptime;
-  // bad valve state
-  } else if (opcode == 1) {
-    myAlert = "0" + (String) opcode + "%";
-  // mesh down
-  } else if (opcode == 2) {
-    myAlert = "0" + (String) opcode;
-  // gateway self-reset
-  } else if (opcode == 3) {
-    myAlert = "0" + (String) opcode;
-  // bad voltage state
-  } else if (opcode == 4) {
-    myAlert = "0" + (String) opcode + "%";
-  }
-
-
+  switch(opcode) {
+    case DAILY_REPORT:
+      myAlert = "0" + (String) opcode + "%" + (String) gardenStatus.percentAwake + "%"
+      + (String) gardenStatus.percentMeshUptime + "%" + (String) gardenStatus.percent3GUptime;
   
+      // use for loop to create information about each registered node in {}
+      for(uint8_t node = 1; node<=16; node++) {
+        String myNodeInfo;
+        // if registered
+        if(gardenStatus.nodeStatusPtrs[node] != NULL) {
+          myNodeInfo += "{";
+          myNodeInfo += "%";
+          myNodeInfo += (String) node;
+          myNodeInfo += "%";
+          myNodeInfo += (String) gardenStatus.nodeStatusPtrs[node]->meshState;
+          myNodeInfo += "%";
+          myNodeInfo += (String) gardenStatus.nodeStatusPtrs[node]->percentAwake;
+          myNodeInfo += "%";
+          myNodeInfo += (String) gardenStatus.nodeStatusPtrs[node]->accumulatedFlow;
+          myNodeInfo += "%";
+          myNodeInfo += (String) gardenStatus.nodeStatusPtrs[node]->maxedOutFlowMeter;
+       
+          for(uint8_t valve = 1; valve <= 4; valve++) {
+            String myValveInfo;
+            if(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].isConnected) {
+              myValveInfo += "%";
+              myValveInfo += "[";
+              myValveInfo += "%";
+              myValveInfo += (String) valve;
+              myValveInfo += "%";
+              float myValveTime = gardenStatus.nodeStatusPtrs[node]->valveStates[valve].timeSpentWatering;
+              myValveTime = myValveTime / 60;   // convert to minutes
+              myValveInfo += (String) myValveTime;
+              myValveInfo += "]";
+              myNodeInfo += myValveInfo;
+            }
+          }
+          myNodeInfo += "%";
+          myNodeInfo += "}";
+          myAlert += myNodeInfo;
+        }
+      }
+      break;
+  
+  // bad flow rate
+  case BAD_FLOW_RATE:
+    myAlert = "0" + (String) opcode;
+    myAlert += "%";
+    myAlert += nodeNum;
+    myAlert += "%";
+    myAlert += (String) gardenStatus.nodeStatusPtrs[nodeNum]->flowState;
+    myAlert += "%";
+    myAlert += (String) gardenStatus.nodeStatusPtrs[nodeNum]->currentFlowRate;
+    break;
+    
+  // mesh down
+  case MESH_DOWN:
+    myAlert = "0" + (String) opcode;
+    break;
+    
+  // gateway self-reset
+  case GATEWAY_RESET:
+    myAlert = "0" + (String) opcode;
+    break;
+    
+  // bad voltage state
+  case BAD_VOLTAGE_STATE:
+    myAlert = "0" + (String) opcode;
+    myAlert += "%";
+    myAlert += nodeNum;
+    myAlert += "%";
+    myAlert += (String) gardenStatus.nodeStatusPtrs[nodeNum]->voltageState;
+    break;
+
+  default:
+    // UNUSED
+    break;
+  }
+  // debug
   Serial.println(myAlert);
 }
 
@@ -1418,7 +1483,7 @@ void loop() {
 
   // reprovision socket dial when 3G is disconnected
   if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
-    openSocket();
+    // openSocket();
   }
 
   if(modemReceivingJSON == false) {
@@ -1430,7 +1495,12 @@ void loop() {
   if(updateStatusFlag){
     updateGardenStatus();
     printGardenStatus();
-    checkAlerts(0);
+    
+//    checkAlerts(DAILY_REPORT, 0);
+//    checkAlerts(MESH_DOWN, 0);
+//    checkAlerts(GATEWAY_RESET, 0);
+    // checkAlerts(BAD_FLOW_RATE, 1);
+    // checkAlerts(BAD_VOLTAGE_STATE, 1);
     // digitalClockDisplay();
     // Serial.println(currentString);
     
