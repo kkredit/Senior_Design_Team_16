@@ -148,15 +148,7 @@ struct Garden_Status{
 
 // alert engine op code
 #define DAILY_REPORT          00
-#define BAD_VALVE_STATE       01
-#define MESH_DOWN             02
-#define GATEWAY_RESET         03
-#define BAD_VOLTAGE_STATE     04
-
-
-// alert engine op code
-#define DAILY_REPORT          00
-#define BAD_VALVE_STATE       01
+#define BAD_FLOW_RATE         01
 #define MESH_DOWN             02
 #define GATEWAY_RESET         03
 #define BAD_VOLTAGE_STATE     04
