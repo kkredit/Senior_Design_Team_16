@@ -233,7 +233,6 @@ void getModemIP() {
 void openSocket() {
   // initiate TCP socket dial in command mode
   Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,1");
-  // Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,1");
 }
 
 
@@ -374,39 +373,36 @@ void createEvent() {
     // Serial.println(charBuffer);
 
     // only four pieces of information are needed
+    // start time
     if(i == 3) {
-//      char* separator = strchr(charBuffer, '.');
-//      *separator = 0;
-//      int myHour = atoi(charBuffer);
-//      separator = separator + 1;
-//      int myMin = atoi(separator);
       float myTime = atof(charBuffer);
       uint8_t myHour = (uint8_t) myTime;
       uint8_t myMin = (uint8_t) (100 * (myTime - myHour));
       tempEvent.setStartHour(myHour);
       tempEvent.setStartMin(myMin);
+    // end time
     } else if (i == 7) {
       float myTime = atof(charBuffer);
       uint8_t myHour = (uint8_t) myTime;
       uint8_t myMin = (uint8_t) (100 * (myTime - myHour));
-//      Serial.print("myTime: "); Serial.println(myTime);
-//      Serial.print("myHour: "); Serial.println(myHour);
-//      Serial.print("myMin: "); Serial.println(myMin);
       tempEvent.setEndHour(myHour);
       tempEvent.setEndMin(myMin);
+    // weekday
     } else if (i == 11) {
       myDay = dayDecoder(arg);
-      // Serial.print("This event is to be inserted into "); Serial.println(myDay);
+    // node ID
     } else if (i == 15) {
       int myID = atoi(charBuffer);
       // tempEvent.setNodeID(myID);
       tempEvent.setNodeID(1);
+    // valve #
     } else if (i == 19) {
       int myValve = atoi(charBuffer);
       tempEvent.setValveNum(myValve);
       break;
     }
   }
+  
   // insert this event to the weekly schedule
   if(myDay == 7) {
     for(int i = 0; i <= 6; i++) {
@@ -422,6 +418,23 @@ void createEvent() {
   Serial.print(tempEvent.getStartHour()); Serial.print(":"); Serial.print(tempEvent.getStartMin());
   Serial.print(" and an end time of "); Serial.print(tempEvent.getEndHour()); Serial.print(":"); Serial.print(tempEvent.getEndMin());
   Serial.println(".");
+}
+
+
+/*
+ * deleteSchedule()
+ * 
+ * This function deletes all schedule events currently stored in the weekly schedule
+ * -- use with caution!
+ * 
+ * @preconditions: weeklySchedule contains schedule events in it
+ * @postconditions: weeklySchedule is empty
+*/
+void deleteSchedule() {
+      // Erase all schedule events in the current weekly schedule
+      for(int i = 0; i <= 6; i++) {
+        weeklySchedule.deleteDaysSchedule(i);
+      }
 }
 
 
@@ -477,6 +490,8 @@ void checkCurrentSchedule(int myDay) {
   Serial.println(".");
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////// Helper Functions///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -492,13 +507,13 @@ void checkCurrentSchedule(int myDay) {
  *                  turns off all valves
  */ 
 void handleButtonPress(){
+  
   // toggle states between asleep and awake
   gardenStatus.isAwake = !gardenStatus.isAwake;
 
   // if asleep, tell valves to shut
   if(gardenStatus.isAwake == false){
     // TODO set light sequence
-    
     // for each node, shut off all valves
     uint8_t node;
     for(node=1; node<=16; node++){
@@ -516,11 +531,12 @@ void handleButtonPress(){
       }
     }
   }
-//  else{
-//    // TODO set light sequence
-//  }
+  else{
+    // TODO set light sequence
+  }
 
-  // TODO report state to the server/website?
+  // report state to the server
+  checkAlerts(GARDEN_TOGGLE, 0);
   
   // reset flag
   hadButtonPress = false;
@@ -867,7 +883,7 @@ void readMeshMessages(){
 //      network.read(header, &response, sizeof(response));
 //
 //      // TODO what else to do with this information?
-//      
+//      checkAlerts(DAILY_REPORT,0);
 //      break;
     default:
       char placeholder;
@@ -890,8 +906,9 @@ void readMeshMessages(){
  */ 
 void isNewDay(){
   // TODO: get most updated statuses (I initiate this?)
-  // send alert 00 to the server
+  checkAlerts(DAILY_REPORT,0);
   // resynchronize timer
+  timeInit();
 
   // reset garden status
   gardenStatus.isAwake = true;
@@ -977,8 +994,8 @@ void initGardenStatus(){
 void updateGardenStatus(){
   statusCounter++;
 
-  //////////// CHECK 3G CONNECTION ////////////  
-
+  //////////// CHECK 3G CONNECTION //////////// 
+   
   // Handled in the main loop based on modem response
   
   
@@ -998,7 +1015,6 @@ void updateGardenStatus(){
     }
   }
   
-
   //////////// CHECK GARDEN STATE ////////////
 
   gardenStatus.numRegisteredNodes = 0;
@@ -1122,6 +1138,7 @@ void printGardenStatus(){
 ///////////////////////////////////////     Timer       ////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 /* 
  * timeInit()
  *
@@ -1134,7 +1151,7 @@ void printGardenStatus(){
 void timeInit() {
   int timeArray[6];
 
-  Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,0");
+  Modem_Serial.println("AT#SD=2,0,13,\"time.nist.gov\",0,0,0");
   delay(250);
 
   boolean timeGood = false;
@@ -1180,9 +1197,15 @@ void timeInit() {
           beginIdx = idx1 + 1;
           idx1 = timeString.indexOf(":", beginIdx);
         }
-      }
-      if(currentString == "NO CARRIER") {
         timeGood = true;
+      // reprovision if socket dial fails
+      } else if (currentString == "ERROR") {
+        delay(1000);
+        Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,0");
+      // reprovision if socket dial did not get proper response
+      } else if (currentString == "NO CARRIER" && timeGood == false) {
+        delay(1000);
+        Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,0");
       }
     } 
   }
@@ -1261,7 +1284,18 @@ void printDigits(uint8_t digits){
 ////////////////////////////////////     Alert Engine       ////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+/*
+ * checkAlerts(uint8_t opcode, uint8_t nodeNum);
+ * 
+ * This function sends a message to the server based an opcode + nodeNum combination.
+ * Refer to alert_engine_protocol for the meaning of different alerts.
+ * 
+ * @preconditions: a function call is initiated by an exception case in the main loop
+ * @postconditions: an alert message is sent to the server
+ * 
+ * @param uint8_t opcode: an opcode befined in the protocol
+ *        uint8_t nodeNum: the node number, only used for specific opcode
+*/
 void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   String myAlert;
   // daily report
@@ -1339,6 +1373,10 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
     myAlert += (String) gardenStatus.nodeStatusPtrs[nodeNum]->voltageState;
     break;
 
+  case GARDEN_TOGGLE:
+    myAlert = "0" + (String) opcode;
+    myAlert += (String) gardenStatus.isAwake;
+
   default:
     // UNUSED
     break;
@@ -1390,7 +1428,6 @@ void setup(){
   // Setup 3G Modem
   setupModem();
   getModemIP();
-  timeInit();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
@@ -1408,12 +1445,29 @@ void setup(){
   Timer1.attachInterrupt(updateStatusISR);
 
   // setup time
+  // timeInit();
+  
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
-  // setTime(15, 0, 0, 12, 4, 16);
+  setTime(23, 59, 45, 12, 4, 16);
 
   initPins2();
+
+  openSocket();
+  // alert the server
+  boolean setupDone = false;
+  while(!setupDone) {
+    while(Modem_Serial.available()) {
+      getModemResponse();
+      if(currentString == "OK") {
+        gardenStatus.threeGState = TR_G_CONNECTED;
+        Serial.println("");
+        checkAlerts(GATEWAY_RESET,0);
+        setupDone = true;
+      }
+    }
+  }
 }
 
 
@@ -1445,9 +1499,11 @@ void loop() {
   // Communicate with server via 3G
   while(Modem_Serial.available() > 0) {
     getModemResponse();
-    // there is an incoming message
+    
+    // if there is an incoming message
     if(currentString == "SRING: 1") {
       Modem_Serial.println("AT#SRECV=1,1500");
+      
     // turn off interrupt when there are incoming JSON strings
     } else if(currentString == "START") {
       modemReceivingJSON = true;
@@ -1455,27 +1511,28 @@ void loop() {
       updateStatusFlag = false;
       Serial.println("Detected schedules!");
 
-//      // Erase all schedule events in the current weekly schedule
-//      for(int i = 0; i <= 6; i++) {
-//        weeklySchedule.deleteDaysSchedule(i);
-//      }
-
-    // turn the interrupt back on since we have received all JSON strings
+    // turn the interrupt back on once we have received all JSON strings
     } else if (currentString == "DONE") {
       Serial.println("");
       Serial.println("Schedules are all set!");
       Timer1.initialize(TIMER1_PERIOD);
       Timer1.attachInterrupt(updateStatusISR);
       modemReceivingJSON = false;
+      
     // reprovision socket dial if previous connection is lost or bad
     } else if (currentString == "NO CARRIER") {
       gardenStatus.threeGState = TR_G_DISCONNECTED;
-    // the modem is receiving good response from the server 
     } else if (currentString == "ERROR") {
+      // try to reconnect?
       gardenStatus.threeGState = TR_G_DISCONNECTED;
-      // SEND ERROR MESSAGE TO USER
+      
+      // TODO send text/SMS/email message to user
+
+    // the modem is receiving good response from the server 
     } else if (currentString == "OK") {
       gardenStatus.threeGState = TR_G_CONNECTED;
+
+    // the only other possible incoming message should be a JSON string
     } else {
       parseJSON(); 
     }
@@ -1483,11 +1540,12 @@ void loop() {
 
   // reprovision socket dial when 3G is disconnected
   if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
-    // openSocket();
+    openSocket();
   }
 
+  // refresh the reset only when modem is NOT receiving a JSON string,
+  // else we might run into trouble receiving complete JSON string
   if(modemReceivingJSON == false) {
-    // refresh the reset
     refreshReset();
   }
 
@@ -1496,13 +1554,8 @@ void loop() {
     updateGardenStatus();
     printGardenStatus();
     
-//    checkAlerts(DAILY_REPORT, 0);
-//    checkAlerts(MESH_DOWN, 0);
-//    checkAlerts(GATEWAY_RESET, 0);
     // checkAlerts(BAD_FLOW_RATE, 1);
     // checkAlerts(BAD_VOLTAGE_STATE, 1);
-    // digitalClockDisplay();
-    // Serial.println(currentString);
     
     // reset the flag
     updateStatusFlag = false;
@@ -1521,6 +1574,13 @@ void loop() {
   if(hadButtonPress){
     handleButtonPress();
   }
+
+  // initiate daily update at 00:00:15
+  if(hour() == 0 && minute() == 0 && second() == 15) {
+    isNewDay();
+  }
+
+  // TODO node control code for alert eingine opcode 01, 04
 
   // read in and respond to mesh messages
   readMeshMessages(); 
