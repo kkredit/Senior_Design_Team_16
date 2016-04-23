@@ -395,16 +395,17 @@ int8_t setValve(uint8_t whichValve, bool setTo){
  * @return bool: true means send success, false means send failure
  */ 
 bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t datasize, uint8_t timesToTry){  
+  Serial.println();
   // perform write
   if (!mesh.write(destination, payload, header, datasize)) {
     // if a write fails, check connectivity to the mesh network
-    Serial.print(F("Send fail... "));
+    Serial.print(F("[Send fail... "));
     if (!mesh.checkConnection()){
       //refresh the network address
-      Serial.println(F("renewing address... "));
+      Serial.println(F("renewing address... ]"));
       if (!mesh.renewAddress(RENEWAL_TIMEOUT)){
         // if failed, connection is down
-        Serial.println(F("MESH CONNECTION DOWN"));
+        Serial.println(F("[MESH CONNECTION DOWN]"));
         myStatus.meshState = MESH_DISCONNECTED;
         setValve(ALL_VALVES, OFF);
         setLED(DISCONNECTED_SEQUENCE);
@@ -417,13 +418,13 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
         setLED(CONNECTED_SEQUENCE);
         if(timesToTry){
           // more tries allowed; try again
-          Serial.println(F("reconnected, trying again"));
+          Serial.println(F("[Reconnected, trying again... ]"));
           delay(RETRY_PERIOD);
           return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
         }
         else{
           // out of tries; send failed
-          Serial.println(F("reconnected, but out of send tries: SEND FAIL"));
+          Serial.println(F("[Reconnected, but out of send tries: SEND FAIL]"));
           return false;
         }        
       }
@@ -431,20 +432,20 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     else {      
       if(timesToTry){
         // if send failed but are connected and have more tries, try again after 50 ms
-        Serial.println(F("mesh connected, trying again"));
+        Serial.println(F("[Mesh connected, trying again... ]"));
         delay(RETRY_PERIOD);
         return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
       }
       else{
         // out of tries; send failed
-        Serial.println(F("out of send tries: SEND FAIL"));
+        Serial.println(F("[Out of send tries: SEND FAIL]"));
         return false;
       }
     }
   }
   else {
     // write succeeded
-    Serial.print(F("Send of type ")); Serial.print(header); Serial.println(F(" success"));
+    Serial.print(F("[Send of type ")); Serial.print(header); Serial.println(F(" success]"));
     return true;
   }
 }
@@ -685,10 +686,19 @@ void updateNodeStatus(){
  */ 
 void printNodeStatus(){
   // print number of times executed
-  Serial.println(F("")); Serial.println(statusCounter);
+  //Serial.println(F("\n")); Serial.println(statusCounter);
+
+  // Node settings
+  Serial.println(F("\n\n/////////// Node Status ///////////"));
+  Serial.print(F("Status counter    : ")); Serial.println(statusCounter);
 
   if(myStatus.isAwake == false) Serial.println(F("NODE IS IN STANDBY"));
-  Serial.print(F("Percent time spent awake: ")); Serial.print(myStatus.percentAwake); Serial.println(F("%"));
+  Serial.print(F("Time awake        : ")); Serial.print(myStatus.percentAwake); Serial.println(F("%"));
+  Serial.print(F("Time connected    : ")); Serial.print(myStatus.percentMeshUptime); Serial.println(F("%"));
+  Serial.print(F("Node ID, address  : ")); Serial.print(myStatus.nodeID); Serial.print(F(", ")); 
+  Serial.print(myStatus.nodeMeshAddress); Serial.print(F("     : "));
+  if(myStatus.meshState == MESH_CONNECTED) Serial.println(F("good"));
+  else if(myStatus.meshState == MESH_DISCONNECTED) Serial.println(F("DISCONNECTED!"));
 
   Serial.print(F("Input voltage     : "));
   Serial.print(analogRead(VIN_REF)*3*4.8/1023.0); Serial.print(F(" V  : "));
@@ -696,6 +706,20 @@ void printNodeStatus(){
   else if(myStatus.voltageState == HIGH_VOLTAGE) Serial.println(F("HIGH INPUT VOLTAGE!"));
   else if(myStatus.voltageState == LOW_VOLTAGE) Serial.println(F("LOW INPUT VOLTAGE!"));
 
+  // if valve is connected, tell state
+  uint8_t valve;
+  for(valve=1; valve<=4; valve++){
+    if(myStatus.valveStates[valve].isConnected){
+      Serial.print(F("  Valve ")); Serial.print(valve); Serial.print(F(" is      : ")); 
+      myStatus.valveStates[valve].state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
+      if(myStatus.valveStates[valve].timeSpentWatering > 0){
+        Serial.print(F("  and has been open for "));
+        float minutes = myStatus.valveStates[valve].timeSpentWatering/60.0;
+        Serial.print(minutes); Serial.println(F(" minutes today"));
+      }
+    }
+  }
+  
   // if has flow rate meter, tell current rate and accumulated flow
   if(myStatus.hasFlowRateMeter){
     Serial.print(F("Current flow rate : ")); Serial.print(myStatus.currentFlowRate); 
@@ -710,27 +734,7 @@ void printNodeStatus(){
   }
   // else tell that has no meter
   else Serial.println(F("No flow meter"));
-
-  // if valve is connected, tell state
-  uint8_t valve;
-  for(valve=1; valve<=4; valve++){
-    if(myStatus.valveStates[valve].isConnected){
-      Serial.print(F("Valve ")); Serial.print(valve); Serial.print(F(" is        : ")); 
-      myStatus.valveStates[valve].state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
-      if(myStatus.valveStates[valve].timeSpentWatering > 0){
-        Serial.print(F("  and has been open for "));
-        float minutes = myStatus.valveStates[valve].timeSpentWatering/60.0;
-        Serial.print(minutes); Serial.println(F(" minutes today"));
-      }
-    }
-  }
-
-  // tell mesh state
-  Serial.print(F("Node ID, address  : ")); Serial.print(myStatus.nodeID); Serial.print(F(", ")); 
-  Serial.print(myStatus.nodeMeshAddress); Serial.print(F("     : "));
-  if(myStatus.meshState == MESH_CONNECTED) Serial.println(F("good"));
-  else if(myStatus.meshState == MESH_DISCONNECTED) Serial.println(F("DISCONNECTED!"));
-  Serial.print(F("  (")); Serial.print(myStatus.percentMeshUptime); Serial.println(F("%)"));
+  Serial.println(F("///////////////////////////////////\n"));
 }
 
 
@@ -936,8 +940,9 @@ void loop() {
   while(network.available()){
     RF24NetworkHeader header;
     network.peek(header);
-    Serial.print(F("Received ")); Serial.print(char(header.type)); Serial.println(F(" type message."));
-    Serial.print(F("From: ")); Serial.println(mesh.getNodeID(header.from_node));
+    Serial.print(F("\n[Received ")); Serial.print(char(header.type)); 
+    Serial.print(F(" type message from node ")); Serial.print(mesh.getNodeID(header.from_node));
+    Serial.println(F("]"));
 
     switch(header.type){
     case SET_VALVE_H:
@@ -988,6 +993,11 @@ void loop() {
       char placeholder3;
       network.read(header, &placeholder3, sizeof(placeholder3));
       Serial.println(F("It is a new day!"));
+
+      // send final status at end of day
+      safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
+
+      // reset status variables
       myStatus.accumulatedFlow = 0;
       EEPROM.put(ACC_FLOW_EEPROM_ADDR, myStatus.accumulatedFlow);
       myStatus.maxedOutFlowMeter = false;
@@ -1000,7 +1010,7 @@ void loop() {
       statusCounter = 0;
       setLED(AWAKE_SEQUENCE);
       //safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NEW_DAY_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
-      safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
+      //safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
       break;
 
     case CONNECTION_TEST_H:
