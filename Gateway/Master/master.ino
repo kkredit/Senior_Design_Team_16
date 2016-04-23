@@ -26,6 +26,7 @@
 #include "RF24Mesh.h"
 #include <EEPROM.h>
 #include <TimerOne.h>
+
 #include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
 //#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
@@ -84,6 +85,7 @@ String currentString = "";
 // flags
 volatile bool hadButtonPress = false;
 volatile bool updateStatusFlag = false;
+volatile bool modemStartReceiving = false;
 volatile bool modemReceivingJSON = false;
 
 // other
@@ -200,9 +202,14 @@ void setupModem() {
  * already has one
 */
 void getModemIP() {
-  //  setup TCP socket
-  Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
-  delay(500);
+  // TCP socket config
+  Modem_Serial.println("AT#SCFG=1,1,1500,0,600,2");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+
+
+  Modem_Serial.println("AT#SCFGEXT=1,0,0,0,0,0");
+  delay(1000);
   while(PrintModemResponse() > 0);
 
   Modem_Serial.println("at#sgact=1,1");
@@ -330,17 +337,17 @@ void getModemResponse() {
  * @postconditions: the event is added to the schedule using createEvent
 */
 void parseJSON() {
-  if ((currentString.substring(currentString.length()-18,currentString.length()-9) == "valve_num")) {
+//  if ((currentString.substring(currentString.length()-18,currentString.length()-9) == "valve_num")) {
     Serial.println("");
     Serial.println("I got a scheduling event!");
     createEvent();
-  } else if (currentString == "true") {
-    Serial.println("");
-    Serial.println("I need to turn on the full garden.");
-  } else if (currentString == "false") {
-    Serial.println("");
-    Serial.println("I need to shut down the full garden.");
-  }
+//  } else if (currentString == "true") {
+//    Serial.println("");
+//    Serial.println("I need to turn on the full garden.");
+//  } else if (currentString == "false") {
+//    Serial.println("");
+//    Serial.println("I need to shut down the full garden.");
+//  }
 }
 
 
@@ -801,57 +808,19 @@ void readMeshMessages(){
     Serial.print(F("Received ")); Serial.print(char(header.type));
     Serial.print(F(" type message from node ")); Serial.println(mesh.getNodeID(header.from_node));
 
-    switch(header.type){
-//    case SEND_VALVE_H:
-//      // A node is responding to a valve command. Read the response; if not what is expected, send
-//      //  another command to correct it; else all is well. (TODO add counter, time-to-live, so 
-//      //  don't have endless cycle in case things fail?
-//
-//      // read in message
-//      Valve_Response vr;
-//      network.read(header, &vr, sizeof(vr));
-//
-//      // parse results
-//      gardenStatus.nodeStatusPtrs[header.from_node]->isAwake = vr.nodeIsAwake;
-//      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].isConnected = vr.isConnected;
-//      gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[vr.whichValve].state = vr.actualState;
-//      Serial.print("valve message from "); Serial.println(header.from_node);
-//      if(vr.nodeIsAwake == false){
-//        // then all valves are closed too
-//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[1].state = OFF;
-//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[2].state = OFF;
-//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[3].state = OFF;
-//        gardenStatus.nodeStatusPtrs[header.from_node]->valveStates[4].state = OFF;
-//        // nothing else to be done
-//        break;
-//      }
-//      if(vr.actualState == NO_VALVE_ERROR){
-//        // do anything? already updated the data in the gardenStatus struct
-//      }
-//      else if(vr.timeToLive){
-//        // try again, if time to live hasn't run out
-//        Valve_Command vc;
-//        vc.whichValve = vr.whichValve;
-//        vc.onOrOff = vr.commandedOnOrOff;
-//        vc.timeToLive = vr.timeToLive - 1;
-//        safeMeshWrite(mesh.getAddress(header.from_node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
-//      }
-//      
-//      break;
-    case SEND_NODE_STATUS_H:
-      // A node is reporting its status. Update its status in gardenStatus
+    // check that it's registered
+    checkNodeRegistered(mesh.getNodeID(header.from_node));
 
-      // check that it's registered
-      checkNodeRegistered(mesh.getNodeID(header.from_node));
+    switch(header.type){
+    case SEND_NODE_STATUS_H:
+      // A node is reporting its status. Update its status in gardenStatus      
       
       // read in the new status
       network.read(header, gardenStatus.nodeStatusPtrs[mesh.getNodeID(header.from_node)], sizeof(Node_Status));
+      
       break;
     case SEND_JUST_RESET_H:
       // means that a node has recovered from reset; true means it was told to do so, false means a crash
-
-      // check that it's registered
-      checkNodeRegistered(mesh.getNodeID(header.from_node));
 
       bool toldToReset;      
       network.read(header, &toldToReset, sizeof(toldToReset));
@@ -861,9 +830,6 @@ void readMeshMessages(){
       break;
     case SEND_NODE_SLEEP_H:
       // node had its button pressed and toggled sleep; update its status and TODO let the website know?
-
-      // check that it's registered
-      checkNodeRegistered(mesh.getNodeID(header.from_node));
       
       bool nodeIsAwake;
       network.read(header, &nodeIsAwake, sizeof(nodeIsAwake));
@@ -1041,14 +1007,19 @@ void updateGardenStatus(){
         // check if it has any errors; if so, report
         if(gardenStatus.nodeStatusPtrs[node]->voltageState != GOOD_VOLTAGE){
           gardenStatus.gardenState = GARDEN_NODE_ERROR;
+          // TODO report this (e.g. server, text message)
           break;
         }
         else if(gardenStatus.nodeStatusPtrs[node]->flowState != HAS_NO_METER &&
                 gardenStatus.nodeStatusPtrs[node]->flowState != NO_FLOW_GOOD &&
                 gardenStatus.nodeStatusPtrs[node]->flowState != FLOWING_GOOD){
           gardenStatus.gardenState = GARDEN_NODE_ERROR;
+          // TODO report this (e.g. server, text message)
           break;
         }
+      }
+      else{
+        // TODO report have disconnected node
       }
     }
   }
@@ -1201,7 +1172,7 @@ void timeInit() {
       // reprovision if socket dial fails
       } else if (currentString == "ERROR") {
         delay(1000);
-        Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,0");
+        Modem_Serial.println("AT#SD=2,0,13,\"time.nist.gov\",0,0,0");
       // reprovision if socket dial did not get proper response
       } else if (currentString == "NO CARRIER" && timeGood == false) {
         delay(1000);
@@ -1445,12 +1416,12 @@ void setup(){
   Timer1.attachInterrupt(updateStatusISR);
 
   // setup time
-  // timeInit();
+  timeInit();
   
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
-  setTime(23, 59, 45, 12, 4, 16);
+  // setTime(23, 59, 45, 12, 4, 16);
 
   initPins2();
 
@@ -1501,27 +1472,13 @@ void loop() {
     getModemResponse();
     
     // if there is an incoming message
-    if(currentString == "SRING: 1") {
-      Modem_Serial.println("AT#SRECV=1,1500");
+    if (currentString == "SRING: 1") {
+      modemStartReceiving = true;
+      break;
       
-    // turn off interrupt when there are incoming JSON strings
-    } else if(currentString == "START") {
-      modemReceivingJSON = true;
-      Timer1.detachInterrupt();
-      updateStatusFlag = false;
-      Serial.println("Detected schedules!");
-
-    // turn the interrupt back on once we have received all JSON strings
-    } else if (currentString == "DONE") {
-      Serial.println("");
-      Serial.println("Schedules are all set!");
-      Timer1.initialize(TIMER1_PERIOD);
-      Timer1.attachInterrupt(updateStatusISR);
-      modemReceivingJSON = false;
-      
-    // reprovision socket dial if previous connection is lost or bad
     } else if (currentString == "NO CARRIER") {
       gardenStatus.threeGState = TR_G_DISCONNECTED;
+    // reprovision socket dial if previous connection is lost or bad
     } else if (currentString == "ERROR") {
       // try to reconnect?
       gardenStatus.threeGState = TR_G_DISCONNECTED;
@@ -1531,11 +1488,47 @@ void loop() {
     // the modem is receiving good response from the server 
     } else if (currentString == "OK") {
       gardenStatus.threeGState = TR_G_CONNECTED;
-
-    // the only other possible incoming message should be a JSON string
-    } else {
-      parseJSON(); 
     }
+    else {
+      modemStartReceiving = false;
+    }
+     
+  }
+
+  // if there is an incoming ring/message
+  if(modemStartReceiving == true) {
+    Modem_Serial.println("AT#SRECV=1,200");
+
+    boolean modemReceivedData = false;
+    while(!modemReceivedData) {
+      while(Modem_Serial.available() > 0) {
+        
+        getModemResponse();
+
+        // turn off interrupt when there are incoming JSON strings
+        if (currentString == "START") {
+          modemReceivingJSON = true;
+          Timer1.detachInterrupt();
+          updateStatusFlag = false;
+          Serial.println("");
+          Serial.println("Detected schedules!");
+          modemReceivedData = true;
+
+        // turn the interrupt back on once we have received all JSON strings
+        } else if (currentString == "DONE") {
+          Serial.println("");
+          Serial.println("Schedules are all set!");
+          Timer1.initialize(TIMER1_PERIOD);
+          Timer1.attachInterrupt(updateStatusISR);
+          modemReceivingJSON = false;
+          modemReceivedData = true;
+        } else if ((currentString.substring(currentString.length()-18,currentString.length()-9) == "valve_num")) {
+          parseJSON();
+          modemReceivedData = true;
+        }
+      }
+    } 
+    
   }
 
   // reprovision socket dial when 3G is disconnected
@@ -1545,21 +1538,21 @@ void loop() {
 
   // refresh the reset only when modem is NOT receiving a JSON string,
   // else we might run into trouble receiving complete JSON string
-  if(modemReceivingJSON == false) {
-    refreshReset();
-  }
-
-  // update node status if necessary
-  if(updateStatusFlag){
-    updateGardenStatus();
-    printGardenStatus();
-    
-    // checkAlerts(BAD_FLOW_RATE, 1);
-    // checkAlerts(BAD_VOLTAGE_STATE, 1);
-    
-    // reset the flag
-    updateStatusFlag = false;
-  } 
+//  if(modemReceivingJSON == false) {
+//    refreshReset();
+//  }
+//
+//  // update node status if necessary
+//  if(updateStatusFlag){
+//    updateGardenStatus();
+//    printGardenStatus();
+//    
+//    // checkAlerts(BAD_FLOW_RATE, 1);
+//    // checkAlerts(BAD_VOLTAGE_STATE, 1);
+//    
+//    // reset the flag
+//    updateStatusFlag = false;
+//  } 
 
   // check if need to open/close valves according to schedule
   // to occur at the beginning of each new minute
@@ -1576,13 +1569,15 @@ void loop() {
   }
 
   // initiate daily update at 00:00:15
-  if(hour() == 0 && minute() == 0 && second() == 15) {
-    isNewDay();
-  }
+//  if(hour() == 0 && minute() == 0 && second() == 15) {
+//    isNewDay();
+//  }
 
   // TODO node control code for alert eingine opcode 01, 04
 
   // read in and respond to mesh messages
   readMeshMessages(); 
 }
+
+
 

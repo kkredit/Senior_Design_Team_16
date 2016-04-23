@@ -548,17 +548,24 @@ void initStatus(){
  */
 void updateNodeStatus(){
   statusCounter++;
+  bool sendToMasterFlag = false;
 
   //////////// CHECK INPUT VOLTAGE ////////////
 
   // check input voltage if no valves are open (open valves descrease VIN, could give false error)
   if(myStatus.numOpenValves == 0){
-    if(analogRead(VIN_REF) > myStatus.storedVIN*(1+OK_VIN_RANGE))
+    if(analogRead(VIN_REF) > myStatus.storedVIN*(1+OK_VIN_RANGE)){
+      if(myStatus.voltageState != HIGH_VOLTAGE) sendToMasterFlag = true;
       myStatus.voltageState = HIGH_VOLTAGE;
-    else if (analogRead(VIN_REF) < myStatus.storedVIN*(1-OK_VIN_RANGE))
+    }
+    else if (analogRead(VIN_REF) < myStatus.storedVIN*(1-OK_VIN_RANGE)){
+      if(myStatus.voltageState != LOW_VOLTAGE) sendToMasterFlag = true;
       myStatus.voltageState = LOW_VOLTAGE;
-    else //if(myStatus.voltageState == HIGH_VOLTAGE || myStatus.voltageState == LOW_VOLTAGE)
+    }
+    else{ //if(myStatus.voltageState == HIGH_VOLTAGE || myStatus.voltageState == LOW_VOLTAGE)
+      if(myStatus.voltageState != GOOD_VOLTAGE) sendToMasterFlag = true;
       myStatus.voltageState = GOOD_VOLTAGE;
+    }
   }
 
 
@@ -566,6 +573,7 @@ void updateNodeStatus(){
 
   // get flow rate, and recheck for false negative regarding having a connected meter
   if(myStatus.hasFlowRateMeter == false && myStatus.accumulatedFlow > 0){
+    if(myStatus.hasFlowRateMeter != true) sendToMasterFlag = true;
     myStatus.hasFlowRateMeter = true;
   }
   
@@ -574,6 +582,7 @@ void updateNodeStatus(){
 
     // check for maxed out flow rate measurement
     if(myStatus.currentFlowRate > MAX_MEASUREABLE_GPM){
+    if(myStatus.maxedOutFlowMeter != true) sendToMasterFlag = true;
       myStatus.maxedOutFlowMeter = true;
     }
 
@@ -584,10 +593,12 @@ void updateNodeStatus(){
     if(myStatus.numOpenValves > 0){
       // if water flowing, good
       if(myStatus.currentFlowRate > MIN_MEASUREABLE_GPM){
+        if(myStatus.flowState != FLOWING_GOOD) sendToMasterFlag = true;
         myStatus.flowState = FLOWING_GOOD;
       }
       // if no water flowing, bad
       else{
+        if(myStatus.flowState != STUCK_AT_OFF) sendToMasterFlag = true;
         myStatus.flowState = STUCK_AT_OFF;
       }
     }
@@ -596,10 +607,12 @@ void updateNodeStatus(){
     else{
       // if water flowing, bad
       if(myStatus.currentFlowRate > MIN_MEASUREABLE_GPM){
+        if(myStatus.flowState != STUCK_AT_ON) sendToMasterFlag = true;
         myStatus.flowState = STUCK_AT_ON;
       }
       // if no water flowing, good
       else{
+        if(myStatus.flowState != NO_FLOW_GOOD) sendToMasterFlag = true;
         myStatus.flowState = NO_FLOW_GOOD;
       }
     }
@@ -644,12 +657,21 @@ void updateNodeStatus(){
 
 
   //////////// STAT TRACKING ////////////
+  
   myStatus.percentAwake = (myStatus.percentAwake * (statusCounter-1) + (myStatus.isAwake ? 100 : 0))/statusCounter;
   for(uint8_t valve=1; valve<=4; valve++){
     myStatus.valveStates[valve].timeSpentWatering += (myStatus.valveStates[valve].state ? TIMER1_PERIOD/1000000 : 0);
   }  
   bool meshGood = (myStatus.meshState == MESH_CONNECTED);
   myStatus.percentMeshUptime = (myStatus.percentMeshUptime * (statusCounter-1) + (meshGood ? 100 : 0))/statusCounter;
+  
+
+  //////////// PUSH TO GATEWAY IF ISSUE ////////////
+
+  if(sendToMasterFlag){
+    Serial.println(F("\nSTATUS HAS CHANGED: pushing my status to the master"));
+    safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES); 
+  }
 }
 
 
