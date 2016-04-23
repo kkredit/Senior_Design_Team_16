@@ -152,6 +152,7 @@ struct Garden_Status{
 #define MESH_DOWN             02
 #define GATEWAY_RESET         03
 #define BAD_VOLTAGE_STATE     04
+#define GARDEN_TOGGLE         05
 
 
 // other settings

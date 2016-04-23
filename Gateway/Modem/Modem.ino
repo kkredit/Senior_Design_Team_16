@@ -31,14 +31,23 @@ void setup() {
   Serial.begin(9600);
   while (!Serial);
   setupModem();
+
+  // send message 
+  Modem_Serial.println("AT#SSENDEXT=?");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+
   getModemIP();
   openSocket();
+
+
 }
 
 void loop() {
   while(Modem_Serial.available() > 0) {
     getModemResponse();
     if(currentString == "SRING: 1") {
+      delay(250);
       Modem_Serial.println("AT#SRECV=1,1500");
       currentString = "";
     }
@@ -47,6 +56,17 @@ void loop() {
   if(currentString == "NO CARRIER" || currentString == "ERROR") {
 //    openSocket();
 //    currentString = "";
+  } else if (currentString == "OK") {
+    Modem_Serial.println("AT#SSENDEXT=1,7");
+    delay(1000);
+    while(PrintModemResponse() > 0);
+
+    Modem_Serial.print("Batman!");
+    Modem_Serial.write(26);
+    Modem_Serial.write("\r");
+  
+    delay(1000);
+    while(PrintModemResponse() > 0);
   }
 }
   

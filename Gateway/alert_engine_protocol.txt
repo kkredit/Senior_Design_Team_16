@@ -6,6 +6,7 @@ opcode:
 02 - Mesh down
 03 - Gateway self-reset
 04 - Bad voltage state
+05 - Garden toggled
 
 
 Once a day:
