@@ -432,7 +432,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
     else {      
       if(timesToTry){
         // if send failed but are connected and have more tries, try again after 50 ms
-        Serial.println(F("[Mesh connected, trying again... ]"));
+        Serial.println(F("mesh connected, trying again... ]"));
         delay(RETRY_PERIOD);
         return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
       }
@@ -689,8 +689,9 @@ void printNodeStatus(){
   //Serial.println(F("\n")); Serial.println(statusCounter);
 
   // Node settings
-  Serial.println(F("\n\n/////////// Node Status ///////////"));
-  Serial.print(F("Status counter    : ")); Serial.println(statusCounter);
+  //Serial.println(F("\n\n/////////// Node Status ///////////"));
+  //Serial.print(F("Status counter    : ")); Serial.println(statusCounter);
+  Serial.println(F("\n")); Serial.println(statusCounter);
 
   if(myStatus.isAwake == false) Serial.println(F("NODE IS IN STANDBY"));
   Serial.print(F("Time awake        : ")); Serial.print(myStatus.percentAwake); Serial.println(F("%"));
@@ -711,11 +712,13 @@ void printNodeStatus(){
   for(valve=1; valve<=4; valve++){
     if(myStatus.valveStates[valve].isConnected){
       Serial.print(F("  Valve ")); Serial.print(valve); Serial.print(F(" is      : ")); 
-      myStatus.valveStates[valve].state ? Serial.println(F("OPEN")) : Serial.println(F("closed"));
+      myStatus.valveStates[valve].state ? Serial.print(F("OPEN  ")) : Serial.print(F("closed"));
       if(myStatus.valveStates[valve].timeSpentWatering > 0){
-        Serial.print(F("  and has been open for "));
         float minutes = myStatus.valveStates[valve].timeSpentWatering/60.0;
         Serial.print(minutes); Serial.println(F(" minutes today"));
+      }
+      else{
+        Serial.println();
       }
     }
   }
@@ -734,7 +737,7 @@ void printNodeStatus(){
   }
   // else tell that has no meter
   else Serial.println(F("No flow meter"));
-  Serial.println(F("///////////////////////////////////\n"));
+  //Serial.println(F("///////////////////////////////////\n"));
 }
 
 
@@ -948,16 +951,23 @@ void loop() {
     case SET_VALVE_H:
       Valve_Command vc;
       network.read(header, &vc, sizeof(vc));
-      Serial.print(F("Command is to turn valve ")); Serial.print(vc.whichValve); Serial.print(F(" ")); vc.onOrOff ? Serial.println(F("ON")) : Serial.println(F("OFF"));
+      if(vc.whichValve > 0 && vc.whichValve <= 4){
+        Serial.print(F("Command is to turn valve ")); Serial.print(vc.whichValve); Serial.print(F(" ")); 
+        vc.onOrOff ? Serial.println(F("ON")) : Serial.println(F("OFF"));
+      }
+      else if(vc.whichValve == 5){
+        Serial.print(F("Command is to turn ALL valves ")); 
+        vc.onOrOff ? Serial.println(F("ON")) : Serial.println(F("OFF"));
+      }
       int8_t result;
 
-      Valve_Response vr;
-      vr.nodeIsAwake = myStatus.isAwake;
-      vr.whichValve = vc.whichValve;
-      vr.isConnected = myStatus.valveStates[vc.whichValve].isConnected;
-      vr.commandedOnOrOff = vc.onOrOff;
-      vr.actualState = myStatus.valveStates[vc.whichValve].state;
-      vr.timeToLive = vc.timeToLive;
+//      Valve_Response vr;
+//      vr.nodeIsAwake = myStatus.isAwake;
+//      vr.whichValve = vc.whichValve;
+//      vr.isConnected = myStatus.valveStates[vc.whichValve].isConnected;
+//      vr.commandedOnOrOff = vc.onOrOff;
+//      vr.actualState = myStatus.valveStates[vc.whichValve].state;
+//      vr.timeToLive = vc.timeToLive;
       
       // if node is asleep, throw error
       if(myStatus.isAwake == false){
@@ -966,9 +976,14 @@ void loop() {
       // else execute instruction and return result
       else{
         //vr.actualState = setValve(vc.whichValve, vc.onOrOff);
-        setValve(vc.whichValve, vc.onOrOff);
-        vr.actualState = myStatus.valveStates[vc.whichValve].state;  
-        Serial.print("valve is now "); Serial.println(vr.actualState); 
+        int8_t result = setValve(vc.whichValve, vc.onOrOff);
+//        vr.actualState = myStatus.valveStates[vc.whichValve].state;
+        if(vc.whichValve > 0 && vc.whichValve <= 4){ 
+          Serial.print("Valve is now "); Serial.println(result);
+        }
+        else if(vc.whichValve == 5){
+          Serial.print("Valves are now "); Serial.println(result);
+        }
       }
       //safeMeshWrite(MASTER_ADDRESS, &vr, SEND_VALVE_H, sizeof(vr), DEFAULT_SEND_TRIES);
       safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);

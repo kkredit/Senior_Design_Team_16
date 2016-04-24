@@ -25,14 +25,14 @@ struct Valve_Status{
 
 // Valve_Response struct
 // essentially a combination of a command and a status
-struct Valve_Response{
-  bool nodeIsAwake;
-  uint8_t whichValve;
-  bool isConnected;
-  bool commandedOnOrOff;
-  int8_t actualState;
-  uint8_t timeToLive;
-};
+// struct Valve_Response{
+  // bool nodeIsAwake;
+  // uint8_t whichValve;
+  // bool isConnected;
+  // bool commandedOnOrOff;
+  // int8_t actualState;
+  // uint8_t timeToLive;
+// };
 
 // Node_Status struct
 struct Node_Status{
@@ -81,6 +81,7 @@ struct Garden_Status{
 #define CONNECTION_TRIES    5             // number of tries to connect before waiting going to 
                                           // sleep
 #define DISCONNECTED_SLEEP  (5*60000)     // (5 minutes) -- time to wait before trying to connect 
+#define PERIOD_ASKS_STATUS  50
                                           // again
 
 
@@ -146,13 +147,16 @@ struct Garden_Status{
 // valve command errors
 #define NO_VALVE_ERROR        -1      // when no valve connected in given slot
 
-// alert engine op code
-#define DAILY_REPORT          00
-#define BAD_FLOW_RATE         01
-#define MESH_DOWN             02
-#define GATEWAY_RESET         03
-#define BAD_VOLTAGE_STATE     04
-#define GARDEN_TOGGLE         05
+
+// alert engine op code 
+//////// TEST RESULTS //////////////    Sends       Sends at correct time        Sends without duplicates
+#define DAILY_REPORT          00  //
+#define BAD_FLOW_RATE         01  //
+#define MESH_DOWN             02  //    yes               yes                         yes
+#define GATEWAY_RESET         03  //    yes               yes                         yes
+#define BAD_VOLTAGE_STATE     04  //    yes               yes                         yes
+#define GARDEN_TOGGLE         05  //    yes               yes                         yes  
+                                  // TODO -- GARDEN_TOGGLE should move the "full garden sut off" switch to reflect the state
 
 
 // other settings
@@ -166,7 +170,8 @@ struct Garden_Status{
 #define RESET_EEPROM_ADDR     4       // address of the toldToReset bool in EEPROM
 #define ACC_FLOW_EEPROM_ADDR  8       // address of accumulatedFlow float in EEPROM
 #define OK_VIN_RANGE          0.15    // amount that VIN can vary without generating an error
-#define MIN_MEASUREABLE_GPM   0.2642  // is 1 LPM, minimum measuring threshold for our meter
+#define MIN_MEASUREABLE_GPM   0.2642  // is 1 LPM, minimum measuring threshold for our meter 
+                                      //  also serves as max ok leakage rate
 #define MAX_MEASUREABLE_GPM   7.92516 // is 29 LPM, maximumm measureing threshold for our meter
 #define FLOW_RATE_SAMPLE_SIZE 100
 #define VALVE_COMMAND_TTL     5       // number of tries to execute a valve command
