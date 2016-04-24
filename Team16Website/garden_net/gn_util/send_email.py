@@ -9,7 +9,13 @@ class Alert:
 		TEXT = alert_message
 
 		#https://www.google.com/settings/security/lesssecureapps
-		TO = ["cak33@students.calvin.edu", "knk9@students.calvin.edu", "jrc32@students.calvin.edu", "xj22@students.calvin.edu"]
+		f = open("user_info.txt")
+		for line in f:
+			current = line.split(" ")
+			if str(current[0]).upper() == "EMAIL:":
+				email_address = str(current[1].split('\n')[0])
+		#TO = ["cak33@students.calvin.edu", "knk9@students.calvin.edu", "jrc32@students.calvin.edu", "xj22@students.calvin.edu"]
+		TO = email_address
 		SUBJECT = "GardeNet Alert!"
 
 
@@ -31,14 +37,14 @@ class Alert:
 			'',
 			TEXT
 			])
-		for email in TO:
-			try:
-				s.sendmail(gmail_sender, [email], BODY)
-				#print("Email Sent!")
-				time.sleep(10)
-			except Exception as e:
-				print("Error sending email")
-				print(str(e))
+		#for email in TO:
+		try:
+			s.sendmail(gmail_sender, [TO], BODY)
+			#print("Email Sent!")
+			time.sleep(10)
+		except Exception as e:
+			print("Error sending email")
+			print(str(e))
 		s.quit()
 
 if __name__ == "__main__":

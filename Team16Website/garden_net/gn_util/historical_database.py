@@ -4,7 +4,7 @@ from sqlalchemy import and_
 
 from base_historical import HistoricalBase, HistoricalMeta
 from historical_database_interface import Historical_Database_Interface
-from gateway_report import Report
+
 
 class Historical_Database:
 	"""
@@ -54,9 +54,10 @@ class Historical_Database:
 
 	def get_all(self):
 		data_list = self.session.query(Historical_Database_Interface).all()
-		for item in data_list:
-			new = Garden(str(item).split("\t")[1])
-			print(new)
+		return data_list
+		# for item in data_list:
+		# 	new = Report(str(item).split("\t")[1])
+		# 	print(new)
 
 
 if __name__ == "__main__":

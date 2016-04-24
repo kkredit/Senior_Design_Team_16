@@ -1,19 +1,17 @@
-from historical_database import Historical_Database
+#from historical_database import Historical_Database
 
-from historical_database_interface import Historical_Database_Interface
-
-"""
-it = Historical_Database_Interface("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
-db = Historical_Database(True)
-
-db.add_row(it)
-
-the = db.get_all()
-"""
-
-
+#from historical_database_interface import Historical_Database_Interface
+from gateway_report import Report
+Report("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
+# to = Historical_Database_Interface("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
+# db = Historical_Database(True)
+#
+# db.add_row(it)
+# db.add_row(to)
+#
+# the = db.get_all()
 # for item in the:
-# 	the
+# 	print(item)
 
 # from database import Database
 # from event import Event
@@ -53,10 +51,12 @@ the = db.get_all()
 # 	print(item)
 
 """ Testing the alert engine """
+"""
 from gateway_report import Report
 #it = Report("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
 #print(it)
 Report("01%2%5%0.00")
-Report("02")
-Report("03")
-Report("04%1%2")
+# Report("02")
+# Report("03")
+# Report("04%1%2")
+"""

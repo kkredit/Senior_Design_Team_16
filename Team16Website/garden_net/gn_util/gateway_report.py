@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Float, String, Integer, ForeignKey
+from historical_database_interface import Historical_Database_Interface
+from historical_database import Historical_Database
 
-from base_historical import HistoricalBase
 from send_email import Alert
 
 class Report():
@@ -8,24 +8,25 @@ class Report():
 	def __init__(self, value: str):
 		self._opcode = value.split('%')[0]
 		if self._opcode == "00":
-			self._TEXT = None
-			temp = value.split('{')
-			global_gardern = temp[0]
-			self._opcode = global_gardern.split('%')[0]
-			self._percentMeshUp = global_gardern.split('%')[1]
-			self._percent3GUpTime = global_gardern.split('%')[2]
-			self._node_list = []
-			i = 1
-			while True:
-				try:
-					it = temp[i]
-					new_node = Node(it)
-					self._node_list.append(new_node)
-				except:
-					break
-				i += 1
-			#for node in self._node_list
-			#print(self._node_list)
+			db = Historical_Database(False)
+			#print(value)
+			new_event = Historical_Database_Interface(value)
+
+
+			#db.clear_database()
+
+
+			db.add_row(new_event)
+			all_rows = db.get_all()
+			#print(all_rows)
+			to_write = ""
+			for item in all_rows:
+				it = WriteReport(item)
+				to_write += str(it) + "\n\n"
+
+			f = open("historical_data.txt", "w")
+			f.write(to_write)
+			f.close()
 		elif self._opcode == "01":
 			node = value.split('%')[1]
 			status = value.split('%')[2]
@@ -60,13 +61,35 @@ class Report():
 					" voltage level.\n\nRegards, \nGardeNet"
 			Alert(TEXT)
 
+class WriteReport:
+	def __init__(self, string: str):
+		self._date = str(string).split('\t')[0]
+		temp = str(string).split('\t')[1].split('{')
+		global_gardern = temp[0]
+		self._opcode = global_gardern.split('%')[0]
+		self._percentMeshUp = global_gardern.split('%')[1]
+		self._percent3GUpTime = global_gardern.split('%')[2]
+		self._node_list = []
+		i = 1
+		while True:
+			try:
+				it = temp[i]
+				new_node = Node(it)
+				self._node_list.append(new_node)
+			except:
+				break
+			i += 1
 
 	def __str__(self):
-		temp = "opcode: " + self.opcode + "\npercentMeshUp: " + self.percentMeshUp + "\npercent3GUp: " \
+		temp = "date: " + self.date + "\n\topcode: " + self.opcode + "\n\tpercentMeshUp: " + self.percentMeshUp + "\n\tpercent3GUp: " \
 			   + self._percent3GUpTime
 		for node in self.node_list:
 			temp += str(node)
-		return temp
+		return temp + "\n"
+
+	@property
+	def date(self):
+		return self._date
 
 	@property
 	def opcode(self):
@@ -109,7 +132,7 @@ class Node():
 
 
 	def __str__(self):
-		temp = "\n\tnode: " + str(self.nodeID) + " meshState: " + str(self.meshState) + " percentNodeAwake: " \
+		temp = "\n\t\tnode: " + str(self.nodeID) + " meshState: " + str(self.meshState) + " percentNodeAwake: " \
 			   + str(self.percentNodeAwake) + " accumulatedFlow: " + str(self.accumulatedFlow)
 		for valve in self.valve_list:
 			temp += str(valve)
@@ -143,7 +166,7 @@ class Valve():
 		#print(self._totalWateringTime)
 
 	def __str__(self):
-		return "\n\t\tvalve_num: " + str(self.valveNum) + " totalWateringTime: " + str(self._totalWateringTime)
+		return "\n\t\t\tvalve_num: " + str(self.valveNum) + " totalWateringTime: " + str(self._totalWateringTime)
 
 	@property
 	def valveNum(self):
