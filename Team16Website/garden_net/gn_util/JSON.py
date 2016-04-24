@@ -12,7 +12,7 @@ class JSON_Interface:
 		return "{" + str(zone.to_JSON()) + "[\n\t" + event.to_JSON() + "\n]}"
 
 	def to_JSON(self, event_list: list, zone: Zone, comma: bool):
-		temp = "{" + str(zone.to_JSON()) + ""
+		temp = str(zone.to_JSON()) + ""
 		i = 0
 		for event in event_list:
 			if i == 0:
@@ -27,7 +27,7 @@ class JSON_Interface:
 			else:
 				temp += ","
 			i+=1
-		temp += "\n}"
+		temp += "\n"
 
 		return temp
 
@@ -71,12 +71,8 @@ class JSON_Interface:
 						#print(parsed[zone_string][event_string])
 						#print(event)
 						try:
-<<<<<<< HEAD
 							if str(event.start_time) != "0.0":
 								db.add_event(event)
-=======
-							db.add_event(event)
->>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df
 						except:
 							pass
 						j += 1

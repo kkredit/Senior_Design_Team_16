@@ -4,7 +4,7 @@ from sqlalchemy import and_
 
 from base_historical import HistoricalBase, HistoricalMeta
 from historical_database_interface import Historical_Database_Interface
-from gateway_report import Garden
+from gateway_report import Report
 
 class Historical_Database:
 	"""

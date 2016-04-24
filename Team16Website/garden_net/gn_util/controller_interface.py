@@ -40,6 +40,9 @@ import time
 from JSON import JSON_Interface
 from database import Database
 from event import Event
+from gateway_report import Report
+from socket import error as SocketError
+import errno
 
 global last_message
 last_message = False
@@ -51,7 +54,7 @@ begin_message = False
 ############################################# GLOBAL DEFINITIONS ######################################################
 """
 
-# GLOBAL VARIABLE
+# GLOBAL VARIABLEs
 RECV_BUFFER = 8192
 ipc_file = "ipc_file.txt"
 file_data = ""
@@ -128,14 +131,18 @@ def broadcast(message: str, soc_list: list):
 			# try to send the message
 			try:
 				# send the message to the controller
-				s.send(message.encode('utf-8'))
+				#encoded = base64.b64encode(message.encode('ascii'))
+				s.sendall(message.encode('utf'))
 				# close the socket
-				s.close()
+				#s.close()
 				# remove it from our list
-				soc_list.remove(s)
+				#soc_list.remove(s)
 			# catch the TimeoutError and remove the socket from out list
-			except TimeoutError:
-				soc_list.remove(s)
+			except SocketError as e:
+				if e.errno == errno.ECONNRESET:
+					broadcast(message, soc_list)
+				else:
+					soc_list.remove(s)
 
 """
 	A function to create a list of events given a JSON string
@@ -191,21 +198,28 @@ def send_event(begin_message):
 		if len(EVENT_LIST) == 0:
 			last_message = False
 			if args.verbose:
-				print("Last event was sent, sending the DONE message")
+				print("Sending the EOT message")
 			done_message = "DONE"
 			broadcast(done_message, SOCKET_LIST)
-
+			if args.verbose:
+				print("Successfully sent!")
 			if args.verbose:
 				print("Sent successfully ")
 		elif begin_message:
+			if args.verbose:
+				print("Sending the BOT message")
 			begin = "START"
 			broadcast(begin, SOCKET_LIST)
+			time.sleep(5)
+			if args.verbose:
+				print("Successfully sent!")
 		# there's still events in the EVENT_LIST
 		else:
 			# pop the front of the list
 			it = EVENT_LIST.pop()
 			if args.verbose:
 				print("Sending: " + str(it))
+				print("The length of the event list is: " + str(len(EVENT_LIST)))
 			broadcast(str(it), SOCKET_LIST)
 			time.sleep(5)
 			if args.verbose:
@@ -237,35 +251,10 @@ while True:
 			client_sock, addr = server_socket.accept()
 			SOCKET_LIST.append(client_sock)
 			client_sock.settimeout(1)
-<<<<<<< HEAD
 			if args.verbose:
 				print("Client (%s, %s) connected" % addr)
 			welcome = "Welcome to GardeNet"
 		# client_sock.send(welcome.encode('utf-8'))
-		elif sock == test_server_socket:
-			test, test_addr = test_server_socket.accept()
-			if args.verbose:
-				print("Got a connection from test")
-			test_response = "true"
-			if args.verbose:
-				print("Sending true")
-			test.send(test_response.encode('utf-8'))
-			test.close()
-			if args.verbose:
-				print("Closed the test socket")
-		elif sock == ipc_socket:
-			if args.verbose:
-				print("Got a connection from myself")
-			ipc, addr = ipc_socket.accept()
-			if args.verbose:
-				print("Accepted the socket")
-			ipc.close()
-			if args.verbose:
-				print("Closed the socket")
-=======
-			print("Client (%s, %s) connected" % addr)
-			welcome = "BIG COCK"
-			#client_sock.send(welcome.encode('utf-8'))
 		elif sock == test_server_socket:
 			test, test_addr = test_server_socket.accept()
 			print("Got a connection from test")
@@ -280,20 +269,17 @@ while True:
 			print("Accepted the socket")
 			ipc.close()
 			print("Closed the socket")
->>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df
 			f = open(ipc_file, 'r')
 			file_data = ""
 			for line in f:
 				file_data += line
-<<<<<<< HEAD
 			if args.verbose:
 				print(file_data)
-=======
-			print(file_data)
->>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df
 			f.close()
 
-			if file_data == "true" or file_data == "false":
+			if str(file_data.split('\n')[0].upper()) == "TRUE" \
+					or str(file_data.split('\n')[0].upper()) == "FALSE" \
+					or str(file_data.split('\n')[0].upper()) == "NOEVENTS":
 				broadcast(file_data, SOCKET_LIST)
 			else:
 				db.clear_database()
@@ -306,7 +292,6 @@ while True:
 				f2.write(file_data)
 				f2.close()
 
-<<<<<<< HEAD
 				# broadcast(converted, SOCKET_LIST)
 				# broadcast(file_data, SOCKET_LIST)
 				if args.verbose:
@@ -314,55 +299,29 @@ while True:
 				for item in EVENT_LIST:
 					EVENT_LIST.remove(item)
 				create_event_list(converted)
-				send_event(True)
 				if args.verbose:
 					print("Event list created")
 				# send_event()
 				if args.verbose:
 					for event in EVENT_LIST:
 						print(str(event))
+				print("The length of the event list is: " + str(len(EVENT_LIST)))
+				send_event(True)
 				# sock.close()
 				# print(file_data)
 				# broadcast(file_data, SOCKET_LIST)
 				# print(file_data)
 				# broadcast(file_data, SOCKET_LIST)
-=======
-				#broadcast(converted, SOCKET_LIST)
-				#broadcast(file_data, SOCKET_LIST)
-				#print("Creating the event list")
-				for item in EVENT_LIST:
-					EVENT_LIST.remove(item)
-				create_event_list(converted)
-				#print("Event list created")
-				#send_event()
-				for event in EVENT_LIST:
-					print(str(event))
-				#sock.close()
-				#print(file_data)
-				#broadcast(file_data, SOCKET_LIST)
-				#print(file_data)
-				#broadcast(file_data, SOCKET_LIST)
->>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df
-
 		try:
 			data = sock.recv(RECV_BUFFER)
 			if data:
-				msg = "Server Response: " + data.decode('utf-8')
 				print("Received: " + data.decode('utf-8'))
-				if str(data.decode('utf-8')) == 'AT+CREG?' or str(data.decode('utf-8')) == 'ATZ':
-					print("Closing connection with: " + str(sock))
-					sock.close()
-					SOCKET_LIST.remove(sock)
-				else:
-					sock.send(msg)
+				Report(data.decode('utf-8'))
 
 		except:
 			continue
 
-<<<<<<< HEAD
 """
 #######################################################################################################################
 """
-=======
 
->>>>>>> d20f819b9b7fb347fa957b5924e73131db3fb0df

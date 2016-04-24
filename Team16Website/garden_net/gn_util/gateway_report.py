@@ -1,27 +1,65 @@
 from sqlalchemy import Column, Float, String, Integer, ForeignKey
 
 from base_historical import HistoricalBase
+from send_email import Alert
 
-class Garden():
+class Report():
 
 	def __init__(self, value: str):
-		temp = value.split('{')
-		global_gardern = temp[0]
-		self._opcode = global_gardern.split('%')[0]
-		self._percentMeshUp = global_gardern.split('%')[1]
-		self._percent3GUpTime = global_gardern.split('%')[2]
-		self._node_list = []
-		i = 1
-		while True:
-			try:
-				it = temp[i]
-				new_node = Node(it)
-				self._node_list.append(new_node)
-			except:
-				break
-			i += 1
-		#for node in self._node_list
-		#print(self._node_list)
+		self._opcode = value.split('%')[0]
+		if self._opcode == "00":
+			self._TEXT = None
+			temp = value.split('{')
+			global_gardern = temp[0]
+			self._opcode = global_gardern.split('%')[0]
+			self._percentMeshUp = global_gardern.split('%')[1]
+			self._percent3GUpTime = global_gardern.split('%')[2]
+			self._node_list = []
+			i = 1
+			while True:
+				try:
+					it = temp[i]
+					new_node = Node(it)
+					self._node_list.append(new_node)
+				except:
+					break
+				i += 1
+			#for node in self._node_list
+			#print(self._node_list)
+		elif self._opcode == "01":
+			node = value.split('%')[1]
+			status = value.split('%')[2]
+			currentFlowRate = value.split('%')[3]
+			if status == "5":
+				status_text = "stuck on"
+			else:
+				status_text = "stuck off"
+			TEXT = "Hello GardeNet User," \
+							"\n\nIt seems that your gateway has notified the alert system that node " + node + \
+							" is " + status_text + " and is recording a flow rate of: " + currentFlowRate + \
+							".\n\nRegards, \nGardeNet"
+			Alert(TEXT)
+		elif self._opcode == "02":
+			TEXT = "Hello GardeNet User," \
+				"\n\nYour gateway has reported that the radio network has gone down and is not " \
+							"correctly communicating with the nodes.\n\nRegards, \nGardeNet"
+			Alert(TEXT)
+		elif self._opcode == "03":
+			TEXT = "Hello GardeNet User," \
+				"\n\nYour gateway has reset itself.\n\nRegards, \nGardeNet"
+			Alert(TEXT)
+		elif self._opcode == "04":
+			node = value.split('%')[1]
+			voltageState = value.split('%')[2]
+			if voltageState == "1":
+				voltageState_text = "low"
+			else:
+				voltageState_text = "high"
+			TEXT = "Hello GardeNet User," \
+				"\n\nYour gateway has reported that node " + node +" has a " + voltageState_text + \
+					" voltage level.\n\nRegards, \nGardeNet"
+			Alert(TEXT)
+
 
 	def __str__(self):
 		temp = "opcode: " + self.opcode + "\npercentMeshUp: " + self.percentMeshUp + "\npercent3GUp: " \
@@ -67,6 +105,8 @@ class Node():
 			except:
 				break
 			i += 1
+
+
 
 	def __str__(self):
 		temp = "\n\tnode: " + str(self.nodeID) + " meshState: " + str(self.meshState) + " percentNodeAwake: " \
@@ -114,8 +154,12 @@ class Valve():
 		return self._totalWateringTime
 
 if __name__ == "__main__":
-	it = Gateway_Report("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
-	print(it)
+	it = Report("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
+	#print(it)
+	r = Report("01%2%5%0.00")
+	t = Report("02")
+	e = Report("03")
+	p = Report("04%1%2")
 	#print(it._opcode)
 	#print(it._percentMeshUp)
 	#print(it._percent3GUpTime)

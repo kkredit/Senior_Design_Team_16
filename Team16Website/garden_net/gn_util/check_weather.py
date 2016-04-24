@@ -26,25 +26,24 @@ z3 = Zone(3)
 
 db.add_zone(z)
 db.add_zone(z2)
-db.add_zone(z3)
 
-test_event0 = Event(3.0, 4.0, 'Monday', 1, 1)
-test_event1 = Event(1.0, 2.0, 'Monday', 1, 1)
-test_event2 = Event(2.0, 3.0, 'Monday', 1, 1)
-test_event3 = Event(1.5, 2.5, 'Monday', 1, 1)
-test_event4 = Event(1.0, 2.0, 'Monday', 1, 2)
-test_event5 = Event(1.0, 2.0, 'Monday', 1, 3)
-test_event6 = Event(1.5, 3.0, 'Monday', 1, 3)
-test_event7 = Event(1.0, 2.0, 'Monday', 1, 3)
+test_event0 = Event(3.0, 4.0, 'Tuesday', 1, 1)
+test_event1 = Event(1.0, 2.0, 'Tuesday', 1, 1)
+test_event2 = Event(2.0, 3.0, 'Tuesday', 1, 1)
+test_event3 = Event(1.5, 2.5, 'Tuesday', 1, 1)
+test_event4 = Event(1.0, 2.0, 'Tuesday', 1, 2)
+test_event5 = Event(1.0, 2.0, 'Tuesday', 1, 3)
+test_event6 = Event(1.5, 3.0, 'Tuesday', 1, 3)
+test_event7 = Event(1.0, 2.0, 'Tuesday', 1, 3)
 
-test_event8 = Event(3.0, 4.0, 'Monday', 2, 1)
-test_event9 = Event(1.0, 2.0, 'Monday', 2, 1)
-test_event10 = Event(2.0, 3.0, 'Monday', 2, 1)
-test_event11 = Event(1.5, 2.5, 'Monday', 2, 1)
-test_event12 = Event(1.0, 2.0, 'Monday', 2, 2)
-test_event13 = Event(1.0, 2.0, 'Monday', 2, 3)
-test_event14 = Event(1.5, 3.0, 'Monday', 2, 3)
-test_event15 = Event(1.0, 2.0, 'Monday', 2, 3)
+test_event8 = Event(3.0, 4.0, 'Tuesday', 2, 1)
+test_event9 = Event(1.0, 2.0, 'Tuesday', 2, 1)
+test_event10 = Event(2.0, 3.0, 'Tuesday', 2, 1)
+test_event11 = Event(1.5, 2.5, 'Tuesday', 2, 1)
+test_event12 = Event(1.0, 2.0, 'Tuesday', 2, 2)
+test_event13 = Event(1.0, 2.0, 'Tuesday', 2, 3)
+test_event14 = Event(1.5, 3.0, 'Tuesday', 2, 3)
+test_event15 = Event(1.0, 2.0, 'Tuesday', 2, 3)
 
 db.add_event(test_event0)
 db.add_event(test_event1)
@@ -79,7 +78,7 @@ if forecast.check_rain_prob(rain_threshold):
 elif forecast.check_temp(temp_threshold):
 	day = forecast.get_current_day()
 	zone = 1
-	it = ""
+	it = "{"
 	while True:
 		try:
 			event_list = db.get_events_on_day_for_zone(day, zone)
@@ -109,10 +108,14 @@ elif forecast.check_temp(temp_threshold):
 					temp = str(current_hour) + "." + str(new_minute)
 					new_time = float(temp)
 					event.set_stop_time(new_time)
-			it += json_convert.to_JSON(event_list, zone_obj, False)
-
+			temp_zone = Zone(zone+1)
+			try:
+				db.get_events_on_day_for_zone(day, zone+1)
+				it += json_convert.to_JSON(event_list, zone_obj, True)
+			except:
+				it += json_convert.to_JSON(event_list, zone_obj, False)
 		except:
 			break
 		zone += 1
-
+	it += "}"
 	print(it)
