@@ -1320,9 +1320,10 @@ void timeInit() {
     } 
   }
   setTime(timeArray[3], timeArray[4], timeArray[5], timeArray[2], timeArray[1], timeArray[0]);
-  time_t t = now(); // current time in UTC
-  t = t - (60 * 60 * 4);  // convert to EST
-  setTime(t+3*60*60-10*60);
+//  time_t t = now(); // current time in UTC
+//  t = t - (60 * 60 * 4);  // convert to EST
+//  setTime(t);
+  setTime(now() - 60*60*4);
 }
 
 
