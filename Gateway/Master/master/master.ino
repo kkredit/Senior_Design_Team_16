@@ -995,7 +995,8 @@ void readMeshMessages(){
 void isNewDay(){
   gardenStatus.isAwake = true;
   checkAlerts(DAILY_REPORT,0);
-  // resynchronize timer
+  // resynchronize timer -- delay is so that do not have resource issue with modem
+  delay(5000);
   timeInit();
 
   // reset garden status
@@ -1319,11 +1320,10 @@ void timeInit() {
       }
     } 
   }
-  setTime(timeArray[3], timeArray[4], timeArray[5], timeArray[2], timeArray[1], timeArray[0]);
-//  time_t t = now(); // current time in UTC
-//  t = t - (60 * 60 * 4);  // convert to EST
-//  setTime(t);
-  setTime(now() - 60*60*4);
+//  setTime(timeArray[3], timeArray[4], timeArray[5], timeArray[2], timeArray[1], timeArray[0]);
+//  setTime(now() - 60*60*4);
+  // for testing midnight sequence:
+  setTime(1461542280);
 }
 
 
@@ -1495,13 +1495,11 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   }
   // debug
   Serial.println();
-  Serial.println( myAlert);
-
-  uint8_t myAlertSize = myAlert.length();
+  Serial.println(myAlert);
 
   currentString = "";
   Modem_Serial.print("AT#SSENDEXT=1,");
-  Modem_Serial.println((String) myAlertSize);
+  Modem_Serial.println((String) myAlert.length());
   delay(1000);
   while(PrintModemResponse() > 0);
 

@@ -48,6 +48,8 @@
 #define IDPIN_3   A6  //note: analog input only, no internal pullup--has external pullup
 #define VIN_REF   A7  //note: analog input only, no internal pullup--no external pullup
 
+// rule
+//#define CAN_SEND_STATUS statusCounter*TIMER1_PERIOD/1000000*60 > 5
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +70,7 @@ volatile uint16_t flowRatePos = 0;
 // flags
 volatile bool hadButtonPress = false;
 volatile bool updateNodeStatusFlag = false;
+bool wasToldNewDayRecently = false;
 
 // other
 Node_Status myStatus;
@@ -396,6 +399,18 @@ int8_t setValve(uint8_t whichValve, bool setTo){
  */ 
 bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t datasize, uint8_t timesToTry){  
   Serial.println();
+
+  // If are trying to send status and were told of new day less than 5 minutes ago,
+  // you are rejected. This is to prevent overwriting the last day's status in the
+  // gateway before it sends its report to the server.
+  if(wasToldNewDayRecently && statusCounter*TIMER1_PERIOD/1000000*60 < 5){
+    Serial.println(F("The node wanted to send the status for some reason."));
+    Serial.println(F("It is just barely a new day; if send the status now,"));
+    Serial.println(F("it will overwrite the previous day's status before the"));
+    Serial.println(F("master sends its report. Send request is denied."));
+    return false;
+  }
+  
   // perform write
   if (!mesh.write(destination, payload, header, datasize)) {
     // if a write fails, check connectivity to the mesh network
@@ -1023,6 +1038,7 @@ void loop() {
         myStatus.valveStates[valve].timeSpentWatering = 0;
       }
       statusCounter = 0;
+      wasToldNewDayRecently = true;
       setLED(AWAKE_SEQUENCE);
       //safeMeshWrite(MASTER_ADDRESS, &myStatus.isAwake, SEND_NEW_DAY_H, sizeof(myStatus.isAwake), DEFAULT_SEND_TRIES);
       //safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES);
