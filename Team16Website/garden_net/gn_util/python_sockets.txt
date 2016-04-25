@@ -1,4 +1,0 @@
-python3 30701   pi    4u  IPv4 10079175      0t0  TCP *:5530 (LISTEN)
-python3 30701   pi    5u  IPv4 10079176      0t0  TCP localhost:5538 (LISTEN)
-python3 30701   pi    6u  IPv4 10079181      0t0  TCP localhost:5539 (LISTEN)
-python3 30733   pi    5u  IPv4 10079197      0t0  TCP localhost:48693->localhost:5539 (ESTABLISHED)

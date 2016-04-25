@@ -11,7 +11,7 @@ print("My local hostname: " + host)
 
 def kill():
 	print("Killing and restarting the server")
-	subprocess.call(['./server_script.sh'])
+	subprocess.call(['/var/www/Team16Website/garden_net/gn_util/server_script.sh'])
 	fmt = "%Y-%m-%d %H:%M:%S %Z%z"
 	now_time = datetime.datetime.now(timezone('US/Eastern'))
 	time = now_time.strftime(fmt)

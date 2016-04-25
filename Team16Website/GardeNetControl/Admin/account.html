@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+	<title>GardeNet Controller - Home</title>
+
+	<!-- CSS  -->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="../../css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+	<link href="../../css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+	<!-- <link rel="stylesheet" type="time/css" href="../../css/materialize.clockpicker.css"> -->
+
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="../../js/jquery.serializejson.js"></script>
+	<script src="../../js/duplicate_delete.js"></script>
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+	<div class = "navbar-fixed">
+		<nav class="white" role="navigation">
+			<div class="nav-wrapper container"  style="z-index: 3">
+				<a id="logo-container" href="index.html" class="brand-logo hide-on-small-and-down"><i>Garde<b>Net  </b> Controller  <img src="../../photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
+				<a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-up text-align right"><i>Garde<b>Net  </b> Controller  </i></a>
+				<ul class="right hide-on-med-and-down">
+					<li><a href="../../index.html">Home</a></li>
+					<li class="active"><a href="#">GardeNet Controller</a></li>
+					<li><a href="../index.html">Logout</a></li>
+				</ul>
+
+				<!-- Mobile NavBar -->
+				<ul id="nav-mobile" class="side-nav teal text-white">
+					<li><a class= "white-text" href="../../index.html">Home: </a></li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li><a class="white-text collapsible-header" style="padding-left:2em;">- Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="../../index.html#documents">Documents</a></li>
+										<li><a class = "white-text" href="../../about.html">About Us</a></li>
+										<li><a class="white-text" href="../../blog.html">Blog</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li>
+								<a class="white-text collapsible-header" style="padding-left:2em;">- Community Gardens<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li>
+								<a class="white-text collapsible-header" style="padding-left:2em;">- Calvin College<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
+										<li><a class = "white-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<div class="divider white"></div>
+					<li class= "active"><a class = "teal-text" href="../index.html">GardeNet Controller:</a></li>
+					<div class="divider teal"></div>
+					<li><a class= "white-text" href="admin.html" style="padding-left:2em;">- Schedule</a></li>
+					<li><a class= "white-text" href="history.html" style="padding-left:2em;">- Historical Data</a></li>
+					<li><a class= "white-text" href="alert.html" style="padding-left:2em;">- Alert Settings</a></li>
+					<li class= "active"><a class= "teal-text" href="account.html" style="padding-left:2em;">- Account Settings</a></li>
+					<div class="divider white"></div>
+					<li><a class= "white-text" href="../index.html">Logout</a></li>
+				</ul>
+				<a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+			</div>
+		</nav>
+	</div>
+
+	<div class = "navbar-fixed container hide-on-med-and-down" style="z-index: 2">
+		<nav class="teal darken-2 container subnav z-depth-0" role="navigation">
+			<div class="nav-wrapper">
+				<ul class="right">
+					<li><a class="white-text" href="admin.html">Schedule</a></li>
+					<li><a class="white-text" href="history.html">Historical Data</a></li>
+					<li><a class="white-text" href="alert.html">Alert Settings</a></li>
+					<li class="active"><a class="white-text" href="account.html">Account Settings</a></li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+
+	<br>
+
+	<div class="container">
+		<div class="card">
+			
+			<div class="card-content">
+				<h4>Account Settings</h4>
+				<p>Use the form below to change the username and password used to access the GardeNet system!</p>
+				<br/><br/>
+				<form class="col s5" id="login" method = "post">
+					<div class="row">
+						<div class="input-field col s5">
+							<input name="Username1" type="text" placeholder="Enter username here">
+							<label class="active" for="Username">Username: </label>
+						</div>
+						<div class="input-field col s5 offset-s1">
+							<input name="Password1" type="password" placeholder="Enter password here">
+							<label class="active" for="Password">Password: </label>
+						</div>
+
+					</div>
+					<div class="row">
+						<div class="input-field col s5">
+							<input name="Username2" type="text" placeholder="Enter username here">
+							<label class="active" for="Username">Re-enter Username: </label>
+						</div>
+						<div class="input-field col s5 offset-s1">
+							<input name="Password2" type="password" placeholder="Enter password here">
+							<label class="active" for="Password">Re-enter Password: </label>
+						</div>
+
+					</div>
+					<div class="row">
+						<span class="right"><a class="waves-effect waves-light btn" id="button3" onClick="login()">Submit<i class="material-icons right">send</i></a></span>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+	<footer class="page-footer teal">
+		<div class="container">
+			<div class="row">
+				<div class="col l5 s13">
+					<h5 class="white-text">Company Bio</h5>
+					<p class="grey-text text-lighten-4">We are a team of college students working on this project for our Senior Design Project at Calvin College. Feel free to email us with any questions. Any help would also be greatly appreciated.</p>
+
+
+				</div>
+				<div class="col l3 s12">
+					<h5 class="white-text">Gardens</h5>
+					<ul>
+						<li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+						<li><a class="white-text" href="http://www.eighthdayfarm.org/">Eighth Day Farm</a></li>
+					</ul>
+				</div>
+				<div class="col l2 s12">
+					<h5 class="white-text">Connect</h5>
+					<ul>
+						<li><a class="white-text" href="mailto:jrc32@students.calvin.edu">John Connell</a></li>
+						<li><a class="white-text" href="mailto:xj22@students.calvin.edu">Anthony Jin</a></li>
+						<li><a class="white-text" href="mailto:cak33@students.calvin.edu">Charles Kingston</a></li>
+						<li><a class="white-text" href="mailto:knk9@students.calvin.edu">Kevin Kredit</a></li>
+					</ul>
+				</div>
+				<div class="col l1 s12">
+					<a href = "http://www.calvin.edu"><img src= "../../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container">
+				Website by John Connell made with <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a> <a href = "http://i.imgur.com/UyDbQ7S.gif" class = "right-align teal-text text-darken-1">secrets are best kept by friends</a>
+			</div>
+		</div>
+	</footer>
+
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+	<script src="../../js/init.js"></script>
+
+	<script src="../../js/materialize.min.js"></script>
+
+	<!--  Scripts-->
+
+	<script src="../../js/jquery.serializejson.js"></script>
+
+	<script src="../../js/jquery.scrolltabs.js"></script>
+	<script src="../../js/jquery.mousewheel.js"></script>
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,3 @@
+Voltage Level	true	true
+Connection to Server	true	false
+Connection to Node	false	false

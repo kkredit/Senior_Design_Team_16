@@ -1,2063 +1,2066 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
 
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
-  <title>GardeNet Controller - Home</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+	<title>GardeNet Controller - Home</title>
 
-  <!-- CSS  -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  <link href="../css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-  <link href="../css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-  <link rel="stylesheet" type="text/css" href="../css/materialize.clockpicker.css">
-  
-  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <script src="../js/jquery.serializejson.js"></script>
+	<!-- CSS  -->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="../css/materialize.css" type="text/css" rel="stylesheet"/>
+	<link href="../css/style.css" type="text/css" rel="stylesheet"/>
+	<link rel="stylesheet" type="text/css" href="../css/materialize.clockpicker.css">
 
-  <script src="../js/materialize.clockpicker.js"></script>
-  <script src="../js/duplicate_delete.js"></script>
-  
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="../js/jquery.serializejson.js"></script>
+
+	<script src="../js/materialize.clockpicker.js"></script>
+	<script src="../js/duplicate_delete.js"></script>
+
 </head>
 <body>
 
-  <div class = "navbar-fixed" >
-    <nav class="white" role="navigation">
-      <div class="nav-wrapper container" style="z-index: 3">
-        <a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-down"><i>Garde<b>Net  </b> Controller  <img src="../../photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
-		<a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-up text-align right"><i>Garde<b>Net  </b> Controller  </i></a>
-        <ul class="right hide-on-med-and-down">
-          <li><a href="../index.html">Home</a></li>
-          <li class="active"><a href="index.html">GardeNet Controller</a></li>
-          <li><a href="Admin/admin.html">Admin Access</a></li>
-        </ul>
+	<div class = "navbar-fixed" >
+		<nav class="white">
+			<div class="nav-wrapper container" style="z-index: 3">
+				<a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-down"><i>Garde<b>Net  </b> Controller  <img src="../../photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
+				<a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-up text-align right"><i>Garde<b>Net  </b> Controller  </i></a>
+				<ul class="right hide-on-med-and-down">
+					<li><a href="../index.html">Home</a></li>
+					<li class="active"><a href="index.html">GardeNet Controller</a></li>
+					<li><a href="Admin/admin.html">Admin Access</a></li>
+				</ul>
 
-        <!-- Mobile NavBar -->
-        <ul id="nav-mobile" class="side-nav teal text-white">
-          <li><a class= "white-text" href="../index.html">Home: </a></li>
-          <li class="no-padding">
-            <ul class="collapsible collapsible-accordion">
-              <li><a class="white-text collapsible-header" style="padding-left:2em;">- Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a>
-                <div class="collapsible-body teal">
-                  <ul>
-                    <li><a class="white-text" href="../index.html#documents">Documents</a></li>
-                    <li><a class = "white-text" href="../about.html">About Us</a></li>
-                    <li><a class="white-text" href="../blog.html">Blog</a></li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
-          </li>
-          <li class="no-padding">
-            <ul class="collapsible collapsible-accordion">
-              <li>
-                <a class="white-text collapsible-header" style="padding-left:2em;">- Community Gardens<i class="mdi-navigation-arrow-drop-down right"></i></a>
-                <div class="collapsible-body teal">
-                  <ul>
-                    <li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
-          </li>
-          <li class="no-padding">
-            <ul class="collapsible collapsible-accordion">
-              <li>
-                <a class="white-text collapsible-header" style="padding-left:2em;">- Calvin College<i class="mdi-navigation-arrow-drop-down right"></i></a>
-                <div class="collapsible-body teal">
-                  <ul>
-                    <li><a class="white-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
-                    <li><a class = "white-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
-          </li>
-          <div class="divider white"></div>
-          <li class= "active"><a class = "teal-text" href="index.html">GardeNet Controller:</a></li>
-          <div class="divider teal"></div>
-          <li class= "active"><a class= "teal-text" href="index.html" style="padding-left:2em;">- Schedule</a></li>
-          <li><a class= "white-text" href="#" style="padding-left:2em;">- Historical Data</a></li>
-          <div class="divider white"></div>
-          <li><a class= "white-text" href="Admin/admin.html">Admin Access</a></li>
-        </ul>
-        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
-      </div>
-    </nav>
-  </div>
+				<!-- Mobile NavBar -->
+				<ul id="nav-mobile" class="side-nav teal text-white">
+					<li><a class= "white-text" href="../index.html">Home: </a></li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li><a class="white-text collapsible-header" style="padding-left:2em;">- Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="../index.html#documents">Documents</a></li>
+										<li><a class = "white-text" href="../about.html">About Us</a></li>
+										<li><a class="white-text" href="../blog.html">Blog</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li>
+								<a class="white-text collapsible-header" style="padding-left:2em;">- Community Gardens<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li>
+								<a class="white-text collapsible-header" style="padding-left:2em;">- Calvin College<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
+										<li><a class = "white-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<div class="divider white"></div>
+					<li class= "active"><a class = "teal-text" href="index.html">GardeNet Controller:</a></li>
+					<div class="divider teal"></div>
+					<li class= "active"><a class= "teal-text" href="index.html" style="padding-left:2em;">- Schedule</a></li>
+					<li><a class= "white-text" href="#" style="padding-left:2em;">- Historical Data</a></li>
+					<div class="divider white"></div>
+					<li><a class= "white-text" href="Admin/admin.html">Admin Access</a></li>
+				</ul>
+				<a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+			</div>
+		</nav>
+	</div>
 
-  <div class = "navbar-fixed container hide-on-med-and-down" style=" z-index: 2;">
-    <nav class="teal darken-2 container subnav z-depth-0" role="navigation">
-      <div class="nav-wrapper">
-        <ul class="right">
-          <li class="active"><a class="white-text" href="index.html">Schedule</a></li>
-          <li><a class="white-text" href="#">Historical Data</a></li>
-        </ul>
-      </div>
-    </nav>
-  </div>
+	<div class = "navbar-fixed container hide-on-med-and-down" style=" z-index: 2;">
+		<nav class="teal darken-2 container subnav z-depth-0">
+			<div class="nav-wrapper">
+				<ul class="right">
+					<li class="active"><a class="white-text" href="index.html">Schedule</a></li>
+					<li><a class="white-text" href="#">Historical Data</a></li>
+				</ul>
+			</div>
+		</nav>
+	</div>
 
-  <section>
-  <div class="container">
-  <span class="right" style="display: block; width: 320px; text-align: center; font-family: sans-serif; font-size: 12px;"><a href="http://www.wunderground.com/cgi-bin/findweather/getForecast?query=zmw:49316.1.99999&bannertypeclick=wu_clean2day" title="Caledonia, Michigan Weather Forecast" target="_blank"><img src="http://weathersticker.wunderground.com/weathersticker/cgi-bin/banner/ban/wxBanner?bannertype=wu_clean2day_cond&airportcode=KGRR&ForcedCity=Caledonia&ForcedState=MI&zip=49316&language=EN" alt="Find more about Weather in Caledonia, MI" width="300" /></a></span> 
-  <br/><br/><br/><br/><br/>
-  <h3 class="text-align center hide-on-med-and-down"> Welcome to the GardeNet Controller Hosting Caledonia Community Garden </h3>
-  <h4 class="text-align center mobile"> Welcome to the GardeNet Controller </h4>
-  
+	<section>
+		<div class="container">
+			<span class="right" style="display: block; width: 320px; text-align: center; font-family: sans-serif; font-size: 12px;"><a href="http://www.wunderground.com/cgi-bin/findweather/getForecast?query=zmw:49316.1.99999&bannertypeclick=wu_clean2day" title="Caledonia, Michigan Weather Forecast" target="_blank"><img src="http://weathersticker.wunderground.com/weathersticker/cgi-bin/banner/ban/wxBanner?bannertype=wu_clean2day_cond&airportcode=KGRR&ForcedCity=Caledonia&ForcedState=MI&zip=49316&language=EN" alt="Find more about Weather in Caledonia, MI" width="300" /></a></span> 
+			<br/><br/><br/><br/><br/>
+			<h3 class="text-align center hide-on-small-and-down"> Welcome to the GardeNet Controller</h3>
+			<h4 class="text-align center hide-on-small-and-down"> Hosting Caledonia Community Garden  </h4>
+			<h4 class="text-align center hide-on-med-and-up"> Welcome to the GardeNet Controller</h4>
 
-  </div>
-  </section>   
-
- <div class="container">
+			<br/><br/><br/>
 
 
-  <div class="row">
-    <ul id="tabs" class="tab-titles scroll_tabs_theme_light" data-tabs="tabs">
-      <li id="li_1" class="active"><a data-toggle="tab" id="1" href="#tab1">Zone 1</a></li>
-      <li id="li_2"><a data-toggle="tab" id="2" href="#tab2">Zone 2</a></li>
-      <li id="li_3"><a data-toggle="tab" id="3" href="#tab3">Zone 3</a></li>
-      <li id="li_4"><a data-toggle="tab" id="4" href="#tab4">Zone 4</a></li>
-    </ul>
+		</div>
+	</section>   
 
-    <div id="tabs-container" class="card">
-      <form class="col s12" id="myForm" method = "post">
-        <div id="tab1" class="tab-content card-content active">
-         <span class="col s5"><h4 id="zone1" class="zoneTitle" >Zone 1</h4></span>
-          <input id="newTitle1" type = "text" class="col s3 offset-s1 hide" name="Zone1[name]">
-          <button id="subTitle1" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
-          <br/>
-          <div class="input-field col s1 offset-s4 hide" id="node1">
-            <input name="Zone1[node]"  type="number" value="1">
-            <label id="node1name" for="Zone1[node]" class="active">Node</label>
-          </div>
-          <div class="input-field col s1 hide" id="valve1">
-            <input name="Zone1[valve]"  type="number" value="1">
-            <label for="Zone1[valve]" class="active">Valve</label>
-          </div>
-          <br/>
-          <button id="NVChange1" type="button" class="hide" onClick="changeNV()"> Submit</button>
-          <br/><br/><br/>
-          <input value="7" name="Zone1[openevents]" class="hide">
-          <br/>
-          <div id="row1" class="row hide">
-            <div class="col s3">
-              <p><br>Event 1</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event0[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event0[start_time]]" type="time" >
-              <label class="active" for="Zone1[event0[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event0[stop_time]]" type="time">
-              <label class="active" for="Zone1[event0[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event0[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row2" class="row hide">
-            <div class="col s3">
-              <p><br>Event 2</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event1[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event1[start_time]]" type="time" >
-              <label class="active" for="Zone1[event1[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event1[stop_time]]" type="time">
-              <label class="active" for="Zone1[event1[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event1[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row3" class="row hide">
-            <div class="col s3">
-              <p><br>Event 3</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event2[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event2[start_time]]" type="time" >
-              <label class="active" for="Zone1[event2[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event2[stop_time]]" type="time">
-              <label class="active" for="Zone1[event2[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event2[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row4" class="row hide">
-            <div class="col s3">
-              <p><br>Event 4</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event3[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event3[start_time]]" type="time" >
-              <label class="active" for="Zone1[event3[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event3[stop_time]]" type="time">
-              <label class="active" for="Zone1[event3[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event3[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row5" class="row hide">
-            <div class="col s3">
-              <p><br>Event 5</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event4[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event4[start_time]]" type="time" >
-              <label class="active" for="Zone1[event4[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event4[stop_time]]" type="time">
-              <label class="active" for="Zone1[event4[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event4[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row6" class="row hide">
-            <div class="col s3">
-              <p><br>Event 6</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event5[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event5[start_time]]" type="time" >
-              <label class="active" for="Zone1[event5[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event5[stop_time]]" type="time">
-              <label class="active" for="Zone1[event5[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event5[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row7" class="row hide">
-            <div class="col s3">
-              <p><br>Event 7</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event6[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event6[start_time]]" type="time" >
-              <label class="active" for="Zone1[event6[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event6[stop_time]]" type="time">
-              <label class="active" for="Zone1[event6[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event6[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row8" class="row hide">
-            <div class="col s3">
-              <p><br>Event 8</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event7[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event7[start_time]]" type="time" >
-              <label class="active" for="Zone1[event7[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event7[stop_time]]" type="time">
-              <label class="active" for="Zone1[event7[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event7[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row9" class="row hide">
-            <div class="col s3">
-              <p><br>Event 9</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event8[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event8[start_time]]" type="time" >
-              <label class="active" for="Zone1[event8[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event8[stop_time]]" type="time">
-              <label class="active" for="Zone1[event8[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event8[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row10" class="row hide">
-            <div class="col s3">
-              <p><br>Event 10</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event9[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event9[start_time]]" type="time" >
-              <label class="active" for="Zone1[event9[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event9[stop_time]]" type="time">
-              <label class="active" for="Zone1[event9[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event9[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row11" class="row hide">
-            <div class="col s3">
-              <p><br>Event 11</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event10[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event10[start_time]]" type="time" >
-              <label class="active" for="Zone1[event10[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event10[stop_time]]" type="time">
-              <label class="active" for="Zone1[event10[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event10[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row12" class="row hide">
-            <div class="col s3">
-              <p><br>Event 12</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event11[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event11[start_time]]" type="time" >
-              <label class="active" for="Zone1[event11[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event11[stop_time]]" type="time">
-              <label class="active" for="Zone1[event11[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event11[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row13" class="row hide">
-            <div class="col s3">
-              <p><br>Event 13</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event12[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event12[start_time]]" type="time" >
-              <label class="active" for="Zone1[event12[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event12[stop_time]]" type="time">
-              <label class="active" for="Zone1[event12[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event12[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row14" class="row hide">
-            <div class="col s3">
-              <p><br>Event 14</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event13[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event13[start_time]]" type="time" >
-              <label class="active" for="Zone1[event13[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event13[stop_time]]" type="time">
-              <label class="active" for="Zone1[event13[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event13[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row15" class="row hide">
-            <div class="col s3">
-              <p><br>Event 15</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event14[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event14[start_time]]" type="time" >
-              <label class="active" for="Zone1[event14[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event14[stop_time]]" type="time">
-              <label class="active" for="Zone1[event14[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event14[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row16" class="row hide">
-            <div class="col s3">
-              <p><br>Event 16</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event15[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event15[start_time]]" type="time" >
-              <label class="active" for="Zone1[event15[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event15[stop_time]]" type="time">
-              <label class="active" for="Zone1[event15[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event15[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row17" class="row hide">
-            <div class="col s3">
-              <p><br>Event 17</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event16[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event16[start_time]]" type="time" >
-              <label class="active" for="Zone1[event16[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event16[stop_time]]" type="time">
-              <label class="active" for="Zone1[event16[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event16[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row18" class="row hide">
-            <div class="col s3">
-              <p><br>Event 18</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event17[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event17[start_time]]" type="time" >
-              <label class="active" for="Zone1[event17[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event17[stop_time]]" type="time">
-              <label class="active" for="Zone1[event17[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event17[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row19" class="row hide">
-            <div class="col s3">
-              <p><br>Event 19</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event18[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event18[start_time]]" type="time" >
-              <label class="active" for="Zone1[event18[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event18[stop_time]]" type="time">
-              <label class="active" for="Zone1[event18[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event18[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row20" class="row hide">
-            <div class="col s3">
-              <p><br>Event 20</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event19[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event19[start_time]]" type="time" >
-              <label class="active" for="Zone1[event19[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event19[stop_time]]" type="time">
-              <label class="active" for="Zone1[event19[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event19[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row21" class="row hide">
-            <div class="col s3">
-              <p><br>Event 21</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone1[event20[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event20[start_time]]" type="time" >
-              <label class="active" for="Zone1[event20[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone1[event20[stop_time]]" type="time">
-              <label class="active" for="Zone1[event20[stop_time]]">Stop</label>
-              <input readonly value="1" name="Zone1[event20[zone_ID]]" class="hide">
-            </div>
-          </div>
-        </div>
+	<div class="container">
 
+			<ul id="tabs" class="tab-titles scroll_tabs_theme_light" data-tabs="tabs">
+			</ul>
 
-        <div id="tab2" class="tab-content card-content hide">
-          <span class="col s5"><h4 id="zone2" class="zoneTitle" >Zone 2</h4></span>
-          <input id="newTitle2" type = "text" class="col s3 offset-s1 hide" name="Zone2[name]">
-          <button id="subTitle2" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
-          <br/>
-          <div class="input-field col s1 offset-s4 hide" id="node2">
-            <input name="Zone2[node]"  type="number" value="2">
-            <label id="node2name" for="Zone2[node]" class="active">Node</label>
-          </div>
-          <div class="input-field col s1 hide" id="valve2">
-            <input name="Zone2[valve]"  type="number" value="2">
-            <label for="Zone2[valve]" class="active">Valve</label>
-          </div>
-          <br/>
-          <button id="NVChange2" type="button" class="hide" onClick="changeNV()"> Submit</button>
-          <br/><br/><br/>
-          <input value="5" name="Zone2[openevents]" class="hide">
-          <br/>
-          <div id="row1" class="row hide">
-            <div class="col s3">
-              <p><br>Event 1</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event0[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event0[start_time]]" type="time" >
-              <label class="active" for="Zone2[event0[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event0[stop_time]]" type="time">
-              <label class="active" for="Zone2[event0[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event0[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row2" class="row hide">
-            <div class="col s3">
-              <p><br>Event 2</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event1[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event1[start_time]]" type="time" >
-              <label class="active" for="Zone2[event1[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event1[stop_time]]" type="time">
-              <label class="active" for="Zone2[event1[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event1[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row3" class="row hide">
-            <div class="col s3">
-              <p><br>Event 3</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event2[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event2[start_time]]" type="time" >
-              <label class="active" for="Zone2[event2[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event2[stop_time]]" type="time">
-              <label class="active" for="Zone2[event2[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event2[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row4" class="row hide">
-            <div class="col s3">
-              <p><br>Event 4</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event3[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event3[start_time]]" type="time" >
-              <label class="active" for="Zone2[event3[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event3[stop_time]]" type="time">
-              <label class="active" for="Zone2[event3[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event3[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row5" class="row hide">
-            <div class="col s3">
-              <p><br>Event 5</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event4[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event4[start_time]]" type="time" >
-              <label class="active" for="Zone2[event4[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event4[stop_time]]" type="time">
-              <label class="active" for="Zone2[event4[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event4[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row6" class="row hide">
-            <div class="col s3">
-              <p><br>Event 6</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event5[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event5[start_time]]" type="time" >
-              <label class="active" for="Zone2[event5[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event5[stop_time]]" type="time">
-              <label class="active" for="Zone2[event5[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event5[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row7" class="row hide">
-            <div class="col s3">
-              <p><br>Event 7</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event6[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event6[start_time]]" type="time" >
-              <label class="active" for="Zone2[event6[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event6[stop_time]]" type="time">
-              <label class="active" for="Zone2[event6[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event6[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row8" class="row hide">
-            <div class="col s3">
-              <p><br>Event 8</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event7[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event7[start_time]]" type="time" >
-              <label class="active" for="Zone2[event7[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event7[stop_time]]" type="time">
-              <label class="active" for="Zone2[event7[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event7[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row9" class="row hide">
-            <div class="col s3">
-              <p><br>Event 9</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event8[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event8[start_time]]" type="time" >
-              <label class="active" for="Zone2[event8[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event8[stop_time]]" type="time">
-              <label class="active" for="Zone2[event8[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event8[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row10" class="row hide">
-            <div class="col s3">
-              <p><br>Event 10</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event9[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event9[start_time]]" type="time" >
-              <label class="active" for="Zone2[event9[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event9[stop_time]]" type="time">
-              <label class="active" for="Zone2[event9[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event9[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row11" class="row hide">
-            <div class="col s3">
-              <p><br>Event 11</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event10[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event10[start_time]]" type="time" >
-              <label class="active" for="Zone2[event10[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event10[stop_time]]" type="time">
-              <label class="active" for="Zone2[event10[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event10[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row12" class="row hide">
-            <div class="col s3">
-              <p><br>Event 12</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event11[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event11[start_time]]" type="time" >
-              <label class="active" for="Zone2[event11[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event11[stop_time]]" type="time">
-              <label class="active" for="Zone2[event11[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event11[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row13" class="row hide">
-            <div class="col s3">
-              <p><br>Event 13</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event12[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event12[start_time]]" type="time" >
-              <label class="active" for="Zone2[event12[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event12[stop_time]]" type="time">
-              <label class="active" for="Zone2[event12[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event12[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row14" class="row hide">
-            <div class="col s3">
-              <p><br>Event 14</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event13[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event13[start_time]]" type="time" >
-              <label class="active" for="Zone2[event13[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event13[stop_time]]" type="time">
-              <label class="active" for="Zone2[event13[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event13[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row15" class="row hide">
-            <div class="col s3">
-              <p><br>Event 15</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event14[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event14[start_time]]" type="time" >
-              <label class="active" for="Zone2[event14[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event14[stop_time]]" type="time">
-              <label class="active" for="Zone2[event14[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event14[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row16" class="row hide">
-            <div class="col s3">
-              <p><br>Event 16</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event15[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event15[start_time]]" type="time" >
-              <label class="active" for="Zone2[event15[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event15[stop_time]]" type="time">
-              <label class="active" for="Zone2[event15[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event15[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row17" class="row hide">
-            <div class="col s3">
-              <p><br>Event 17</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event16[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event16[start_time]]" type="time" >
-              <label class="active" for="Zone2[event16[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event16[stop_time]]" type="time">
-              <label class="active" for="Zone2[event16[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event16[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row18" class="row hide">
-            <div class="col s3">
-              <p><br>Event 18</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event17[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event17[start_time]]" type="time" >
-              <label class="active" for="Zone2[event17[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event17[stop_time]]" type="time">
-              <label class="active" for="Zone2[event17[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event17[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row19" class="row hide">
-            <div class="col s3">
-              <p><br>Event 19</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event18[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event18[start_time]]" type="time" >
-              <label class="active" for="Zone2[event18[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event18[stop_time]]" type="time">
-              <label class="active" for="Zone2[event18[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event18[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row20" class="row hide">
-            <div class="col s3">
-              <p><br>Event 20</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event19[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event19[start_time]]" type="time" >
-              <label class="active" for="Zone2[event19[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event19[stop_time]]" type="time">
-              <label class="active" for="Zone2[event19[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event19[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row21" class="row hide">
-            <div class="col s3">
-              <p><br>Event 21</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone2[event20[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event20[start_time]]" type="time" >
-              <label class="active" for="Zone2[event20[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone2[event20[stop_time]]" type="time">
-              <label class="active" for="Zone2[event20[stop_time]]">Stop</label>
-              <input readonly value="2" name="Zone2[event20[zone_ID]]" class="hide">
-            </div>
-          </div>
-        </div>
-        <div id="tab3" class="tab-content card-content hide">
-          <span class="col s5"><h4 id="zone3" class="zoneTitle" >Zone 3</h4></span>
-          <input id="newTitle3" type = "text" class="col s3 offset-s1 hide" name="Zone3[name]">
-          <button id="subTitle3" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
-          <br/>
-          <div class="input-field col s1 offset-s4 hide" id="node3">
-            <input name="Zone3[node]"  type="number" value="3">
-            <label id="node3name" for="Zone3[node]" class="active">Node</label>
-          </div>
-          <div class="input-field col s1 hide" id="valve3">
-            <input name="Zone3[valve]"  type="number" value="3">
-            <label for="Zone3[valve]" class="active">Valve</label>
-          </div>
-          <br/>
-          <button id="NVChange3" type="button" class="hide" onClick="changeNV()"> Submit</button>
-          <br/><br/><br/>
-          <input value="8" name="Zone3[openevents]" class="hide">
-          <br/>
-          <div id="row1" class="row hide">
-            <div class="col s3">
-              <p><br>Event 1</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event0[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event0[start_time]]" type="time" >
-              <label class="active" for="Zone3[event0[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event0[stop_time]]" type="time">
-              <label class="active" for="Zone3[event0[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event0[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row2" class="row hide">
-            <div class="col s3">
-              <p><br>Event 2</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event1[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event1[start_time]]" type="time" >
-              <label class="active" for="Zone3[event1[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event1[stop_time]]" type="time">
-              <label class="active" for="Zone3[event1[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event1[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row3" class="row hide">
-            <div class="col s3">
-              <p><br>Event 3</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event2[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event2[start_time]]" type="time" >
-              <label class="active" for="Zone3[event2[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event2[stop_time]]" type="time">
-              <label class="active" for="Zone3[event2[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event2[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row4" class="row hide">
-            <div class="col s3">
-              <p><br>Event 4</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event3[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event3[start_time]]" type="time" >
-              <label class="active" for="Zone3[event3[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event3[stop_time]]" type="time">
-              <label class="active" for="Zone3[event3[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event3[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row5" class="row hide">
-            <div class="col s3">
-              <p><br>Event 5</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event4[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event4[start_time]]" type="time" >
-              <label class="active" for="Zone3[event4[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event4[stop_time]]" type="time">
-              <label class="active" for="Zone3[event4[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event4[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row6" class="row hide">
-            <div class="col s3">
-              <p><br>Event 6</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event5[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event5[start_time]]" type="time" >
-              <label class="active" for="Zone3[event5[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event5[stop_time]]" type="time">
-              <label class="active" for="Zone3[event5[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event5[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row7" class="row hide">
-            <div class="col s3">
-              <p><br>Event 7</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event6[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event6[start_time]]" type="time" >
-              <label class="active" for="Zone3[event6[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event6[stop_time]]" type="time">
-              <label class="active" for="Zone3[event6[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event6[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row8" class="row hide">
-            <div class="col s3">
-              <p><br>Event 8</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event7[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event7[start_time]]" type="time" >
-              <label class="active" for="Zone3[event7[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event7[stop_time]]" type="time">
-              <label class="active" for="Zone3[event7[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event7[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row9" class="row hide">
-            <div class="col s3">
-              <p><br>Event 9</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event8[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event8[start_time]]" type="time" >
-              <label class="active" for="Zone3[event8[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event8[stop_time]]" type="time">
-              <label class="active" for="Zone3[event8[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event8[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row10" class="row hide">
-            <div class="col s3">
-              <p><br>Event 10</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event9[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event9[start_time]]" type="time" >
-              <label class="active" for="Zone3[event9[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event9[stop_time]]" type="time">
-              <label class="active" for="Zone3[event9[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event9[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row11" class="row hide">
-            <div class="col s3">
-              <p><br>Event 11</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event10[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event10[start_time]]" type="time" >
-              <label class="active" for="Zone3[event10[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event10[stop_time]]" type="time">
-              <label class="active" for="Zone3[event10[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event10[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row12" class="row hide">
-            <div class="col s3">
-              <p><br>Event 12</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event11[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event11[start_time]]" type="time" >
-              <label class="active" for="Zone3[event11[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event11[stop_time]]" type="time">
-              <label class="active" for="Zone3[event11[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event11[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row13" class="row hide">
-            <div class="col s3">
-              <p><br>Event 13</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event12[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event12[start_time]]" type="time" >
-              <label class="active" for="Zone3[event12[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event12[stop_time]]" type="time">
-              <label class="active" for="Zone3[event12[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event12[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row14" class="row hide">
-            <div class="col s3">
-              <p><br>Event 14</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event13[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event13[start_time]]" type="time" >
-              <label class="active" for="Zone3[event13[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event13[stop_time]]" type="time">
-              <label class="active" for="Zone3[event13[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event13[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row15" class="row hide">
-            <div class="col s3">
-              <p><br>Event 15</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event14[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event14[start_time]]" type="time" >
-              <label class="active" for="Zone3[event14[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event14[stop_time]]" type="time">
-              <label class="active" for="Zone3[event14[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event14[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row16" class="row hide">
-            <div class="col s3">
-              <p><br>Event 16</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event15[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event15[start_time]]" type="time" >
-              <label class="active" for="Zone3[event15[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event15[stop_time]]" type="time">
-              <label class="active" for="Zone3[event15[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event15[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row17" class="row hide">
-            <div class="col s3">
-              <p><br>Event 17</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event16[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event16[start_time]]" type="time" >
-              <label class="active" for="Zone3[event16[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event16[stop_time]]" type="time">
-              <label class="active" for="Zone3[event16[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event16[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row18" class="row hide">
-            <div class="col s3">
-              <p><br>Event 18</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event17[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event17[start_time]]" type="time" >
-              <label class="active" for="Zone3[event17[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event17[stop_time]]" type="time">
-              <label class="active" for="Zone3[event17[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event17[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row19" class="row hide">
-            <div class="col s3">
-              <p><br>Event 19</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event18[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event18[start_time]]" type="time" >
-              <label class="active" for="Zone3[event18[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event18[stop_time]]" type="time">
-              <label class="active" for="Zone3[event18[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event18[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row20" class="row hide">
-            <div class="col s3">
-              <p><br>Event 20</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event19[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event19[start_time]]" type="time" >
-              <label class="active" for="Zone3[event19[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event19[stop_time]]" type="time">
-              <label class="active" for="Zone3[event19[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event19[zone_ID]]" class="hide">
-            </div>
-          </div>
-          <div id="row21" class="row hide">
-            <div class="col s3">
-              <p><br>Event 21</p>
-            </div>
-            <div class="input-field col s3">
-              <select disabled="true"  name="Zone3[event20[day]]">
-                <option value="" selected>Please Select a Value</option>
-                <option value="Everyday">Everyday</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-              </select>
-              <label>Day: </label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event20[start_time]]" type="time" >
-              <label class="active" for="Zone3[event20[start_time]]">Start</label>
-            </div>
-            <div class="input-field col s3">
-              <input readonly name="Zone3[event20[stop_time]]" type="time">
-              <label class="active" for="Zone3[event20[stop_time]]">Stop</label>
-              <input readonly value="3" name="Zone3[event20[zone_ID]]" class="hide">
-            </div>
-          </div>
-        </div>
-      </form>
-      <span class="white text"><a id="blankyblankerson" class="white-text"> &#46;</a></span>
-    </div>
-  </div>
-</div>
-
-<footer class="page-footer teal">
-  <div class="container">
-    <div class="row">
-      <div class="col l5 s13">
-        <h5 class="white-text">Company Bio</h5>
-        <p class="grey-text text-lighten-4">We are a team of college students working on this project for our Senior Design Project at Calvin College. Feel free to email us with any questions. Any help would also be greatly appreciated.</p>
+			<div id="tabs-container" class="card">
+				<form class="col s12" id="myForm" method = "post">
+					<div class="input-field col s1 hide" id="openZones">
+						<input name="openZones"  type="number" value="1" min="1" max="16">
+						<label for="openZones" class="active">Open Zones</label>
+					</div>
+					<div id="tab1" class="tab-content card-content active">
+						<span class="col s5"><h4 id="zone1" class="zoneTitle" >Zone 1</h4></span>
+						<input id="newTitle1" type = "text" class="col s3 offset-s1 hide" name="Zone1[name]">
+						<button id="subTitle1" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+						<br/>
+						<div class="input-field col s1 offset-s4 hide" id="node1">
+							<input name="Zone1[node]"  type="number" value="1">
+							<label id="node1name" for="Zone1[node]" class="active">Node</label>
+						</div>
+						<div class="input-field col s1 hide" id="valve1">
+							<input name="Zone1[valve]"  type="number" value="1">
+							<label for="Zone1[valve]" class="active">Valve</label>
+						</div>
+						<br/>
+						<button id="NVChange1" type="button" class="hide" onClick="changeNV()"> Submit</button>
+						<br/><br/><br/>
+						<input value="7" name="Zone1[openevents]" class="hide">
+						<br/>
+						<div id="row1" class="row hide">
+							<div class="col s3">
+								<p><br>Event 1</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event0[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event0[start_time]]" type="time" >
+								<label class="active" for="Zone1[event0[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event0[stop_time]]" type="time">
+								<label class="active" for="Zone1[event0[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event0[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row2" class="row hide">
+							<div class="col s3">
+								<p><br>Event 2</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event1[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event1[start_time]]" type="time" >
+								<label class="active" for="Zone1[event1[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event1[stop_time]]" type="time">
+								<label class="active" for="Zone1[event1[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event1[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row3" class="row hide">
+							<div class="col s3">
+								<p><br>Event 3</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event2[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event2[start_time]]" type="time" >
+								<label class="active" for="Zone1[event2[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event2[stop_time]]" type="time">
+								<label class="active" for="Zone1[event2[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event2[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row4" class="row hide">
+							<div class="col s3">
+								<p><br>Event 4</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event3[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event3[start_time]]" type="time" >
+								<label class="active" for="Zone1[event3[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event3[stop_time]]" type="time">
+								<label class="active" for="Zone1[event3[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event3[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row5" class="row hide">
+							<div class="col s3">
+								<p><br>Event 5</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event4[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event4[start_time]]" type="time" >
+								<label class="active" for="Zone1[event4[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event4[stop_time]]" type="time">
+								<label class="active" for="Zone1[event4[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event4[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row6" class="row hide">
+							<div class="col s3">
+								<p><br>Event 6</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event5[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event5[start_time]]" type="time" >
+								<label class="active" for="Zone1[event5[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event5[stop_time]]" type="time">
+								<label class="active" for="Zone1[event5[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event5[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row7" class="row hide">
+							<div class="col s3">
+								<p><br>Event 7</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event6[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event6[start_time]]" type="time" >
+								<label class="active" for="Zone1[event6[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event6[stop_time]]" type="time">
+								<label class="active" for="Zone1[event6[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event6[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row8" class="row hide">
+							<div class="col s3">
+								<p><br>Event 8</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event7[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event7[start_time]]" type="time" >
+								<label class="active" for="Zone1[event7[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event7[stop_time]]" type="time">
+								<label class="active" for="Zone1[event7[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event7[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row9" class="row hide">
+							<div class="col s3">
+								<p><br>Event 9</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event8[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event8[start_time]]" type="time" >
+								<label class="active" for="Zone1[event8[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event8[stop_time]]" type="time">
+								<label class="active" for="Zone1[event8[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event8[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row10" class="row hide">
+							<div class="col s3">
+								<p><br>Event 10</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event9[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event9[start_time]]" type="time" >
+								<label class="active" for="Zone1[event9[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event9[stop_time]]" type="time">
+								<label class="active" for="Zone1[event9[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event9[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row11" class="row hide">
+							<div class="col s3">
+								<p><br>Event 11</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event10[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event10[start_time]]" type="time" >
+								<label class="active" for="Zone1[event10[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event10[stop_time]]" type="time">
+								<label class="active" for="Zone1[event10[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event10[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row12" class="row hide">
+							<div class="col s3">
+								<p><br>Event 12</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event11[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event11[start_time]]" type="time" >
+								<label class="active" for="Zone1[event11[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event11[stop_time]]" type="time">
+								<label class="active" for="Zone1[event11[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event11[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row13" class="row hide">
+							<div class="col s3">
+								<p><br>Event 13</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event12[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event12[start_time]]" type="time" >
+								<label class="active" for="Zone1[event12[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event12[stop_time]]" type="time">
+								<label class="active" for="Zone1[event12[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event12[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row14" class="row hide">
+							<div class="col s3">
+								<p><br>Event 14</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event13[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event13[start_time]]" type="time" >
+								<label class="active" for="Zone1[event13[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event13[stop_time]]" type="time">
+								<label class="active" for="Zone1[event13[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event13[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row15" class="row hide">
+							<div class="col s3">
+								<p><br>Event 15</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event14[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event14[start_time]]" type="time" >
+								<label class="active" for="Zone1[event14[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event14[stop_time]]" type="time">
+								<label class="active" for="Zone1[event14[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event14[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row16" class="row hide">
+							<div class="col s3">
+								<p><br>Event 16</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event15[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event15[start_time]]" type="time" >
+								<label class="active" for="Zone1[event15[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event15[stop_time]]" type="time">
+								<label class="active" for="Zone1[event15[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event15[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row17" class="row hide">
+							<div class="col s3">
+								<p><br>Event 17</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event16[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event16[start_time]]" type="time" >
+								<label class="active" for="Zone1[event16[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event16[stop_time]]" type="time">
+								<label class="active" for="Zone1[event16[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event16[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row18" class="row hide">
+							<div class="col s3">
+								<p><br>Event 18</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event17[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event17[start_time]]" type="time" >
+								<label class="active" for="Zone1[event17[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event17[stop_time]]" type="time">
+								<label class="active" for="Zone1[event17[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event17[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row19" class="row hide">
+							<div class="col s3">
+								<p><br>Event 19</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event18[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event18[start_time]]" type="time" >
+								<label class="active" for="Zone1[event18[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event18[stop_time]]" type="time">
+								<label class="active" for="Zone1[event18[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event18[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row20" class="row hide">
+							<div class="col s3">
+								<p><br>Event 20</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event19[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event19[start_time]]" type="time" >
+								<label class="active" for="Zone1[event19[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event19[stop_time]]" type="time">
+								<label class="active" for="Zone1[event19[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event19[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row21" class="row hide">
+							<div class="col s3">
+								<p><br>Event 21</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone1[event20[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event20[start_time]]" type="time" >
+								<label class="active" for="Zone1[event20[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone1[event20[stop_time]]" type="time">
+								<label class="active" for="Zone1[event20[stop_time]]">Stop</label>
+								<input readonly value="1" name="Zone1[event20[zone_ID]]" class="hide">
+							</div>
+						</div>
+					</div>
 
 
-      </div>
-      <div class="col l3 s12">
-        <h5 class="white-text">Gardens</h5>
-        <ul>
-          <li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
-          <li><a class="white-text" href="http://www.eighthdayfarm.org/">Eighth Day Farm</a></li>
-        </ul>
-      </div>
-      <div class="col l2 s12">
-        <h5 class="white-text">Connect</h5>
-        <ul>
-          <li><a class="white-text" href="mailto:jrc32@students.calvin.edu">John Connell</a></li>
-          <li><a class="white-text" href="mailto:xj22@students.calvin.edu">Anthony Jin</a></li>
-          <li><a class="white-text" href="mailto:cak33@students.calvin.edu">Charles Kingston</a></li>
-          <li><a class="white-text" href="mailto:knk9@students.calvin.edu">Kevin Kredit</a></li>
-        </ul>
-      </div>
-      <div class="col l1 s12">
-       <a href = "http://www.calvin.edu"><img src= "../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
-     </div>
-   </div>
- </div>
- <div class="footer-copyright">
-  <div class="container">
-    Website by John Connell made with <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a> <a href = "http://i.imgur.com/UyDbQ7S.gif" class = "right-align teal-text text-darken-1">secrets are best kept by friends</a>
-  </div>
-</div>
-</footer>
+					<div id="tab2" class="tab-content card-content hide">
+						<span class="col s5"><h4 id="zone2" class="zoneTitle" >Zone 2</h4></span>
+						<input id="newTitle2" type = "text" class="col s3 offset-s1 hide" name="Zone2[name]">
+						<button id="subTitle2" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+						<br/>
+						<div class="input-field col s1 offset-s4 hide" id="node2">
+							<input name="Zone2[node]"  type="number" value="2">
+							<label id="node2name" for="Zone2[node]" class="active">Node</label>
+						</div>
+						<div class="input-field col s1 hide" id="valve2">
+							<input name="Zone2[valve]"  type="number" value="2">
+							<label for="Zone2[valve]" class="active">Valve</label>
+						</div>
+						<br/>
+						<button id="NVChange2" type="button" class="hide" onClick="changeNV()"> Submit</button>
+						<br/><br/><br/>
+						<input value="5" name="Zone2[openevents]" class="hide">
+						<br/>
+						<div id="row1" class="row hide">
+							<div class="col s3">
+								<p><br>Event 1</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event0[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event0[start_time]]" type="time" >
+								<label class="active" for="Zone2[event0[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event0[stop_time]]" type="time">
+								<label class="active" for="Zone2[event0[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event0[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row2" class="row hide">
+							<div class="col s3">
+								<p><br>Event 2</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event1[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event1[start_time]]" type="time" >
+								<label class="active" for="Zone2[event1[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event1[stop_time]]" type="time">
+								<label class="active" for="Zone2[event1[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event1[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row3" class="row hide">
+							<div class="col s3">
+								<p><br>Event 3</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event2[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event2[start_time]]" type="time" >
+								<label class="active" for="Zone2[event2[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event2[stop_time]]" type="time">
+								<label class="active" for="Zone2[event2[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event2[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row4" class="row hide">
+							<div class="col s3">
+								<p><br>Event 4</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event3[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event3[start_time]]" type="time" >
+								<label class="active" for="Zone2[event3[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event3[stop_time]]" type="time">
+								<label class="active" for="Zone2[event3[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event3[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row5" class="row hide">
+							<div class="col s3">
+								<p><br>Event 5</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event4[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event4[start_time]]" type="time" >
+								<label class="active" for="Zone2[event4[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event4[stop_time]]" type="time">
+								<label class="active" for="Zone2[event4[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event4[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row6" class="row hide">
+							<div class="col s3">
+								<p><br>Event 6</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event5[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event5[start_time]]" type="time" >
+								<label class="active" for="Zone2[event5[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event5[stop_time]]" type="time">
+								<label class="active" for="Zone2[event5[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event5[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row7" class="row hide">
+							<div class="col s3">
+								<p><br>Event 7</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event6[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event6[start_time]]" type="time" >
+								<label class="active" for="Zone2[event6[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event6[stop_time]]" type="time">
+								<label class="active" for="Zone2[event6[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event6[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row8" class="row hide">
+							<div class="col s3">
+								<p><br>Event 8</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event7[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event7[start_time]]" type="time" >
+								<label class="active" for="Zone2[event7[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event7[stop_time]]" type="time">
+								<label class="active" for="Zone2[event7[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event7[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row9" class="row hide">
+							<div class="col s3">
+								<p><br>Event 9</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event8[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event8[start_time]]" type="time" >
+								<label class="active" for="Zone2[event8[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event8[stop_time]]" type="time">
+								<label class="active" for="Zone2[event8[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event8[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row10" class="row hide">
+							<div class="col s3">
+								<p><br>Event 10</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event9[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event9[start_time]]" type="time" >
+								<label class="active" for="Zone2[event9[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event9[stop_time]]" type="time">
+								<label class="active" for="Zone2[event9[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event9[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row11" class="row hide">
+							<div class="col s3">
+								<p><br>Event 11</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event10[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event10[start_time]]" type="time" >
+								<label class="active" for="Zone2[event10[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event10[stop_time]]" type="time">
+								<label class="active" for="Zone2[event10[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event10[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row12" class="row hide">
+							<div class="col s3">
+								<p><br>Event 12</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event11[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event11[start_time]]" type="time" >
+								<label class="active" for="Zone2[event11[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event11[stop_time]]" type="time">
+								<label class="active" for="Zone2[event11[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event11[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row13" class="row hide">
+							<div class="col s3">
+								<p><br>Event 13</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event12[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event12[start_time]]" type="time" >
+								<label class="active" for="Zone2[event12[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event12[stop_time]]" type="time">
+								<label class="active" for="Zone2[event12[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event12[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row14" class="row hide">
+							<div class="col s3">
+								<p><br>Event 14</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event13[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event13[start_time]]" type="time" >
+								<label class="active" for="Zone2[event13[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event13[stop_time]]" type="time">
+								<label class="active" for="Zone2[event13[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event13[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row15" class="row hide">
+							<div class="col s3">
+								<p><br>Event 15</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event14[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event14[start_time]]" type="time" >
+								<label class="active" for="Zone2[event14[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event14[stop_time]]" type="time">
+								<label class="active" for="Zone2[event14[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event14[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row16" class="row hide">
+							<div class="col s3">
+								<p><br>Event 16</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event15[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event15[start_time]]" type="time" >
+								<label class="active" for="Zone2[event15[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event15[stop_time]]" type="time">
+								<label class="active" for="Zone2[event15[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event15[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row17" class="row hide">
+							<div class="col s3">
+								<p><br>Event 17</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event16[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event16[start_time]]" type="time" >
+								<label class="active" for="Zone2[event16[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event16[stop_time]]" type="time">
+								<label class="active" for="Zone2[event16[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event16[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row18" class="row hide">
+							<div class="col s3">
+								<p><br>Event 18</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event17[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event17[start_time]]" type="time" >
+								<label class="active" for="Zone2[event17[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event17[stop_time]]" type="time">
+								<label class="active" for="Zone2[event17[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event17[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row19" class="row hide">
+							<div class="col s3">
+								<p><br>Event 19</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event18[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event18[start_time]]" type="time" >
+								<label class="active" for="Zone2[event18[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event18[stop_time]]" type="time">
+								<label class="active" for="Zone2[event18[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event18[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row20" class="row hide">
+							<div class="col s3">
+								<p><br>Event 20</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event19[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event19[start_time]]" type="time" >
+								<label class="active" for="Zone2[event19[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event19[stop_time]]" type="time">
+								<label class="active" for="Zone2[event19[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event19[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row21" class="row hide">
+							<div class="col s3">
+								<p><br>Event 21</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone2[event20[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event20[start_time]]" type="time" >
+								<label class="active" for="Zone2[event20[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone2[event20[stop_time]]" type="time">
+								<label class="active" for="Zone2[event20[stop_time]]">Stop</label>
+								<input readonly value="2" name="Zone2[event20[zone_ID]]" class="hide">
+							</div>
+						</div>
+					</div>
+					<div id="tab3" class="tab-content card-content hide">
+						<span class="col s5"><h4 id="zone3" class="zoneTitle" >Zone 3</h4></span>
+						<input id="newTitle3" type = "text" class="col s3 offset-s1 hide" name="Zone3[name]">
+						<button id="subTitle3" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+						<br/>
+						<div class="input-field col s1 offset-s4 hide" id="node3">
+							<input name="Zone3[node]"  type="number" value="3">
+							<label id="node3name" for="Zone3[node]" class="active">Node</label>
+						</div>
+						<div class="input-field col s1 hide" id="valve3">
+							<input name="Zone3[valve]"  type="number" value="3">
+							<label for="Zone3[valve]" class="active">Valve</label>
+						</div>
+						<br/>
+						<button id="NVChange3" type="button" class="hide" onClick="changeNV()"> Submit</button>
+						<br/><br/><br/>
+						<input value="8" name="Zone3[openevents]" class="hide">
+						<br/>
+						<div id="row1" class="row hide">
+							<div class="col s3">
+								<p><br>Event 1</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event0[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event0[start_time]]" type="time" >
+								<label class="active" for="Zone3[event0[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event0[stop_time]]" type="time">
+								<label class="active" for="Zone3[event0[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event0[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row2" class="row hide">
+							<div class="col s3">
+								<p><br>Event 2</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event1[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event1[start_time]]" type="time" >
+								<label class="active" for="Zone3[event1[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event1[stop_time]]" type="time">
+								<label class="active" for="Zone3[event1[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event1[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row3" class="row hide">
+							<div class="col s3">
+								<p><br>Event 3</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event2[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event2[start_time]]" type="time" >
+								<label class="active" for="Zone3[event2[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event2[stop_time]]" type="time">
+								<label class="active" for="Zone3[event2[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event2[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row4" class="row hide">
+							<div class="col s3">
+								<p><br>Event 4</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event3[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event3[start_time]]" type="time" >
+								<label class="active" for="Zone3[event3[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event3[stop_time]]" type="time">
+								<label class="active" for="Zone3[event3[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event3[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row5" class="row hide">
+							<div class="col s3">
+								<p><br>Event 5</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event4[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event4[start_time]]" type="time" >
+								<label class="active" for="Zone3[event4[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event4[stop_time]]" type="time">
+								<label class="active" for="Zone3[event4[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event4[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row6" class="row hide">
+							<div class="col s3">
+								<p><br>Event 6</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event5[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event5[start_time]]" type="time" >
+								<label class="active" for="Zone3[event5[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event5[stop_time]]" type="time">
+								<label class="active" for="Zone3[event5[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event5[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row7" class="row hide">
+							<div class="col s3">
+								<p><br>Event 7</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event6[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event6[start_time]]" type="time" >
+								<label class="active" for="Zone3[event6[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event6[stop_time]]" type="time">
+								<label class="active" for="Zone3[event6[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event6[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row8" class="row hide">
+							<div class="col s3">
+								<p><br>Event 8</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event7[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event7[start_time]]" type="time" >
+								<label class="active" for="Zone3[event7[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event7[stop_time]]" type="time">
+								<label class="active" for="Zone3[event7[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event7[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row9" class="row hide">
+							<div class="col s3">
+								<p><br>Event 9</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event8[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event8[start_time]]" type="time" >
+								<label class="active" for="Zone3[event8[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event8[stop_time]]" type="time">
+								<label class="active" for="Zone3[event8[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event8[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row10" class="row hide">
+							<div class="col s3">
+								<p><br>Event 10</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event9[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event9[start_time]]" type="time" >
+								<label class="active" for="Zone3[event9[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event9[stop_time]]" type="time">
+								<label class="active" for="Zone3[event9[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event9[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row11" class="row hide">
+							<div class="col s3">
+								<p><br>Event 11</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event10[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event10[start_time]]" type="time" >
+								<label class="active" for="Zone3[event10[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event10[stop_time]]" type="time">
+								<label class="active" for="Zone3[event10[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event10[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row12" class="row hide">
+							<div class="col s3">
+								<p><br>Event 12</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event11[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event11[start_time]]" type="time" >
+								<label class="active" for="Zone3[event11[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event11[stop_time]]" type="time">
+								<label class="active" for="Zone3[event11[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event11[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row13" class="row hide">
+							<div class="col s3">
+								<p><br>Event 13</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event12[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event12[start_time]]" type="time" >
+								<label class="active" for="Zone3[event12[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event12[stop_time]]" type="time">
+								<label class="active" for="Zone3[event12[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event12[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row14" class="row hide">
+							<div class="col s3">
+								<p><br>Event 14</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event13[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event13[start_time]]" type="time" >
+								<label class="active" for="Zone3[event13[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event13[stop_time]]" type="time">
+								<label class="active" for="Zone3[event13[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event13[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row15" class="row hide">
+							<div class="col s3">
+								<p><br>Event 15</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event14[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event14[start_time]]" type="time" >
+								<label class="active" for="Zone3[event14[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event14[stop_time]]" type="time">
+								<label class="active" for="Zone3[event14[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event14[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row16" class="row hide">
+							<div class="col s3">
+								<p><br>Event 16</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event15[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event15[start_time]]" type="time" >
+								<label class="active" for="Zone3[event15[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event15[stop_time]]" type="time">
+								<label class="active" for="Zone3[event15[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event15[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row17" class="row hide">
+							<div class="col s3">
+								<p><br>Event 17</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event16[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event16[start_time]]" type="time" >
+								<label class="active" for="Zone3[event16[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event16[stop_time]]" type="time">
+								<label class="active" for="Zone3[event16[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event16[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row18" class="row hide">
+							<div class="col s3">
+								<p><br>Event 18</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event17[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event17[start_time]]" type="time" >
+								<label class="active" for="Zone3[event17[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event17[stop_time]]" type="time">
+								<label class="active" for="Zone3[event17[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event17[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row19" class="row hide">
+							<div class="col s3">
+								<p><br>Event 19</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event18[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event18[start_time]]" type="time" >
+								<label class="active" for="Zone3[event18[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event18[stop_time]]" type="time">
+								<label class="active" for="Zone3[event18[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event18[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row20" class="row hide">
+							<div class="col s3">
+								<p><br>Event 20</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event19[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event19[start_time]]" type="time" >
+								<label class="active" for="Zone3[event19[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event19[stop_time]]" type="time">
+								<label class="active" for="Zone3[event19[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event19[zone_ID]]" class="hide">
+							</div>
+						</div>
+						<div id="row21" class="row hide">
+							<div class="col s3">
+								<p><br>Event 21</p>
+							</div>
+							<div class="input-field col s3">
+								<select disabled="true"  name="Zone3[event20[day]]">
+									<option value="" selected>Please Select a Value</option>
+									<option value="Everyday">Everyday</option>
+									<option value="Monday">Monday</option>
+									<option value="Tuesday">Tuesday</option>
+									<option value="Wednesday">Wednesday</option>
+									<option value="Thursday">Thursday</option>
+									<option value="Friday">Friday</option>
+									<option value="Saturday">Saturday</option>
+									<option value="Sunday">Sunday</option>
+								</select>
+								<label>Day: </label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event20[start_time]]" type="time" >
+								<label class="active" for="Zone3[event20[start_time]]">Start</label>
+							</div>
+							<div class="input-field col s3">
+								<input readonly name="Zone3[event20[stop_time]]" type="time">
+								<label class="active" for="Zone3[event20[stop_time]]">Stop</label>
+								<input readonly value="3" name="Zone3[event20[zone_ID]]" class="hide">
+							</div>
+						</div>
+					</div>
+				</form>
+				
+			</div>
+	</div>
+
+	<footer class="page-footer teal">
+		<div class="container">
+			<div class="row">
+				<div class="col l5 s13">
+					<h5 class="white-text">Company Bio</h5>
+					<p class="grey-text text-lighten-4">We are a team of college students working on this project for our Senior Design Project at Calvin College. Feel free to email us with any questions. Any help would also be greatly appreciated.</p>
+
+
+				</div>
+				<div class="col l3 s12">
+					<h5 class="white-text">Gardens</h5>
+					<ul>
+						<li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+						<li><a class="white-text" href="http://www.eighthdayfarm.org/">Eighth Day Farm</a></li>
+					</ul>
+				</div>
+				<div class="col l2 s12">
+					<h5 class="white-text">Connect</h5>
+					<ul>
+						<li><a class="white-text" href="mailto:jrc32@students.calvin.edu">John Connell</a></li>
+						<li><a class="white-text" href="mailto:xj22@students.calvin.edu">Anthony Jin</a></li>
+						<li><a class="white-text" href="mailto:cak33@students.calvin.edu">Charles Kingston</a></li>
+						<li><a class="white-text" href="mailto:knk9@students.calvin.edu">Kevin Kredit</a></li>
+					</ul>
+				</div>
+				<div class="col l1 s12">
+					<a href = "http://www.calvin.edu"><img src= "../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container">
+				Website by John Connell made with <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a> <a href = "http://i.imgur.com/UyDbQ7S.gif" class = "right-align teal-text text-darken-1">secrets are best kept by friends</a>
+			</div>
+		</div>
+	</footer>
 
 
 
 
-<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 
-<script type="text/javascript">
-  $(document).ready(function() {
-    $.getJSON('../../garden_net/gn_util/current_schedule_in_db.txt', function(jsondata){
-      $.each(jsondata, function(i, item){
-        var thingName = "";
-        thingName = i;
-        $.each(item, function(j, event){
-          var nextName = "";
-            nextName = thingName + "[" + j;
-            $.each(event, function(k, name){
-              var finalName = "";
-              finalName = nextName + "[" + k + "]]";
-              if(k == "day"){
-                $("select[name='"+finalName+"']").val(name);
-                $("select[name='"+finalName+"']").material_select('destroy');
-                $("select[name='"+finalName+"']").material_select();
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$.getJSON('../../garden_net/gn_util/current_schedule_in_db.txt', function(jsondata){
+				$.each(jsondata, function(i, item){
+					var thingName = "";
+					thingName = i;
+					$.each(item, function(j, event){
+						var nextName = "";
+						nextName = thingName + "[" + j;
+						$.each(event, function(k, name){
+							var finalName = "";
+							finalName = nextName + "[" + k + "]]";
+							if(k == "day"){
+								$("select[name='"+finalName+"']").val(name);
+								$("select[name='"+finalName+"']").material_select('destroy');
+								$("select[name='"+finalName+"']").material_select();
 
-              }else{
-                $("input[name='"+finalName+"']").val(name);
-              }
-            });
-        });
-      });
-    });
+							}else{
+								$("input[name='"+finalName+"']").val(name);
+							}
+						});
+					});
+				});
+			});
 
-    $.getJSON('../../garden_net/gn_util/garden_info.txt', function(info){
-      $.each(info, function(i, item){
-        var thingName = "";
-        thingName = i;
-        $.each(item, function(j, event){
-          var nextName = "";
-          if(j=="name"){
-            nextName = thingName + "[" + j +"]";
-            $("input[name='"+nextName+"']").val(event);
-            if(thingName=="Zone1"){
-              $('#zone1').text(event);
-              $('#1').html(event);
-            }else if(thingName=="Zone2"){
-              $('#zone2').text(event);
-              $('#2').html(event);
-            }else {
-              $('#zone3').text(event);
-              $('#3').html(event);
-            }
-          }else {
-            nextName = thingName + "[" + j +"]";
-            $("input[name='"+nextName+"']").val(event);
+			$.getJSON('../../garden_net/gn_util/garden_info.txt', function(info){
+				$.each(info, function(i, item){
+					var thingName = "";
+					thingName = i;
+					$.each(item, function(j, event){
+						var nextName = "";
+						if(j=="name"){
+							nextName = thingName + "[" + j +"]";
+							$("input[name='"+nextName+"']").val(event);
+							if(thingName=="Zone1"){
+								$('#zone1').text(event);
+								$('#1').html(event);
+							}else if(thingName=="Zone2"){
+								$('#zone2').text(event);
+								$('#2').html(event);
+							}else if(thingName=="Zone3"){
+								$('#zone3').text(event);
+								$('#3').html(event);
+							}else{
+								$('#zone4').text(event);
+								$('#4').html(event);
+							}
+						}else {
+							nextName = thingName + "[" + j +"]";
+							$("input[name='"+nextName+"']").val(event);
 
-          }
-        });
-      });
-    });
-  });
+						}
+					});
+				});
+			});
+		});
+		loadZonesandEvents();
+	</script>
 
-</script>
+	<script src="../js/materialize.min.js"></script>
+	<script src="../js/init.js"></script>
+	<script src="../js/duplicate_delete.js"></script>
 
-<script src="../js/materialize.min.js"></script>
-<script src="../js/init.js"></script>
+	<!--  Scripts-->
 
-<!--  Scripts-->
+	<script src="../js/jquery.serializejson.js"></script>
 
-<script src="../js/jquery.serializejson.js"></script>
-
-<script src="../js/jquery.scrolltabs.js"></script>
-<script src="../js/jquery.mousewheel.js"></script>
+	<script src="../js/jquery.scrolltabs.js"></script>
+	<script src="../js/jquery.mousewheel.js"></script>
 
 
 
