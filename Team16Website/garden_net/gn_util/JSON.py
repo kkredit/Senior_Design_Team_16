@@ -71,7 +71,8 @@ class JSON_Interface:
 						#print(parsed[zone_string][event_string])
 						#print(event)
 						try:
-							db.add_event(event)
+							if str(event.start_time) != "0.0":
+								db.add_event(event)
 						except:
 							pass
 						j += 1
