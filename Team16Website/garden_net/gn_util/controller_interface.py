@@ -257,18 +257,24 @@ while True:
 		# client_sock.send(welcome.encode('utf-8'))
 		elif sock == test_server_socket:
 			test, test_addr = test_server_socket.accept()
-			print("Got a connection from test")
+			if args.verbose:
+				print("Got a connection from test")
 			test_response = "true"
-			print("Sending true")
+			if args.verbose:
+				print("Sending true")
 			test.send(test_response.encode('utf-8'))
 			test.close()
-			print("Closed the test socket")
+			if args.verbose:
+				print("Closed the test socket")
 		elif sock == ipc_socket:
-			print("Got a connection from myself")
+			if args.verbose:
+				print("Got a connection from myself")
 			ipc, addr = ipc_socket.accept()
-			print("Accepted the socket")
+			if args.verbose:
+				print("Accepted the socket")
 			ipc.close()
-			print("Closed the socket")
+			if args.verbose:
+				print("Closed the socket")
 			f = open(ipc_file, 'r')
 			file_data = ""
 			for line in f:
