@@ -79,6 +79,7 @@ RF24Mesh mesh(radio, network);
 
 // 3G Modem 
 String currentString = "";
+String JSONString = "";
 String alertSetting = "";
 
 // flags
@@ -167,16 +168,15 @@ void setupModem() {
   delay(1000);
   while(PrintModemResponse() > 0);
 
-  Modem_Serial.println("AT#MODE=ONLINE");
-  delay(1000);
-  while(PrintModemResponse() > 0);
+//  Modem_Serial.println("AT#MODE=ONLINE");
+//  delay(1000);
+//  while(PrintModemResponse() > 0);
 
   // Connect to 3G cellular network
   Serial.println("Waiting for network connection...");
   boolean connectionGood = false;
   while(!connectionGood){
     Modem_Serial.println("AT+CREG?");
-    currentString = "";
     delay(500);
     while(Modem_Serial.available() > 0) {
       getModemResponse();
@@ -186,7 +186,6 @@ void setupModem() {
         connectionGood = true;
         Serial.println(); 
         Serial.println("Connection successful!");
-        currentString = "";
       }
     }
   }
@@ -205,17 +204,24 @@ void setupModem() {
  * already has one
 */
 void getModemIP() {
+  Modem_Serial.println("AT#GDATAVOL=1");
+  delay(500);
+  while(PrintModemResponse() > 0);
+  
+  Modem_Serial.println("AT#GDATAVOL=2");
+  delay(500);
+  while(PrintModemResponse() > 0);
 
   // TCP socket config
-  Modem_Serial.println("AT#SCFG=1,1,1500,0,600,2");
+  Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
   delay(1000);
   while(PrintModemResponse() > 0);
 
-
-  Modem_Serial.println("AT#SCFGEXT=1,0,0,0,0,0");
+  Modem_Serial.println("AT#SCFGEXT=1,2,0,240,0,0");
   delay(1000);
   while(PrintModemResponse() > 0);
 
+  // retrieve IP address
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
 
@@ -223,13 +229,11 @@ void getModemIP() {
   while(!IPGood) {
     while(Modem_Serial.available() > 0) {
       getModemResponse();
-    }
-
-    // if the modem already has an IP
-    if(currentString == "ERROR" || currentString == "OK") {
-      IPGood = true;
-      currentString = "";
-    }  
+      // if the modem already has an IP or retrieved IP 
+      if(currentString == "ERROR" || currentString == "OK") {
+        IPGood = true;
+      } 
+    } 
   }
 }
 
@@ -243,7 +247,7 @@ void getModemIP() {
 */
 void openSocket() {
   // initiate TCP socket dial in command mode
-  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,1");
+  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",255,0,1");
 }
 
 
@@ -278,61 +282,99 @@ void disconnectModem() {
 /*
  * TODO add comments
  */
-uint8_t decodeModemResponse(){
+uint8_t decodeModemResponse() {
+  bool getNewResponse = false;
   while(Modem_Serial.available() > 0) {
-    getModemResponse();
-    
-    // if there is an incoming message
-    if (currentString == "SRING: 1") {
-      return TR_G_RECEIVE;
+    getModemResponse();  
+
+    // connection error
+    if (currentString == "ERROR") {
+      return TR_G_DISCONNECTED;
+    }
+
+    // connection is good
+    if (currentString == "OK") {
+      return TR_G_CONNECTED;
+    }
+
     // disable the interrupt
-    } else if (currentString == "START") {
+    if (currentString.substring(currentString.length()-5, currentString.length()) == "START") {
       bool getMaxEvent = false;
       String maxCount = "";
       while(!getMaxEvent) {
-        uint8_t incomingByte = Modem_Serial.read();
-        if(incomingByte == '\n') {
+        int myByte = Modem_Serial.read();
+        Serial.write(myByte);
+        if(myByte == '\n' || myByte == -1) {
           eventMaxCount = maxCount.toInt();
           getMaxEvent = true;
-        } else if(incomingByte == '{') {
-          currentString = "";
-          currentString += char(incomingByte);
-          break;
         } else {
-          maxCount += char(incomingByte);
+          maxCount += char(myByte);
         }
       }
+      currentString = "";
       return TR_G_DISABLE_INT;
-    // turn the interrupt back on once we have received all JSON strings
-    } else if (currentString == "DONE") {
-      return TR_G_ENABLE_INT;
-    } else if ((currentString.substring(currentString.length()-18,currentString.length()-9) == "valve_num")) {
-      return TR_G_JSON;
-    } else if (currentString == "true") {
-      return TR_G_GARDEN_ON;
-    } else if (currentString == "false") {
-      return TR_G_GARDEN_OFF;
-    } else if (currentString == "NoEvents") {
-      return TR_G_NO_EVENTS;
-    } else if (currentString == "NO CARRIER") {
-      return TR_G_DISCONNECTED;
-    // reprovision socket dial if previous connection is lost or bad
-    } else if (currentString == "ERROR") {
-       return TR_G_DISCONNECTED;
-    } else if (currentString == "OK") {
-      return TR_G_CONNECTED;
-    } 
-    else if (currentString == "SMS") {
+    }
+
+    // change alert settings
+    if (currentString.substring(currentString.length()-3, currentString.length()) == "SMS") {
       bool getAlertSetting = false;
       while(!getAlertSetting) {
-        uint8_t incomingByte = Modem_Serial.read();
-        if(incomingByte == '\n') {
+        int myByte = Modem_Serial.read();
+        if(myByte == '\n') {
           getAlertSetting = true;
-        } else {
-          alertSetting += char(incomingByte);
+        } else if (myByte != -1) {
+          alertSetting += char(myByte);
         }
       }
+      currentString = "";
       return TR_G_ALERT_SETTING;
+    }  
+
+    // parse JSON when available 
+    if (currentString.substring(currentString.length()-1, currentString.length()) == "{") {
+      JSONString += "{";
+      bool getJSON = false;
+      while(!getJSON) {
+        int myByte = Modem_Serial.read();
+        if(myByte != -1) {
+          Serial.write(myByte);
+          JSONString += char(myByte);
+        }
+        
+        if(myByte == '}') {
+          getJSON = true;
+        }
+      }
+      return TR_G_JSON;
+    }
+
+    // done receiving JSON strings
+    if (currentString.substring(currentString.length()-4, currentString.length()) == "DONE") {
+      currentString = "";
+      return TR_G_ENABLE_INT;
+    }
+
+    // wake up garden
+    if (currentString == "SRING: 1,4,true") {
+      currentString = "";
+      return TR_G_GARDEN_ON;
+    }
+  
+    // make garden go to sleep
+    if (currentString == "SRING: 1,5,false") {
+      currentString = "";
+      return TR_G_GARDEN_OFF;
+    }
+  
+    // disable today's schedule
+    if (currentString == "SRING: 1,8,NoEvents") {
+      currentString = "";
+      return TR_G_NO_EVENTS;
+    }
+    
+    // socket connection lost
+    if (currentString == "NO CARRIER") {
+      return TR_G_DISCONNECTED;
     }
   }
 }
@@ -342,20 +384,21 @@ uint8_t decodeModemResponse(){
 */
 void handleModemOperation(uint8_t modemMode) {
   switch(modemMode) {
-    case TR_G_RECEIVE:
-      // wait for 500 ms for modem to buffer the incoming data packet...
-      delay(1000);
-      Modem_Serial.println("AT#SRECV=1,1500");
-    break;
+//    case TR_G_RECEIVE:
+//      // wait for 1500 ms for modem to buffer the incoming data packet...
+//      delay(1000);
+//      // TODO update to receive actual bytes
+//      Modem_Serial.println("AT#SRECV=1,300");
+//    break;
 
     case TR_G_DISABLE_INT:
-        Timer1.detachInterrupt();
-        Serial.println("");
-        Serial.println("Detected schedules!");
-        Serial.println("Delete the old schedule...");
-        deleteSchedule();
-        updateStatusFlag = false;
-        modemReceivingJSON = true;
+      Timer1.detachInterrupt();
+      updateStatusFlag = false;
+      Serial.println("");
+      Serial.println("Detected schedules!");
+      Serial.println("Delete the old schedule...");
+      deleteSchedule();
+      modemReceivingJSON = true;
     break;
 
     case TR_G_ENABLE_INT:
@@ -439,8 +482,8 @@ void handleModemOperation(uint8_t modemMode) {
     break;
 
     case TR_G_ALERT_SETTING:
-//      Serial.println("");
-//      Serial.println(alertSetting);
+      Serial.println("");
+      Serial.println(alertSetting);
 
       // TODO parse alert setting
       //  parseAlertSetting();
@@ -451,6 +494,8 @@ void handleModemOperation(uint8_t modemMode) {
     // UNUSED
     break;
   }
+  
+  currentString = "";
 
 }
 
@@ -541,18 +586,18 @@ void createEvent() {
   ScheduleEvent tempEvent;
   // used to process start time and end time further
   // split the string by double quote
-  int idx = currentString.indexOf("\"");
+  int idx = JSONString.indexOf("\"");
   char charBuffer[16];
   String arg;
 
   for(int i = 0; i <= 99; i++) {
-    arg = currentString.substring(beginIdx, idx);
+    arg = JSONString.substring(beginIdx, idx);
     arg.toCharArray(charBuffer, 16);
           
     // add error handling for atoi:
     // eventArray[i] = atoi(charBuffer);
     beginIdx = idx + 1;
-    idx = currentString.indexOf("\"", beginIdx);
+    idx = JSONString.indexOf("\"", beginIdx);
     // Serial.println(charBuffer);
 
     // only four pieces of information are needed
@@ -601,6 +646,7 @@ void createEvent() {
   Serial.print(tempEvent.getStartHour()); Serial.print(":"); Serial.print(tempEvent.getStartMin());
   Serial.print(" and an end time of "); Serial.print(tempEvent.getEndHour()); Serial.print(":"); Serial.print(tempEvent.getEndMin());
   Serial.println(".");
+  JSONString = "";
 }
 
 
@@ -1761,16 +1807,21 @@ void setup(){
  */ 
 void loop() {
 
+//  while(Modem_Serial.available() > 0) {
+//    getModemResponse();
+//  }
+
   //////////////////////// Time acceleration for testing /////////////////////////////
   // jump to 50 seconds
-  if(second() > 0 && second() < 15 ){
-    setTime(now()+50-second());
-  }
+//  if(second() > 0 && second() < 15 ){
+//    setTime(now()+50-second());
+//  }
   ////////////////////////////////////////////////////////////////////////////////////
 
   // Communication with server via 3G
-  uint8_t tr_g_opmode = decodeModemResponse();
-  handleModemOperation(tr_g_opmode);
+   uint8_t tr_g_opmode = decodeModemResponse();
+
+   handleModemOperation(tr_g_opmode);
   
 
   // reprovision socket dial when 3G is disconnected
@@ -1781,7 +1832,7 @@ void loop() {
   // refresh the reset only when modem is NOT receiving a JSON string,
   // else we might run into trouble receiving complete JSON string
   if(modemReceivingJSON == false) {
-    refreshReset();
+    // refreshReset();
   }
 
   // update node status if necessary
@@ -1799,6 +1850,7 @@ void loop() {
     if(gardenStatus.isAwake){
       checkSchedule();
     }
+    refreshReset();
     lastTime = now();
   }
 
