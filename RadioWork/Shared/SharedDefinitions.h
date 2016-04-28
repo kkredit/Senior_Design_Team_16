@@ -150,13 +150,12 @@ struct Garden_Status{
 
 // alert engine op code 
 //////// TEST RESULTS //////////////    Sends       Sends at correct time        Sends without duplicates
-#define DAILY_REPORT          00  //
-#define BAD_FLOW_RATE         01  //
+#define DAILY_REPORT          00  //    yes               yes                         yes
+#define BAD_FLOW_RATE         01  //    yes               yes                         yes    
 #define MESH_DOWN             02  //    yes               yes                         yes
 #define GATEWAY_RESET         03  //    yes               yes                         yes
 #define BAD_VOLTAGE_STATE     04  //    yes               yes                         yes
-#define GARDEN_TOGGLE         05  //    yes               yes                         yes  
-                                  // TODO -- GARDEN_TOGGLE should move the "full garden sut off" switch to reflect the state
+#define GARDEN_TOGGLE         05  //    yes               yes                         yes
 
 
 // other settings
@@ -170,6 +169,7 @@ struct Garden_Status{
 #define RESET_EEPROM_ADDR     4       // address of the toldToReset bool in EEPROM
 #define ACC_FLOW_EEPROM_ADDR  8       // address of accumulatedFlow float in EEPROM
 #define OK_VIN_RANGE          0.15    // amount that VIN can vary without generating an error
+#define OK_VIN_DROP_PER_ZONE  1.5     // amount that VIN is allowed to drop per add'l open valve
 #define MIN_MEASUREABLE_GPM   0.2642  // is 1 LPM, minimum measuring threshold for our meter 
                                       //  also serves as max ok leakage rate
 #define MAX_MEASUREABLE_GPM   7.92516 // is 29 LPM, maximumm measureing threshold for our meter

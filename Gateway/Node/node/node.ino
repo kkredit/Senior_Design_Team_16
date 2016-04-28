@@ -434,7 +434,7 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
         if(timesToTry){
           // more tries allowed; try again
           Serial.println(F("[Reconnected, trying again... ]"));
-          delay(RETRY_PERIOD);
+          delay(RETRY_PERIOD+50*myStatus.nodeID);
           return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
         }
         else{
@@ -448,12 +448,12 @@ bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t data
       if(timesToTry){
         // if send failed but are connected and have more tries, try again after 50 ms
         Serial.println(F("mesh connected, trying again... ]"));
-        delay(RETRY_PERIOD);
+        delay(RETRY_PERIOD+50*myStatus.nodeID);
         return safeMeshWrite(destination, payload, header, datasize, --timesToTry);
       }
       else{
         // out of tries; send failed
-        Serial.println(F("[Out of send tries: SEND FAIL]"));
+        Serial.println(F("out of send tries: SEND FAIL]"));
         return false;
       }
     }
@@ -569,19 +569,35 @@ void updateNodeStatus(){
   //////////// CHECK INPUT VOLTAGE ////////////
 
   // check input voltage if no valves are open (open valves descrease VIN, could give false error)
-  if(myStatus.numOpenValves == 0){
-    if(analogRead(VIN_REF) > myStatus.storedVIN*(1+OK_VIN_RANGE)){
-      if(myStatus.voltageState != HIGH_VOLTAGE) sendToMasterFlag = true;
-      myStatus.voltageState = HIGH_VOLTAGE;
-    }
-    else if (analogRead(VIN_REF) < myStatus.storedVIN*(1-OK_VIN_RANGE)){
-      if(myStatus.voltageState != LOW_VOLTAGE) sendToMasterFlag = true;
-      myStatus.voltageState = LOW_VOLTAGE;
-    }
-    else{ //if(myStatus.voltageState == HIGH_VOLTAGE || myStatus.voltageState == LOW_VOLTAGE)
-      if(myStatus.voltageState != GOOD_VOLTAGE) sendToMasterFlag = true;
-      myStatus.voltageState = GOOD_VOLTAGE;
-    }
+//  if(myStatus.numOpenValves == 0){
+//    if(analogRead(VIN_REF) > myStatus.storedVIN*(1+OK_VIN_RANGE)){
+//      if(myStatus.voltageState != HIGH_VOLTAGE) sendToMasterFlag = true;
+//      myStatus.voltageState = HIGH_VOLTAGE;
+//    }
+//    else if (analogRead(VIN_REF) < myStatus.storedVIN*(1-OK_VIN_RANGE)){
+//      if(myStatus.voltageState != LOW_VOLTAGE) sendToMasterFlag = true;
+//      myStatus.voltageState = LOW_VOLTAGE;
+//    }
+//    else{ //if(myStatus.voltageState == HIGH_VOLTAGE || myStatus.voltageState == LOW_VOLTAGE)
+//      if(myStatus.voltageState != GOOD_VOLTAGE) sendToMasterFlag = true;
+//      myStatus.voltageState = GOOD_VOLTAGE;
+//    }
+//  }
+  if(analogRead(VIN_REF) > myStatus.storedVIN*(1+OK_VIN_RANGE)){
+    if(myStatus.voltageState != HIGH_VOLTAGE) sendToMasterFlag = true;
+    myStatus.voltageState = HIGH_VOLTAGE;
+  }
+  else if (analogRead(VIN_REF) < (myStatus.storedVIN-OK_VIN_DROP_PER_ZONE*myStatus.numOpenValves)*(1-OK_VIN_RANGE)){
+    if(myStatus.voltageState != LOW_VOLTAGE) sendToMasterFlag = true;
+    myStatus.voltageState = LOW_VOLTAGE;
+    // as safety feature, turn self asleep. Will try again tomorrow or upon reset.
+    myStatus.isAwake = false;
+    setValve(ALL_VALVES, OFF);
+    setLED(GO_TO_SLEEP_SEQUENCE);
+  }
+  else{ //if(myStatus.voltageState == HIGH_VOLTAGE || myStatus.voltageState == LOW_VOLTAGE)
+    if(myStatus.voltageState != GOOD_VOLTAGE) sendToMasterFlag = true;
+    myStatus.voltageState = GOOD_VOLTAGE;
   }
 
 
@@ -730,6 +746,7 @@ void printNodeStatus(){
       myStatus.valveStates[valve].state ? Serial.print(F("OPEN  ")) : Serial.print(F("closed"));
       if(myStatus.valveStates[valve].timeSpentWatering > 0){
         float minutes = myStatus.valveStates[valve].timeSpentWatering/60.0;
+        Serial.print(F("   : "));
         Serial.print(minutes); Serial.println(F(" minutes today"));
       }
       else{
