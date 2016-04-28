@@ -1,0 +1,7 @@
+SMS2485048891%1%0%1%1
+Fields:
+- Phone number
+- opcode 01 enable
+- opcode 02 enable
+- opcode 03 enable
+- opcode 04 enable

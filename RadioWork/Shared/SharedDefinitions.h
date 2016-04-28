@@ -66,6 +66,12 @@ struct Garden_Status{
   float percentAwake;
   float percent3GUptime;
   float percentMeshUptime;
+  // alert setting
+  char phoneNum[10];
+  bool valve_alert;
+  bool mesh_alert;
+  bool reset_alert;
+  bool voltage_alert;
 };
  
 // mesh settings
@@ -104,6 +110,14 @@ struct Garden_Status{
 // threeGStates
 #define TR_G_CONNECTED        0
 #define TR_G_DISCONNECTED     1
+#define TR_G_RECEIVE          2
+#define TR_G_DISABLE_INT      3
+#define TR_G_ENABLE_INT       4
+#define TR_G_JSON             5
+#define TR_G_GARDEN_ON        6
+#define TR_G_GARDEN_OFF       7
+#define TR_G_NO_EVENTS        8
+#define TR_G_ALERT_SETTING    9
 // meshStates
 #define MESH_ALL_NODES_GOOD   0
 #define MESH_NOT_BEGAN        1
@@ -155,8 +169,14 @@ struct Garden_Status{
 #define MESH_DOWN             02  //    yes               yes                         yes
 #define GATEWAY_RESET         03  //    yes               yes                         yes
 #define BAD_VOLTAGE_STATE     04  //    yes               yes                         yes
+<<<<<<< HEAD
 #define GARDEN_TOGGLE         05  //    yes               yes                         yes
 
+=======
+#define GARDEN_TOGGLE         05  //    yes               yes                         yes  
+                                  // TODO -- GARDEN_TOGGLE should move the "full garden sut off" switch to reflect the state
+#define INCOMPLETE_JSON       06
+>>>>>>> 2c4fe6af05e4e78afc2c0bb5ea86105ab7aed080
 
 // other settings
 #define ON                    true

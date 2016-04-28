@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -79,6 +79,8 @@ RF24Mesh mesh(radio, network);
 
 // 3G Modem 
 String currentString = "";
+String JSONString = "";
+String alertSetting = "";
 
 // flags
 volatile bool hadButtonPress = false;
@@ -92,6 +94,8 @@ bool calledIsNewDay = false;
 Garden_Status gardenStatus;
 Schedule weeklySchedule;
 uint16_t statusCounter = 0;
+uint16_t eventCount = 0;
+uint16_t eventMaxCount = 0;
 time_t lastTime = 0;
 
 
@@ -164,16 +168,15 @@ void setupModem() {
   delay(1000);
   while(PrintModemResponse() > 0);
 
-  Modem_Serial.println("AT#MODE=ONLINE");
-  delay(1000);
-  while(PrintModemResponse() > 0);
+//  Modem_Serial.println("AT#MODE=ONLINE");
+//  delay(1000);
+//  while(PrintModemResponse() > 0);
 
   // Connect to 3G cellular network
   Serial.println("Waiting for network connection...");
   boolean connectionGood = false;
   while(!connectionGood){
     Modem_Serial.println("AT+CREG?");
-    currentString = "";
     delay(500);
     while(Modem_Serial.available() > 0) {
       getModemResponse();
@@ -183,7 +186,6 @@ void setupModem() {
         connectionGood = true;
         Serial.println(); 
         Serial.println("Connection successful!");
-        currentString = "";
       }
     }
   }
@@ -202,17 +204,24 @@ void setupModem() {
  * already has one
 */
 void getModemIP() {
+  Modem_Serial.println("AT#GDATAVOL=1");
+  delay(500);
+  while(PrintModemResponse() > 0);
+  
+  Modem_Serial.println("AT#GDATAVOL=2");
+  delay(500);
+  while(PrintModemResponse() > 0);
 
   // TCP socket config
-  Modem_Serial.println("AT#SCFG=1,1,1500,0,600,2");
+  Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
   delay(1000);
   while(PrintModemResponse() > 0);
 
-
-  Modem_Serial.println("AT#SCFGEXT=1,0,0,0,0,0");
+  Modem_Serial.println("AT#SCFGEXT=1,2,0,240,0,0");
   delay(1000);
   while(PrintModemResponse() > 0);
 
+  // retrieve IP address
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
 
@@ -220,13 +229,11 @@ void getModemIP() {
   while(!IPGood) {
     while(Modem_Serial.available() > 0) {
       getModemResponse();
-    }
-
-    // if the modem already has an IP
-    if(currentString == "ERROR" || currentString == "OK") {
-      IPGood = true;
-      currentString = "";
-    }  
+      // if the modem already has an IP or retrieved IP 
+      if(currentString == "ERROR" || currentString == "OK") {
+        IPGood = true;
+      } 
+    } 
   }
 }
 
@@ -240,7 +247,7 @@ void getModemIP() {
 */
 void openSocket() {
   // initiate TCP socket dial in command mode
-  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,1");
+  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",255,0,1");
 }
 
 
@@ -275,48 +282,165 @@ void disconnectModem() {
 /*
  * TODO add comments
  */
-void handle3GModem(){
+uint8_t decodeModemResponse() {
+  bool getNewResponse = false;
   while(Modem_Serial.available() > 0) {
-    getModemResponse();
+    getModemResponse();  
+
+    // connection error
+    if (currentString == "ERROR") {
+      return TR_G_DISCONNECTED;
+    }
+
+    // connection is good
+    if (currentString == "OK") {
+      return TR_G_CONNECTED;
+    }
+
+    // disable the interrupt
+    if (currentString.substring(currentString.length()-5, currentString.length()) == "START") {
+      bool getMaxEvent = false;
+      String maxCount = "";
+      while(!getMaxEvent) {
+        int myByte = Modem_Serial.read();
+        Serial.write(myByte);
+        if(myByte == '\n' || myByte == -1) {
+          eventMaxCount = maxCount.toInt();
+          getMaxEvent = true;
+        } else {
+          maxCount += char(myByte);
+        }
+      }
+      currentString = "";
+      return TR_G_DISABLE_INT;
+    }
+
+    // change alert settings
+    if (currentString.substring(currentString.length()-3, currentString.length()) == "SMS") {
+      bool getAlertSetting = false;
+      while(!getAlertSetting) {
+        int myByte = Modem_Serial.read();
+        if(myByte == '\n') {
+          getAlertSetting = true;
+        } else if (myByte != -1) {
+          alertSetting += char(myByte);
+        }
+      }
+      currentString = "";
+      return TR_G_ALERT_SETTING;
+    }  
+
+    // parse JSON when available 
+    if (currentString.substring(currentString.length()-1, currentString.length()) == "{") {
+      JSONString += "{";
+      bool getJSON = false;
+      while(!getJSON) {
+        int myByte = Modem_Serial.read();
+        if(myByte != -1) {
+          Serial.write(myByte);
+          JSONString += char(myByte);
+        }
+        
+        if(myByte == '}') {
+          getJSON = true;
+        }
+      }
+      return TR_G_JSON;
+    }
+
+    // done receiving JSON strings
+    if (currentString.substring(currentString.length()-4, currentString.length()) == "DONE") {
+      currentString = "";
+      return TR_G_ENABLE_INT;
+    }
+
+    // wake up garden
+    if (currentString == "SRING: 1,4,true") {
+      currentString = "";
+      return TR_G_GARDEN_ON;
+    }
+  
+    // make garden go to sleep
+    if (currentString == "SRING: 1,5,false") {
+      currentString = "";
+      return TR_G_GARDEN_OFF;
+    }
+  
+    // disable today's schedule
+    if (currentString == "SRING: 1,8,NoEvents") {
+      currentString = "";
+      return TR_G_NO_EVENTS;
+    }
     
-    // if there is an incoming message
-    if (currentString == "SRING: 1") {
-      modemReceivingJSON = true;
-      // wait for 250 ms for modem to buffer the incoming data packet...
-      delay(250);
-      Modem_Serial.println("AT#SRECV=1,200");
-      
-    // turn off interrupt when there are incoming JSON strings
-    } else if (currentString == "START") {
-        Timer1.detachInterrupt();
-        Serial.println("");
-        Serial.println("Detected schedules!");
-        updateStatusFlag = false;
-         
-    // turn the interrupt back on once we have received all JSON strings
-    } else if (currentString == "DONE") {
+    // socket connection lost
+    if (currentString == "NO CARRIER") {
+      return TR_G_DISCONNECTED;
+    }
+  }
+}
+
+/*
+ * TODO add comments
+*/
+void handleModemOperation(uint8_t modemMode) {
+  switch(modemMode) {
+//    case TR_G_RECEIVE:
+//      // wait for 1500 ms for modem to buffer the incoming data packet...
+//      delay(1000);
+//      // TODO update to receive actual bytes
+//      Modem_Serial.println("AT#SRECV=1,300");
+//    break;
+
+    case TR_G_DISABLE_INT:
+      Timer1.detachInterrupt();
+      updateStatusFlag = false;
       Serial.println("");
-      Serial.println("Schedules are all set!");
+      Serial.println("Detected schedules!");
+      Serial.println("Delete the old schedule...");
+      deleteSchedule();
+      modemReceivingJSON = true;
+    break;
+
+    case TR_G_ENABLE_INT:
+      if(eventCount == eventMaxCount) {
+        Serial.println("");
+        Serial.println("Schedules are all set!");
+        // check schedule now once
+        if(gardenStatus.isAwake){
+          checkSchedule();
+        }
+      } else {
+        Serial.println("");
+        Serial.println("I did not get all schedule events... Now request another schedule from the server...");
+        Serial.print("I'm supposed to get "); Serial.print((String) eventMaxCount); Serial.print(" events; ");
+        Serial.print("but got "); Serial.print((String) eventCount); Serial.println(" events.");        
+
+        // TODO send a request to the server to get a new schedule: RESENDSCHEDULE
+        checkAlerts(INCOMPLETE_JSON, 0);
+      }
+      // reset counter
+      eventMaxCount = 0;
+      eventCount = 0;
+      // reenable interrupt
       Timer1.initialize(TIMER1_PERIOD);
       Timer1.attachInterrupt(updateStatusISR);
       modemReceivingJSON = false;
+    break;
 
-      // check schedule now once
-      if(gardenStatus.isAwake){
-        checkSchedule();
-      }
-
-    } else if ((currentString.substring(currentString.length()-18,currentString.length()-9) == "valve_num")) {
+    case TR_G_JSON:
       parseJSON();
-    } else if (currentString == "true") {
+      eventCount += 1;
+    break;
+
+    case TR_G_GARDEN_ON:
       Serial.println("\nReceived 'Turn on' message from the server");
       gardenStatus.isAwake = true;
-//      // turn on all nodes and all valves 
-//      wholeGardenOperation(true);
-//      
-//      // TODO disable scheduling based on weeklySchedule
+   
+      // TODO disable scheduling based on weeklySchedule
       
-    } else if (currentString == "false") {
+    break;
+
+    case TR_G_GARDEN_OFF:
       Serial.println("\nReceived 'Go to sleep' message from the server");
       gardenStatus.isAwake = false;
       // TODO set light sequence
@@ -336,34 +460,45 @@ void handle3GModem(){
           }
         }
       }
+
+      // TODO disable scheduling based on weeklySchedule
       
-//      // turn off all nodes and all valves off
-//      wholeGardenOperation(false);
-//
-//      // TODO disable scheduling based on weeklySchedule
-      
-    } else if (currentString == "NoEvents") {
+    break;
+
+    case TR_G_NO_EVENTS:
       Serial.println("");
       Serial.println("I need to diasble the next day's schedule events");
 
       // TODO turn off all nodes and valves
       // TODO disable the next day's schedule events
-    }
-    else if (currentString == "NO CARRIER") {
-      gardenStatus.threeGState = TR_G_DISCONNECTED;
-    // reprovision socket dial if previous connection is lost or bad
-    } else if (currentString == "ERROR") {
-      // try to reconnect?
-      gardenStatus.threeGState = TR_G_DISCONNECTED;
-      
-      // TODO send text/SMS/email message to user
+    break;
 
-    // the modem is receiving good response from the server 
-    } else if (currentString == "OK") {
+    case TR_G_DISCONNECTED:
+      gardenStatus.threeGState = TR_G_DISCONNECTED;
+    break;
+
+    case TR_G_CONNECTED:
       gardenStatus.threeGState = TR_G_CONNECTED;
-    }  
+    break;
+
+    case TR_G_ALERT_SETTING:
+      Serial.println("");
+      Serial.println(alertSetting);
+
+      // TODO parse alert setting
+      //  parseAlertSetting();
+      
+    break;
+
+    default:
+    // UNUSED
+    break;
   }
+  
+  currentString = "";
+
 }
+
 
 
 /* 
@@ -401,15 +536,13 @@ int PrintModemResponse() {
 */
 void getModemResponse() {
   uint8_t incomingByte = Modem_Serial.read();
-  if(incomingByte != -1) {
-    Serial.write(incomingByte);
-    // reset currentString at the end of a line if it is not a special case
-    if(incomingByte == '\n') {
-      currentString = "";
-    } else {
-      currentString += char(incomingByte);
-    } 
-  }
+  Serial.write(incomingByte);
+  // reset currentString at the end of a line if it is not a special case
+  if(incomingByte == '\n') {
+    currentString = "";
+  } else {
+    currentString += char(incomingByte);
+  } 
 }
 
 
@@ -433,17 +566,9 @@ void getModemResponse() {
  * @postconditions: the event is added to the schedule using createEvent
 */
 void parseJSON() {
-//  if ((currentString.substring(currentString.length()-18,currentString.length()-9) == "valve_num")) {
     Serial.println("");
     Serial.println("I got a scheduling event!");
     createEvent();
-//  } else if (currentString == "true") {
-//    Serial.println("");
-//    Serial.println("I need to turn on the full garden.");
-//  } else if (currentString == "false") {
-//    Serial.println("");
-//    Serial.println("I need to shut down the full garden.");
-//  }
 }
 
 
@@ -461,18 +586,18 @@ void createEvent() {
   ScheduleEvent tempEvent;
   // used to process start time and end time further
   // split the string by double quote
-  int idx = currentString.indexOf("\"");
+  int idx = JSONString.indexOf("\"");
   char charBuffer[16];
   String arg;
 
   for(int i = 0; i <= 99; i++) {
-    arg = currentString.substring(beginIdx, idx);
+    arg = JSONString.substring(beginIdx, idx);
     arg.toCharArray(charBuffer, 16);
           
     // add error handling for atoi:
     // eventArray[i] = atoi(charBuffer);
     beginIdx = idx + 1;
-    idx = currentString.indexOf("\"", beginIdx);
+    idx = JSONString.indexOf("\"", beginIdx);
     // Serial.println(charBuffer);
 
     // only four pieces of information are needed
@@ -521,6 +646,7 @@ void createEvent() {
   Serial.print(tempEvent.getStartHour()); Serial.print(":"); Serial.print(tempEvent.getStartMin());
   Serial.print(" and an end time of "); Serial.print(tempEvent.getEndHour()); Serial.print(":"); Serial.print(tempEvent.getEndMin());
   Serial.println(".");
+  JSONString = "";
 }
 
 
@@ -572,27 +698,6 @@ int8_t dayDecoder(String myDay) {
     return -1;
   }
 }
-
-
-/*
- * checkCurrentSchedule(int myDay)
- * 
- * This function checks all available schedule events on a specific weekday, pops them and print them out
- * to the serial debug port
- * 
- * @param: myDay, an integer representing a weekday
- * @preconditions: there are schedule events on a certain weekday in the weekly schedule
- * @postconditions: there is no events on a certain weekday in the weekly schedule
-*/
-//void checkCurrentSchedule(int myDay){
-//  ScheduleEvent myEvent = weeklySchedule.popFrontStartTime(myDay);
-//  Serial.println("");
-//  Serial.print("At node"); Serial.print(myEvent.getValveNum());
-//  Serial.print(", valve "); Serial.print(myEvent.getNodeID()); Serial.print(" is set to have a start time of ");
-//  Serial.print(myEvent.getStartHour()); Serial.print(":"); Serial.print(myEvent.getStartMin());
-//  Serial.print(" and an end time of "); Serial.print(myEvent.getEndHour()); Serial.print(":"); Serial.print(myEvent.getEndMin());
-//  Serial.println(".");
-//}
 
 
 
@@ -996,7 +1101,6 @@ void isNewDay(){
   gardenStatus.isAwake = true;
   checkAlerts(DAILY_REPORT,0);
   // resynchronize timer -- delay is so that do not have resource issue with modem
-  delay(5000);
   timeInit();
 
   // reset garden status
@@ -1068,6 +1172,13 @@ void initGardenStatus(){
 
   // percentMeshUptime
   gardenStatus.percentMeshUptime = 100;
+
+  // alert setting for SMS message
+  memset(&gardenStatus.phoneNum[0], 0, sizeof(gardenStatus.phoneNum));
+  gardenStatus.valve_alert = false;
+  gardenStatus.mesh_alert = false;
+  gardenStatus.reset_alert = false;
+  gardenStatus.voltage_alert = false;
 }
 
 
@@ -1182,7 +1293,7 @@ void updateGardenStatus(){
   if(hour() > 0 || calledIsNewDay == true){
     gardenStatus.percentAwake = (gardenStatus.percentAwake * (statusCounter-1) + (gardenStatus.isAwake ? 100 : 0))/statusCounter;
   }
-  bool threeGGood = (gardenStatus.threeGState == TR_G_CONNECTED);
+  bool threeGGood = (gardenStatus.threeGState != TR_G_DISCONNECTED);
   gardenStatus.percent3GUptime = (gardenStatus.percent3GUptime * (statusCounter-1) + (threeGGood ? 100 : 0))/statusCounter;
   bool meshGood = (gardenStatus.meshState == MESH_ALL_NODES_GOOD);
   gardenStatus.percentMeshUptime = (gardenStatus.percentMeshUptime * (statusCounter-1) + (meshGood ? 100 : 0))/statusCounter;
@@ -1320,10 +1431,10 @@ void timeInit() {
       }
     } 
   }
-//  setTime(timeArray[3], timeArray[4], timeArray[5], timeArray[2], timeArray[1], timeArray[0]);
-//  setTime(now() - 60*60*4);
+  setTime(timeArray[3], timeArray[4], timeArray[5], timeArray[2], timeArray[1], timeArray[0]);
+  setTime(now() - 60*60*4);
   // for testing midnight sequence:
-  setTime(1461542280);
+  // setTime(1461542280);
 }
 
 
@@ -1488,6 +1599,11 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   case GARDEN_TOGGLE:
     myAlert = "0" + (String) opcode;
     myAlert += (String) gardenStatus.isAwake;
+    break;
+
+  case INCOMPLETE_JSON:
+    myAlert = "RESENDSCHEDULE";
+    break;
 
   default:
     // UNUSED
@@ -1495,20 +1611,85 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   }
   // debug
   Serial.println();
-  Serial.println(myAlert);
+  Serial.print(myAlert);
+  Serial.println("");
 
-  currentString = "";
   Modem_Serial.print("AT#SSENDEXT=1,");
   Modem_Serial.println((String) myAlert.length());
-  delay(1000);
+  delay(250);
   while(PrintModemResponse() > 0);
+
 
   Modem_Serial.print(myAlert);
   Modem_Serial.write(26);
-  Modem_Serial.write("\r");
-  
+  Modem_Serial.write('\r');
+
   delay(1000);
+
   while(PrintModemResponse() > 0);
+}
+
+/*
+ * TODO add comments
+*/
+void parseAlertSetting() {
+  int beginIdx = 0;
+  
+  // split the string by %
+  int idx = alertSetting.indexOf('%');
+  char charBuffer[16];
+  String arg;
+
+  for(int i = 0; i <= 4; i++) {
+    arg = alertSetting.substring(beginIdx, idx);
+
+    arg.toCharArray(charBuffer, 16);
+          
+    beginIdx = idx + 1;
+    idx = alertSetting.indexOf('%', beginIdx);
+
+    // phone number
+    if(i == 0) {
+      Serial.print("The phone number is "); Serial.println(arg);
+      arg.toCharArray(gardenStatus.phoneNum, 10);
+    // valve alert
+    } else if (i == 1) {
+      uint8_t myValue = atoi(charBuffer);
+      if(myValue == 1) {
+        gardenStatus.valve_alert = true;
+      } else {
+        gardenStatus.valve_alert = false;
+      }
+      Serial.println(gardenStatus.valve_alert);
+    // mesh alert
+    } else if (i == 2) {
+      uint8_t myValue = atoi(charBuffer);
+      if(myValue == 1) {
+        gardenStatus.mesh_alert = true;
+      } else {
+        gardenStatus.mesh_alert = false;
+      }
+      Serial.println(gardenStatus.mesh_alert);
+    // restart alert
+    } else if (i == 3) {
+      uint8_t myValue = atoi(charBuffer);
+      if(myValue == 1) {
+        gardenStatus.reset_alert = true;
+      } else {
+        gardenStatus.reset_alert = false;
+      }
+      Serial.println(gardenStatus.reset_alert);
+    // voltage alert
+    } else if (i == 4) {
+      uint8_t myValue = atoi(charBuffer);
+      if(myValue == 1) {
+        gardenStatus.voltage_alert = true;
+      } else {
+        gardenStatus.voltage_alert = false;
+      }
+      Serial.println(gardenStatus.voltage_alert);
+    }
+  }
 }
 
 
@@ -1562,6 +1743,7 @@ void setup(){
     Serial.println(F("Trouble setting up the mesh, trying again..."));
     delay(1000);
   }
+  Serial.println("");
   Serial.println(F("Mesh created"));
   mesh.setAddress(MASTER_NODE_ID, MASTER_ADDRESS);
 
@@ -1580,7 +1762,6 @@ void setup(){
 
   initPins2();
   
-
   // alert the server about gateway reset
   openSocket();
   boolean setupDone = false;
@@ -1598,21 +1779,13 @@ void setup(){
     }
   }
 
-  // send message 
-//  currentString = "";
-//  Modem_Serial.println("AT#SSENDEXT=1,7");
-//  delay(1000);
-//  while(PrintModemResponse() > 0);
-//
-//  Modem_Serial.print("Batman!");
-//  Modem_Serial.write(26);
-//  Modem_Serial.write("\r");
-//  
-//  delay(1000);
-//  while(PrintModemResponse() > 0);
+  // test
+//  alertSetting = "2485048891%1%0%1%1";
+//  parseAlertSetting();
+
+  // TODO request schedule, alert setting, and garden on/off mode from server
   
-  checkAlerts(GATEWAY_RESET,0);
-  checkAlerts(DAILY_REPORT,0); // TODO why is this here? (kk)
+  // checkAlerts(GATEWAY_RESET,0);
 }
 
 
@@ -1634,15 +1807,22 @@ void setup(){
  */ 
 void loop() {
 
+//  while(Modem_Serial.available() > 0) {
+//    getModemResponse();
+//  }
+
   //////////////////////// Time acceleration for testing /////////////////////////////
   // jump to 50 seconds
-  if(second() > 0 && second() < 15 ){
-    setTime(now()+50-second());
-  }
+//  if(second() > 0 && second() < 15 ){
+//    setTime(now()+50-second());
+//  }
   ////////////////////////////////////////////////////////////////////////////////////
 
   // Communication with server via 3G
-  handle3GModem();
+   uint8_t tr_g_opmode = decodeModemResponse();
+
+   handleModemOperation(tr_g_opmode);
+  
 
   // reprovision socket dial when 3G is disconnected
   if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
@@ -1652,7 +1832,7 @@ void loop() {
   // refresh the reset only when modem is NOT receiving a JSON string,
   // else we might run into trouble receiving complete JSON string
   if(modemReceivingJSON == false) {
-    refreshReset();
+    // refreshReset();
   }
 
   // update node status if necessary
@@ -1666,10 +1846,11 @@ void loop() {
 
   // check if need to open/close valves according to schedule
   // to occur at the beginning of each new minute
-  if(now() >= lastTime + 60){
+  if(now() >= lastTime + 60 && modemReceivingJSON == false){
     if(gardenStatus.isAwake){
       checkSchedule();
     }
+    refreshReset();
     lastTime = now();
   }
 

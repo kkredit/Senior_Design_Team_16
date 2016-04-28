@@ -19,6 +19,7 @@
 /********************************* Modem ***************************************/
 String currentString = "";
 volatile int incomingByte = 0;
+volatile boolean ringFlag = false;
 
 /******************************** JSON Parsing **********************************/
 ScheduleEvent tempEvent;
@@ -33,9 +34,9 @@ void setup() {
   setupModem();
 
   // send message 
-  Modem_Serial.println("AT#SSENDEXT=?");
-  delay(1000);
-  while(PrintModemResponse() > 0);
+//  Modem_Serial.println("AT#SSENDEXT=?");
+//  delay(1000);
+//  while(PrintModemResponse() > 0);
 
   getModemIP();
   openSocket();
@@ -46,28 +47,40 @@ void setup() {
 void loop() {
   while(Modem_Serial.available() > 0) {
     getModemResponse();
-    if(currentString == "SRING: 1") {
-      delay(250);
-      Modem_Serial.println("AT#SRECV=1,1500");
+    if(currentString.substring(currentString.length()-8, currentString.length()) == "SRING: 1") {
       currentString = "";
+      ringFlag = true;
     }
   }
 
-  if(currentString == "NO CARRIER" || currentString == "ERROR") {
-//    openSocket();
-//    currentString = "";
-  } else if (currentString == "OK") {
-    Modem_Serial.println("AT#SSENDEXT=1,7");
-    delay(1000);
-    while(PrintModemResponse() > 0);
-
-    Modem_Serial.print("Batman!");
-    Modem_Serial.write(26);
-    Modem_Serial.write("\r");
-  
-    delay(1000);
-    while(PrintModemResponse() > 0);
+  if(ringFlag) {
+    delay(2000);
+    Modem_Serial.println("AT#SRECV=1,300");
+    ringFlag = false;
   }
+
+  if(currentString.length() > 0) {
+    Serial.println("");
+    Serial.print(currentString);
+    currentString = "";
+  }
+
+
+//  if(currentString == "NO CARRIER" || currentString == "ERROR") {
+////    openSocket();
+////    currentString = "";
+//  } else if (currentString == "OK") {
+//    Modem_Serial.println("AT#SSENDEXT=1,7");
+//    delay(1000);
+//    while(PrintModemResponse() > 0);
+//
+//    Modem_Serial.print("Batman!");
+//    Modem_Serial.write(26);
+//    Modem_Serial.write("\r");
+//  
+//    delay(1000);
+//    while(PrintModemResponse() > 0);
+//  }
 }
   
   // while(PrintModemResponse() > 0);
@@ -133,16 +146,17 @@ void setupModem() {
   delay(500);
   while(PrintModemResponse() > 0);
 
-  Modem_Serial.println("AT#MODE=ONLINE");
-  delay(500);
-  while(PrintModemResponse() > 0);
+//  Modem_Serial.println("AT#MODE=ONLINE");
+//  delay(500);
+//  while(PrintModemResponse() > 0);
 
   // Connect to 3G cellular network
   Serial.println("Waiting for network connection...");
   boolean connectionGood = false;
+  currentString = "";
   while(!connectionGood){
     Modem_Serial.println("AT+CREG?");
-    currentString = "";
+    // currentString = "";
     delay(500);
     while(Modem_Serial.available() > 0) {
       getModemResponse();
@@ -152,9 +166,9 @@ void setupModem() {
         connectionGood = true;
         Serial.println(); 
         Serial.println("Connection successful!");
-        currentString = "";
       }
     }
+    currentString = "";
   }
   while(PrintModemResponse() > 0);
 }
@@ -179,13 +193,12 @@ void getModemIP() {
   while(!IPGood) {
     while(Modem_Serial.available() > 0) {
       getModemResponse();
-    }
-
     // if the modem already has an IP
-    if(currentString == "ERROR" || currentString == "OK") {
-      IPGood = true;
-      currentString = "";
-    } 
+      if(currentString.substring(currentString.length()-2, currentString.length()) == "OK") {
+        IPGood = true;
+        currentString = "";
+      } 
+     }
   }
 }
 
@@ -247,15 +260,16 @@ int PrintModemResponse() {
 void getModemResponse() {
   incomingByte = Modem_Serial.read();
   if(incomingByte != -1) {
+    currentString += char(incomingByte);
     Serial.write(incomingByte); 
-    if (currentString != "NO CARRIER" && currentString != "ERROR" && currentString != "SRING: 1") {
-      if(incomingByte == '\n') {
-        currentString = "";
-      } else {
-        currentString += char(incomingByte);
-      } 
+//    if (currentString != "NO CARRIER" && currentString != "ERROR" && currentString != "SRING: 1") {
+//      if(incomingByte == '\n') {
+//        currentString = "";
+//      } else {
+//        currentString += char(incomingByte);
+//      } 
     }
-  }
+//  }
 }
 
 /***************************************** JSON ******************************************/
