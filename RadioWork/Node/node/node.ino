@@ -1,4 +1,4 @@
-/**
+/*
  * node.ino
  * 
  * This sketch is for nodes in the GardeNet system. Functions include:

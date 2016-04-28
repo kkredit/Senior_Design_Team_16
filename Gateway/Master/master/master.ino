@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -927,7 +927,7 @@ void checkSchedule(){
       // else node is not connected to mesh
       else{
         // alert the server
-        checkAlerts(MESH_DOWN,0);
+//        checkAlerts(MESH_DOWN, 0);
       }
     }
     // else unregistered
@@ -1201,8 +1201,8 @@ void updateGardenStatus(){
   //////////// CHECK NODE_STATUSES ////////////
 
   // manually check for unregistered nodes
-  Serial.println("");
-  Serial.print("Num addresses in list: "); Serial.println(mesh.addrListTop);
+//  Serial.println("");
+//  Serial.print("Num addresses in list: "); Serial.println(mesh.addrListTop);
   if(mesh.addrListTop-1 != gardenStatus.numRegisteredNodes){
     // if numbers don't match, check each registered address
     for(uint8_t i=1; i<mesh.addrListTop; i++){
@@ -1267,19 +1267,29 @@ void updateGardenStatus(){
   //////////// CHECK OVERALL MESH CONNECTION ////////////
 
   // assume began, so just check ratio of connected nodes
+  static time_t disconnectedCounter = 0; // NOTE only set to 0 first time; else keeps old value
+  Serial.print(F("meshState ")); Serial.println(gardenStatus.meshState);
+  Serial.print(F("time      ")); Serial.println(disconnectedCounter);
   if(gardenStatus.numConnectedNodes == gardenStatus.numRegisteredNodes){
     gardenStatus.meshState = MESH_ALL_NODES_GOOD;
+    disconnectedCounter = 0;
   }
   else if(gardenStatus.numConnectedNodes == 0){
-    // check if is new error
-    if(gardenStatus.meshState != MESH_ALL_NODES_DOWN){
+    // check if is new error, but only call it error if has happened three consective times
+    if(disconnectedCounter == 0){
+      disconnectedCounter = now();
+    }
+    else if(gardenStatus.meshState != MESH_ALL_NODES_DOWN && now() > disconnectedCounter + TIME_TILL_MESH_ERR){
       gardenStatus.meshState = MESH_ALL_NODES_DOWN;
       checkAlerts(MESH_DOWN, 0);
     }
   }
   else{
-    // check if is new error
-    if(gardenStatus.meshState != MESH_SOME_NODES_DOWN){
+    // check if is new error, but only call it error if has happened three consective times
+    if(disconnectedCounter == 0){
+      disconnectedCounter = now();
+    }
+    else if(gardenStatus.meshState != MESH_SOME_NODES_DOWN && now() > disconnectedCounter + TIME_TILL_MESH_ERR){
       gardenStatus.meshState = MESH_SOME_NODES_DOWN;
       checkAlerts(MESH_DOWN, 0);
     }

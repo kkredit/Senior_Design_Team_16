@@ -81,14 +81,16 @@ struct Garden_Status{
 #define DATA_RATE           RF24_250KBPS  // RF24 mesh communication data rate
 #define CONNECT_TIMEOUT     15000         // time in ms before mesh.begin() times out
 #define DEFAULT_SEND_TRIES  5             // number of tries to send a message if send fails but are
-                                          // connected  
+                                          //    connected  
 #define RETRY_PERIOD        1000          // number of ms to wait before retrying to send a message
 #define RENEWAL_TIMEOUT     15000         // time in ms before mesh.renewAddress() times out
 #define CONNECTION_TRIES    5             // number of tries to connect before waiting going to 
-                                          // sleep
+                                          //    sleep
+#define TIME_TILL_MESH_ERR  30            // number of consecutive times that the node must be 
+                                          //    disconnected before the master throws an error
 #define DISCONNECTED_SLEEP  (5*60000)     // (5 minutes) -- time to wait before trying to connect 
+                                          //    again
 #define PERIOD_ASKS_STATUS  50
-                                          // again
 
 
 // communication protocol settings
@@ -169,14 +171,8 @@ struct Garden_Status{
 #define MESH_DOWN             02  //    yes               yes                         yes
 #define GATEWAY_RESET         03  //    yes               yes                         yes
 #define BAD_VOLTAGE_STATE     04  //    yes               yes                         yes
-<<<<<<< HEAD
-#define GARDEN_TOGGLE         05  //    yes               yes                         yes
-
-=======
 #define GARDEN_TOGGLE         05  //    yes               yes                         yes  
-                                  // TODO -- GARDEN_TOGGLE should move the "full garden sut off" switch to reflect the state
 #define INCOMPLETE_JSON       06
->>>>>>> 2c4fe6af05e4e78afc2c0bb5ea86105ab7aed080
 
 // other settings
 #define ON                    true

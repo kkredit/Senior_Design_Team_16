@@ -1011,10 +1011,10 @@ void loop() {
         int8_t result = setValve(vc.whichValve, vc.onOrOff);
 //        vr.actualState = myStatus.valveStates[vc.whichValve].state;
         if(vc.whichValve > 0 && vc.whichValve <= 4){ 
-          Serial.print("Valve is now "); Serial.println(result);
+          Serial.print(F("Valve is now ")); Serial.println(result);
         }
         else if(vc.whichValve == 5){
-          Serial.print("Valves are now "); Serial.println(result);
+          Serial.print(F("Valves are now ")); Serial.println(result);
         }
       }
       //safeMeshWrite(MASTER_ADDRESS, &vr, SEND_VALVE_H, sizeof(vr), DEFAULT_SEND_TRIES);
