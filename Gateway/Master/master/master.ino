@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -1158,7 +1158,7 @@ void isNewDay(){
 
   // reset garden status
   gardenStatus.percentAwake = 100;
-  gardenStatus.percent3GUptime = (gardenStatus.threeGState == TR_G_CONNECTED) ? 100 : 0;
+  gardenStatus.percent3GUptime = (gardenStatus.threeGState != TR_G_DISCONNECTED) ? 100 : 0;
   gardenStatus.percentMeshUptime = (gardenStatus.meshState == MESH_ALL_NODES_GOOD) ? 100 : 0;
   statusCounter = 0;
   // for each node
@@ -1321,8 +1321,6 @@ void updateGardenStatus(){
 
   // assume began, so just check ratio of connected nodes
   static time_t disconnectedCounter = 0; // NOTE only set to 0 first time; else keeps old value
-  Serial.print(F("meshState ")); Serial.println(gardenStatus.meshState);
-  Serial.print(F("time      ")); Serial.println(disconnectedCounter);
   if(gardenStatus.numConnectedNodes == gardenStatus.numRegisteredNodes){
     gardenStatus.meshState = MESH_ALL_NODES_GOOD;
     disconnectedCounter = 0;
@@ -1379,29 +1377,24 @@ void updateGardenStatus(){
  */ 
 void printGardenStatus(){
   // print number of times executed
-  Serial.println(F("")); Serial.println(statusCounter);
-
-  // print time
-  digitalClockDisplay();
+//  Serial.println(); Serial.println(statusCounter);
+//
+//  // print time
+//  Serial.print(F("Time         : ")); digitalClockDisplay();
+//  Serial.print(F("\nDate         : ")); dateDisplay();
+  Serial.println(); Serial.println(); digitalClockDisplay();
+  Serial.println(); dateDisplay();
 
   if(gardenStatus.isAwake == false) Serial.println(F("GARDEN IS IN STANDBY"));
-  Serial.print(F("Percent time spent awake: ")); Serial.print(gardenStatus.percentAwake); Serial.println(F("%"));
+  Serial.print(F("\nTime Awake   : ")); Serial.print(gardenStatus.percentAwake); 
+  Serial.println(F("%"));
 
+  // print mesh stuff
+  Serial.print(F("Mesh status  : ")); 
   Serial.print(gardenStatus.numConnectedNodes); Serial.print(F("/"));
-  Serial.print(gardenStatus.numRegisteredNodes); Serial.println(F(" nodes are connected"));
-
-  Serial.print(F("3G status:      ")); 
-  if(gardenStatus.threeGState == TR_G_CONNECTED){
-    Serial.println(F("good (connected)"));
-  }
-  else if(gardenStatus.threeGState == TR_G_DISCONNECTED){
-    Serial.println(F("DISCONNECTED"));
-  }
-  Serial.print(F("  (")); Serial.print(gardenStatus.percent3GUptime); Serial.println(F("%)"));
-
-  Serial.print(F("Mesh status:    "));
+  Serial.print(gardenStatus.numRegisteredNodes); Serial.print(F("            : "));
   if(gardenStatus.meshState == MESH_ALL_NODES_GOOD){
-    Serial.println(F("good (all nodes connected)"));
+    Serial.println(F("good"));
   }
   else if(gardenStatus.meshState == MESH_NOT_BEGAN){
     Serial.println(F("not began"));
@@ -1410,16 +1403,30 @@ void printGardenStatus(){
     Serial.println(F("some nodes down!"));
   }
   else if(gardenStatus.meshState == MESH_ALL_NODES_DOWN){
-    Serial.println(F("ALL NODES DOWN!"));
+    Serial.println(F("MESH IS DOWN!"));
   }
-  Serial.print(F("  (")); Serial.print(gardenStatus.percentMeshUptime); Serial.println(F("%)"));
+  Serial.print(F("Mesh uptime  : ")); 
+  Serial.print(gardenStatus.percentMeshUptime); Serial.println(F("%"));
 
-  Serial.print(F("Node statuses:  "));
+  // print 3G stuff
+  Serial.print(F("3G status    : ")); 
+  if(gardenStatus.threeGState != TR_G_DISCONNECTED){
+    Serial.print(F("connected (")); Serial.print(gardenStatus.threeGState); 
+    Serial.println(F(")  : good"));
+  }
+  else{
+    Serial.println(F("DISCONNECTED"));
+  }
+  Serial.print(F("3G uptime    : ")); 
+  Serial.print(gardenStatus.percent3GUptime); Serial.println(F("%"));
+
+  // print node stuff
+  Serial.print(F("Node states  : "));
   if(gardenStatus.gardenState == GARDEN_ALL_IS_WELL){
-    Serial.println(F("good"));
+    Serial.println(F("no issues      : good\n"));
   }
   else if(gardenStatus.gardenState == GARDEN_NODE_ERROR){
-    Serial.println(F("at least one connected node has an error!"));
+    Serial.println(F("at least one connected node has an issue!\n"));
   }
 }
 
@@ -1519,7 +1526,19 @@ void timeInit() {
 void digitalClockDisplay(){
   // digital clock display of the time
   Serial.print(hour()); printDigits(minute()); printDigits(second());
-  Serial.println();
+}
+
+
+/* 
+ * dateDisplay()
+ *
+ * This function prints out the current date recorded by the internal timer
+ * in a readable way
+ * 
+ * @preconditions: internal timer is set
+ * @postconditions: date is displayed in nice format through Serial port
+ */
+void dateDisplay(){
   switch(weekday()-1){
     case 0:
       Serial.print(F("Sunday, "));
@@ -1546,7 +1565,7 @@ void digitalClockDisplay(){
       break;
   }
   Serial.print(month()); Serial.print(F("/")); Serial.print(day());
-  Serial.print(F("/")); Serial.println(year());
+  Serial.print(F("/")); Serial.print(year());
 }
 
 
@@ -1887,8 +1906,8 @@ void setup(){
   // TODO print status?
 
   // Setup 3G Modem
-  setupModem();
-  getModemIP();
+//  setupModem();
+//  getModemIP();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
@@ -1907,7 +1926,7 @@ void setup(){
   Timer1.attachInterrupt(updateStatusISR);
 
   // setup time
-  timeInit();
+//  timeInit();
   
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
