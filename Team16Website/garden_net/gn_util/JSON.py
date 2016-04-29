@@ -1,16 +1,53 @@
+"""
+	Date: 04/29/2016
+	Author: Charles A. Kingston
+
+	JSON.py:
+
+	This script is used to encode, decode, and interact with the database
+	in order to write and save data that is being shared about scheduling
+	events that are sent from the website.
+
+"""
+
+# Third Party Imports
 import json
 
+# Local Imports
 from event import Event
 from zone import Zone
 from database import Database
 
 class JSON_Interface:
+	"""
+		A Constructor for the JSON class
+	"""
 	def __init__(self):
 		pass
+	"""
+		A wraper function that calls on both the Event and Zone class's JSON
+		methods in order to write out a fully combined JSON string
 
+		@:param event, Event object to be written in JSON form
+		@:param zone, Zone object to be written in JSON form
+
+		@:return a string that has an event and zone in JSON form
+	"""
 	def convert_to_JSON(self, event: Event, zone: Zone):
 		return "{" + str(zone.to_JSON()) + "[\n\t" + event.to_JSON() + "\n]}"
 
+	"""
+		A wraper function that calls on both the Event and Zone class's JSON
+		methods in order to write out a fully combined JSON string given an
+		event list.
+
+		@:param event_list, list of event objects to be written in JSON form
+		@:param zone, Zone object to be written in JSON form
+		@:param comma, bool determines whether or not a comma needs to be placed
+						at the end of the line
+
+		@:return a string that has an event and zone in JSON form
+	"""
 	def to_JSON(self, event_list: list, zone: Zone, comma: bool):
 		temp = str(zone.to_JSON()) + ""
 		i = 0
@@ -30,7 +67,13 @@ class JSON_Interface:
 		temp += "\n"
 
 		return temp
+	"""
+		A function that reads a JSON file and returns it's contents
 
+		@:param file_name to be read from
+
+		@:return a string of the files contents
+	"""
 	def from_JSON(self, file_name):
 		f = open(file_name, 'r')
 		temp = ""
@@ -39,6 +82,14 @@ class JSON_Interface:
 		f.close()
 		return temp
 
+	"""
+		A function that creates a list of events given a JSON string
+		and then save it in the database. It uses try catch blocks in
+		order to dynamically assign the events.
+
+		@:param json_str, str of json
+		@:param db, Database is the database in which to save the events
+	"""
 	def create_events_from_JSON_string(self, json_str: str, db: Database):
 		# temp = json_str[2:7]
 		# print(temp)
@@ -83,7 +134,14 @@ class JSON_Interface:
 				temp = False
 
 			i += 1
+	"""
+		A function that takes all of the events from the database,
+		and writes them to a JSON string
 
+		@:param db, Database is the database in which to get the events from
+
+		@:return a JSON formatted string of all of the events in the db
+	"""
 	def all_events_from_DB_to_JSON(self, db:Database):
 		i = 1
 		temp = True
@@ -117,6 +175,10 @@ class JSON_Interface:
 					pass
 				try:
 					events += db.get_events_on_day_for_zone('Saturday', i)
+				except ValueError:
+					pass
+				try:
+					events += db.get_events_on_day_for_zone('Everyday', i)
 				except ValueError:
 					pass
 				try:

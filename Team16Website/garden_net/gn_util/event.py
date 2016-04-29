@@ -4,7 +4,7 @@
 
 	event.py:
 
-	Script is defines a class that is used throughout the GardeNet system. The event class
+	Script that defines a class that is used throughout the GardeNet system. The event class
 	extends the BASE that is defined. This means that it will get correctly linked to the
 	Database and any other classes that are linked to it as well.
 
@@ -163,7 +163,7 @@ class Event(Base):
 	def day(self,value):
 		if value == 'Sunday' or value == 'Monday' or value == 'Tuesday' \
 				or value == 'Wednesday'or value == 'Thursday' or value == 'Friday' \
-				or value =='Saturday':
+				or value =='Saturday' or value == 'Everyday':
 			self._day = value
 		else:
 			raise ValueError("Specify a day of the week")

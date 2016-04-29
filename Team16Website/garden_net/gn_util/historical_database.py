@@ -45,6 +45,13 @@ class Historical_Database:
 		self.meta.create_all()
 		self.session.commit()
 
+	"""
+		A function to add a new row into the database
+
+		@:param: self: passes ourself in to delete all items in the database
+		@:param: row, Historical_Database_Interface object that contains the long ugly
+						string to be saved into the database
+	"""
 	def add_row(self, row: Historical_Database_Interface):
 		if self.session.query(Historical_Database_Interface).filter(Historical_Database_Interface.date == row.date).all():
 			raise ValueError("Already an event for that date")
@@ -52,6 +59,11 @@ class Historical_Database:
 			self.session.add(row)
 			self.session.commit()
 
+	"""
+		A function to get all of the rows in the database
+
+		@:return a list of all of the rows in the database
+	"""
 	def get_all(self):
 		data_list = self.session.query(Historical_Database_Interface).all()
 		return data_list

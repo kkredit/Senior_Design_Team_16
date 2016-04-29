@@ -65,10 +65,10 @@ db.add_event(test_event15)
 #########testing
 
 
-
+f = open(ipc_file, 'w')
 
 if forecast.check_rain_prob(rain_threshold):
-	f = open(ipc_file, 'w')
+	#print("NoEvents")
 	f.write("NoEvents")
 	f.close()
 	try:
@@ -118,4 +118,11 @@ elif forecast.check_temp(temp_threshold):
 			break
 		zone += 1
 	it += "}"
-	print(it)
+	f.write(it)
+f.close()
+# try:
+# 	soc = socket.create_connection(('localhost', port))
+# except:
+# 	print("Unable to connect")
+
+soc.close()

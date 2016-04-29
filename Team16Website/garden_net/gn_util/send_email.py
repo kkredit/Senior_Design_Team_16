@@ -1,10 +1,23 @@
-#from gateway_report import Report
+"""
+	Date: 04/29/2016
+	Author: Charles A. Kingston
 
+	send_email.py
+
+	This script is used to send the emails from the GardeNetServer@gmail.com
+	account to the user who has signed up to receive the emails.
+"""
+# Third Party Imports
 # Import smtplib for the actual sending function
 import smtplib
-import time
 
 class Alert:
+	"""
+		An explicit constructor that takes in the message and sends
+		the email to the user that is sighed up
+
+		@:param alert_message, str of the message that is to be sent
+	"""
 	def __init__(self, alert_message: str):
 		TEXT = alert_message
 
@@ -14,7 +27,6 @@ class Alert:
 			current = line.split(" ")
 			if str(current[0]).upper() == "EMAIL:":
 				email_address = str(current[1].split('\n')[0])
-		#TO = ["cak33@students.calvin.edu", "knk9@students.calvin.edu", "jrc32@students.calvin.edu", "xj22@students.calvin.edu"]
 		TO = email_address
 		SUBJECT = "GardeNet Alert!"
 
@@ -41,7 +53,6 @@ class Alert:
 		try:
 			s.sendmail(gmail_sender, [TO], BODY)
 			#print("Email Sent!")
-			time.sleep(10)
 		except Exception as e:
 			print("Error sending email")
 			print(str(e))

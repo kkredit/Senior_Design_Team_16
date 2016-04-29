@@ -1,56 +1,10 @@
-date: 04-24-2016
+date: 04-25-2016
 	opcode: 00
-	percentMeshUp: 0.99
-	percent3GUp: 0.99
-		node: 1 meshState: 0 percentNodeAwake: 0.99 accumulatedFlow: 209.3
-			valve_num: 1 totalWateringTime: 60
-			valve_num: 2 totalWateringTime: 30
-			valve_num: 3 totalWateringTime: 75
-		node: 1 meshState: 0 percentNodeAwake: 0.99 accumulatedFlow: 209.3
-			valve_num: 1 totalWateringTime: 60
-			valve_num: 2 totalWateringTime: 30
-			valve_num: 3 totalWateringTime: 75
-
-
-date: 04-24-2016
-	opcode: 00
-	percentMeshUp: 0.99
-	percent3GUp: 0.99
-		node: 1 meshState: 0 percentNodeAwake: 0.99 accumulatedFlow: 209.3
-			valve_num: 1 totalWateringTime: 60
-			valve_num: 2 totalWateringTime: 30
-			valve_num: 3 totalWateringTime: 75
-		node: 1 meshState: 0 percentNodeAwake: 0.99 accumulatedFlow: 209.3
-			valve_num: 1 totalWateringTime: 60
-			valve_num: 2 totalWateringTime: 30
-			valve_num: 3 totalWateringTime: 75
-
-
-date: 04-24-2016
-	opcode: 00
-	percentMeshUp: 0.99
-	percent3GUp: 0.99
-		node: 1 meshState: 0 percentNodeAwake: 0.99 accumulatedFlow: 209.3
-			valve_num: 1 totalWateringTime: 60
-			valve_num: 2 totalWateringTime: 30
-			valve_num: 3 totalWateringTime: 75
-		node: 1 meshState: 0 percentNodeAwake: 0.99 accumulatedFlow: 209.3
-			valve_num: 1 totalWateringTime: 60
-			valve_num: 2 totalWateringTime: 30
-			valve_num: 3 totalWateringTime: 75
-
-
-date: 04-24-2016
-	opcode: 00
-	percentMeshUp: 0.99
-	percent3GUp: 0.99
-		node: 1 meshState: 0 percentNodeAwake: 0.99 accumulatedFlow: 209.3
-			valve_num: 1 totalWateringTime: 60
-			valve_num: 2 totalWateringTime: 30
-			valve_num: 3 totalWateringTime: 75
-		node: 1 meshState: 0 percentNodeAwake: 0.99 accumulatedFlow: 209.3
-			valve_num: 1 totalWateringTime: 60
-			valve_num: 2 totalWateringTime: 30
-			valve_num: 3 totalWateringTime: 75
+	percentMeshUp: 100.00
+	percent3GUp: 77.78
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
 
 

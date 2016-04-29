@@ -17,6 +17,11 @@
 	INNER PROCESS COMMUNICATION (IPC) PORTS: These ports only accept connections from
 	machines that are on localhost.
 
+		PORT: 5537
+			This socket connection looks for a connection from the website. When the
+			connection is made, it immediately closes the socket and views a user_info
+			and alerts text file in order to figure out which alerts the user wants.
+
 		PORT: 5538
 			This socket connection looks for a connection from the website. When the
 			connection is made, it immediately closes the socket and views the JSON
@@ -57,6 +62,8 @@ begin_message = False
 # GLOBAL VARIABLEs
 RECV_BUFFER = 8192
 ipc_file = "ipc_file.txt"
+user_info_file = "user_info.txt"
+alerts_file = "alerts.txt"
 file_data = ""
 db = Database(False)
 json_conversion = JSON_Interface()
@@ -84,7 +91,19 @@ server_socket.listen(5)
 SOCKET_LIST.append(server_socket)
 server_socket.settimeout(0)
 
-# @ipc_socket: Socket that listens to a connection from the website
+# @user_alert_socket: Socket that listens to a connection from the website
+user_alert_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+user_alert_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+user_alert_port = 5537
+# Bind it to the localhost for ipc communication
+user_alert_socket.bind(('localhost', user_alert_port))
+user_alert_socket.listen(5)
+if args.verbose:
+	print("The user_alert_socket port number for IPC communication is ", + user_alert_port)
+# Append it to the list for the select statement
+SOCKET_LIST.append(user_alert_socket)
+
+#@ipc_socket: Socket that listens to a connection from the website
 ipc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 ipc_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 ipc_port = 5538
@@ -127,7 +146,7 @@ def broadcast(message: str, soc_list: list):
 	# iterate over the socket list
 	for s in soc_list:
 		# If the socket is not us, not the ipc_socket, or not the test_server_socket
-		if s != server_socket and s != ipc_socket and s != test_server_socket:
+		if s != server_socket and s != ipc_socket and s != test_server_socket and s != user_alert_socket:
 			# try to send the message
 			try:
 				# send the message to the controller
@@ -201,14 +220,15 @@ def send_event(begin_message):
 				print("Sending the EOT message")
 			done_message = "DONE"
 			broadcast(done_message, SOCKET_LIST)
+			time.sleep(5)
 			if args.verbose:
 				print("Successfully sent!")
 			if args.verbose:
 				print("Sent successfully ")
 		elif begin_message:
+			begin = "START" + str(len(EVENT_LIST))
 			if args.verbose:
-				print("Sending the BOT message")
-			begin = "START"
+				print("Sending the BOT message: " + begin)
 			broadcast(begin, SOCKET_LIST)
 			time.sleep(5)
 			if args.verbose:
@@ -255,6 +275,53 @@ while True:
 				print("Client (%s, %s) connected" % addr)
 			welcome = "Welcome to GardeNet"
 		# client_sock.send(welcome.encode('utf-8'))
+		elif sock == user_alert_socket:
+			if args.verbose:
+				print("Got a connection from user_alert_socket")
+			user_soc, user_address = user_alert_socket.accept()
+			if args.verbose:
+				print("Accepted the user_alert_socket")
+			user_soc.close()
+			if args.verbose:
+				print("Closed the user_alert_socket")
+			user_info = []
+			alerts = []
+
+			f = open(user_info_file, 'r')
+			for line in f:
+				user_info.append(line)
+			phone_number = str(user_info[1]).split(" ")[1].split("\n")[0]
+			f.close()
+			f2 = open(alerts_file, 'r')
+			for line in f2:
+				alerts.append(line)
+			opcode_01 = str(alerts[0]).split('\t')[1]
+			if opcode_01.upper() == "TRUE":
+				opcode_01 = "1"
+			else:
+				opcode_01 = "0"
+			opcode_02 = str(alerts[3]).split('\t')[1]
+			if opcode_02.upper() == "TRUE":
+				opcode_02 = "1"
+			else:
+				opcode_02 = "0"
+			opcode_03 = str(alerts[2]).split('\t')[1]
+			if opcode_03.upper() == "TRUE":
+				opcode_03 = "1"
+			else:
+				opcode_03 = "0"
+			opcode_04 = str(alerts[1]).split('\t')[1]
+			if opcode_04.upper() == "TRUE":
+				opcode_04 = "1"
+			else:
+				opcode_04 = "0"
+			alert_string = "SMS" + phone_number + "%" + opcode_01 + "%" + opcode_02 + "%" \
+						   + opcode_03 + "%" + opcode_04
+			if args.verbose:
+				print("Sending alert string to the gateway: " + alert_string)
+			broadcast(alert_string, SOCKET_LIST)
+			if args.verbose:
+				print("Successfully sent!")
 		elif sock == test_server_socket:
 			test, test_addr = test_server_socket.accept()
 			if args.verbose:
@@ -293,6 +360,8 @@ while True:
 
 				convert = JSON_Interface()
 				converted = convert.all_events_from_DB_to_JSON(db)
+				if args.verbose:
+					print(converted)
 
 				f2 = open("current_schedule_in_db.txt", 'w')
 				f2.write(file_data)
@@ -322,7 +391,23 @@ while True:
 			data = sock.recv(RECV_BUFFER)
 			if data:
 				print("Received: " + data.decode('utf-8'))
-				Report(data.decode('utf-8'))
+				if str(data.decode('utf-8')).upper() == "RESENDSCHEDULE":
+					if args.verbose:
+						print("I need to resend the schedule")
+						resend_port = 5538
+						try:
+							resend = socket.create_connection(('localhost', 5538))
+							if args.verbose:
+								print("Reconnecting to local host")
+						except:
+							if args.verbose:
+								print("Unable to connect")
+						resend.close()
+				else:
+					report = Report(data.decode('utf-8'))
+					if args.verbose:
+						if report.opcode == "00":
+							print(str(report))
 
 		except:
 			continue

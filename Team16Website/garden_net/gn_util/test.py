@@ -1,8 +1,8 @@
 #from historical_database import Historical_Database
 
 #from historical_database_interface import Historical_Database_Interface
-from gateway_report import Report
-Report("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
+#from gateway_report import Report
+#Report("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
 # to = Historical_Database_Interface("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
 # db = Historical_Database(True)
 #
@@ -60,3 +60,41 @@ Report("01%2%5%0.00")
 # Report("03")
 # Report("04%1%2")
 """
+
+user_info_file = "user_info.txt"
+alerts_file = "alerts.txt"
+user_info = []
+f = open(user_info_file, 'r')
+for line in f:
+	user_info.append(line)
+phone_number = str(user_info[1]).split(" ")[1].split("\n")[0]
+print(phone_number)
+
+f2 = open(alerts_file, 'r')
+alerts = []
+for line in f2:
+	alerts.append(line)
+opcode_01 = str(alerts[0]).split('\t')[1]
+if opcode_01.upper() == "TRUE":
+	opcode_01 = "1"
+else:
+	opcode_01 = "0"
+opcode_02 = str(alerts[3]).split('\t')[1]
+if opcode_02.upper() == "TRUE":
+	opcode_02 = "1"
+else:
+	opcode_02 = "0"
+opcode_03 = str(alerts[2]).split('\t')[1]
+if opcode_03.upper() == "TRUE":
+	opcode_03 = "1"
+else:
+	opcode_03 = "0"
+opcode_04 = str(alerts[1]).split('\t')[1]
+if opcode_04.upper() == "TRUE":
+	opcode_04 = "1"
+else:
+	opcode_04 = "0"
+
+send_string = phone_number + "%" + opcode_01 + "%" + opcode_02 + "%" + opcode_03 + "%" + opcode_04
+
+print(send_string)

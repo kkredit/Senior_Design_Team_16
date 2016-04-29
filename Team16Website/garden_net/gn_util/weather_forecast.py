@@ -1,9 +1,26 @@
-from forecastiopy import ForecastIO, FIOHourly, FIODaily
+"""
+	Date: 04/26/2016
+	Author: Charles A. Kingston
+
+	weather_forecast.py:
+
+	The class Forecast uses a Forecast.io API to get a forecast for the
+	upcoming days. The class also has functions to check the temperature
+	and rain probability for the upcoming day such that other scripts
+	can use it to manipulate the schedule of events.
+"""
+# Third party imports
+from forecastiopy import ForecastIO, FIOHourly
 from datetime import datetime, timedelta
 from pytz import timezone
-import pytz
 
 class Forecast:
+	"""
+		Constructor
+
+		The constructor uses the api key and the location of CCG
+		to create a ForecastIO object.
+	"""
 	def __init__(self):
 		self._apikey = 'f119a2dd4a7d21069aebce2924af6f9a'
 		# CCG location coordinates: 42.8057347, -85.5263732
@@ -11,6 +28,13 @@ class Forecast:
 
 		self._fio = ForecastIO.ForecastIO(self._apikey, latitude=self._my_location[0], longitude=self._my_location[1])
 
+	"""
+		A function to get the hourly forecast for the next 24 hours
+
+		@:param self, pass ourselves in
+
+		@:return a string of the 24 hour weather forecast
+	"""
 	def get_forecast(self):
 		total_forecast = ""
 		if self._fio.has_hourly() is True:
@@ -28,7 +52,16 @@ class Forecast:
 			return total_forecast
 		else:
 			return 'No Hourly data'
+	"""
+		A function to get the hourly forecast for the next 24 hours and determine
+		if the probability of rain is great enough to cancel events
 
+		@:param self, pass ourselves in
+		@:param threshold, of type int determines how high the probability of rain
+			should be per hour
+
+		@:return a bool of true if the probability of rain is greater for 6 hours else false
+	"""
 	def check_rain_prob(self, threshold):
 		sum = 0
 		if self._fio.has_hourly() is True:
@@ -41,6 +74,16 @@ class Forecast:
 			else:
 				return False
 
+	"""
+		A function to get the hourly forecast for the next 24 hours and determine
+		if the temperature is high enough that watering times should be increased
+
+		@:param self, pass ourselves in
+		@:param threshold, of type int determines how high the temperature should be to
+			increase the watering time
+
+		@:return a bool of true if the temperature is above the threshold else false
+	"""
 	def check_temp(self, threshold):
 		temp = False
 		if self._fio.has_hourly() is True:
@@ -53,6 +96,13 @@ class Forecast:
 			else:
 				return False
 
+	"""
+		A function to get the whole hourly forecast for the next 24 hours
+
+		@:param self, pass ourselves in
+
+		@:return a string of the forecast
+	"""
 	def get_total_24_rain_forecast(self):
 		total = 0
 		if self._fio.has_hourly() is True:
@@ -65,21 +115,52 @@ class Forecast:
 			print('No Hourly data')
 			return total
 
+	"""
+		A getter function to get the rain intensity for the given hour
+
+		@:param self, pass ourselves in
+		@:param hour, of type int to determine which hour to get the intensity for
+
+		@:return the value of the intensity
+	"""
 	def get_intensity_for_hour(self, hour):
 		if self._fio.has_hourly():
 			hourly = FIOHourly.FIOHourly(self._fio)
 			return hourly.get_hour(hour)['precipIntensity']
 
+	"""
+		A getter function to get the rain probability for the given hour
+
+		@:param self, pass ourselves in
+		@:param hour, of type int to determine which hour to get the intensity for
+
+		@:return the value of the intensity
+	"""
 	def get_probability_for_hour(self, hour):
 		if self._fio.has_hourly():
 			hourly = FIOHourly.FIOHourly(self._fio)
 			return hourly.get_hour(hour)['precipProbability']
 
+	"""
+		A getter function to get the current time plus the hour
+
+		@:param self, pass ourselves in
+		@:param hour, of type int to add to the current time
+
+		@:return the time plus the hour
+	"""
 	def get_current_time(self, hour):
 		eastern = timezone('US/Eastern')
 		loc_dt = eastern.localize(datetime.now())
 		return (loc_dt + timedelta(hours=hour))
 
+	"""
+		A getter function to convert the day number to day string
+
+		@:param self, pass ourselves in
+
+		@:return the string of the day given by the day number
+	"""
 	def get_current_day(self):
 		eastern = timezone('US/Eastern')
 		loc_dt = eastern.localize(datetime.now())
