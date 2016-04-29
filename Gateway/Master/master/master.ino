@@ -1336,7 +1336,7 @@ void updateGardenStatus(){
       gardenStatus.meshState = MESH_ALL_NODES_DOWN;
       checkAlerts(MESH_DOWN, 0);
       if(gardenStatus.mesh_alert) {
-        checkSMSAlerts(MESH_DOWN, 0);
+        // checkSMSAlerts(MESH_DOWN, 0);
       }
     }
   }
@@ -1349,7 +1349,7 @@ void updateGardenStatus(){
       gardenStatus.meshState = MESH_SOME_NODES_DOWN;
       checkAlerts(MESH_DOWN, 0);
       if(gardenStatus.mesh_alert) {
-        checkSMSAlerts(MESH_DOWN, 0);
+        // checkSMSAlerts(MESH_DOWN, 0);
       }
     }
   }  
@@ -1699,7 +1699,11 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
 }
 
 /*
- * TODO add comments
+ * parseAlertSetting()
+ * 
+ * @preconditions: the modem receives an alert setting command from the server in
+ * the form as SMS2485048891%1%0%1%1
+ * @postconditions: the SMS alert setting is updated in the Garden_Status struct
 */
 void parseAlertSetting() {
   int beginIdx = 0;
@@ -1761,7 +1765,18 @@ void parseAlertSetting() {
   }
 }
 
-//  alertSetting = "2485048891%1%0%1%1";
+/*
+ * checkSMSAlerts(uint8_t opcode, uint8_t nodeNum)
+ * 
+ * This function constructs an SMS message based on the different alert opcode
+ * and forwards it to a designated phone number stored in the Garden_Status struct
+ * 
+ * @preconditions: there is an alert message available from the nodes
+ * @postconditions: the alert message is sent in the form of an SMS message
+ * 
+ * @param uint8_t opcode: an opcode defined for the alert engine protocol
+ *        uint8_t nodeNum: the node ID to be reported on
+*/
 void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   String myAlert = "GardeNet user: ";
   // daily report
@@ -1808,7 +1823,27 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   Serial.print(myAlert);
   Serial.println("");
 
-  // TODO send SMS message via modem
+  // send SMS message via modem
+
+  // put modem into text mode
+  Modem_Serial.println("AT+CMGF=1");
+  delay(250);
+  while(PrintModemResponse() > 0);
+
+  // assemble SMS message and send
+  Modem_Serial.print("AT+CMGS=\"+");
+  Modem_Serial.print((String) gardenStatus.phoneNum);
+  Modem_Serial.print("\"r");
+  delay(250);
+  while(PrintModemResponse() > 0);
+
+  Modem_Serial.print(myAlert);
+  Modem_Serial.write(26);
+  Modem_Serial.write("\r");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+
+  Serial.println("SMS alert sent.");
 }
 
 

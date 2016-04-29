@@ -67,7 +67,7 @@ struct Garden_Status{
   float percent3GUptime;
   float percentMeshUptime;
   // alert setting
-  char phoneNum[10];
+  char phoneNum[10] = {'6', '1', '6', '3', '2', '8', '2', '0', '8', '6'};
   bool valve_alert;
   bool mesh_alert;
   bool reset_alert;
