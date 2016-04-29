@@ -110,9 +110,9 @@ struct Garden_Status{
 
 // master states
 // threeGStates
-#define TR_G_CONNECTED        0
-#define TR_G_DISCONNECTED     1
-#define TR_G_RECEIVE          2
+#define TR_G_NO_RESPONSE      0
+#define TR_G_CONNECTED        1
+#define TR_G_DISCONNECTED     2
 #define TR_G_DISABLE_INT      3
 #define TR_G_ENABLE_INT       4
 #define TR_G_JSON             5
