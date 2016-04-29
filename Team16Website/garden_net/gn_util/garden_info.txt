@@ -1,1 +1,1 @@
-{"Zone1":{"name":"Gangly Raptor","node":"1","valve":"1","openevents":"2"},"Zone2":{"name":"Tony the Buff-a-nator","node":"2","valve":"2","openevents":"2"},"Zone3":{"name":"Chuck Binsky","node":"3","valve":"4","openevents":"3"}}
+{"Garden":{"openZones":"3"},"Zone1":{"name":"Planter Boxes","node":"1","valve":"1","openevents":"2"},"Zone2":{"name":"Planter Boxes 2","node":"1","valve":"2","openevents":"2"},"Zone3":{"name":"Valve 3","node":"1","valve":"3","openevents":"2"},"Zone4":{"name":"New Zone","node":"3","valve":"4","openevents":"1"}}

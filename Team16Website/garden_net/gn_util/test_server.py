@@ -30,9 +30,14 @@ port = 5539
 	was executed to keep track of failures.
 """
 def kill():
+<<<<<<< HEAD
 	# Call the bashscript to restart the server
 	subprocess.call(['./server_script.sh'])
 	# get the current time and date
+=======
+	print("Killing and restarting the server")
+	subprocess.call(['/var/www/Team16Website/garden_net/gn_util/server_script.sh'])
+>>>>>>> c4c25c4e0881f4c0f3b7fdbba9466a1de1fec849
 	fmt = "%Y-%m-%d %H:%M:%S %Z%z"
 	now_time = datetime.datetime.now(timezone('US/Eastern'))
 	time = now_time.strftime(fmt)

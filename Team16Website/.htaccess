@@ -1,2 +1,5 @@
 Options -Indexes
-
+<IfModule mod_headers.c>
+        SetEnvIf Request_Method "POST" IS_POST
+		Header set Cache-Control "no-cache" env=IS_POST
+</IfModule>

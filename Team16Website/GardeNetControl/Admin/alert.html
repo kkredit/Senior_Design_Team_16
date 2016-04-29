@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+	<title>GardeNet Controller - Home</title>
+
+	<!-- CSS  -->
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="../../css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+	<link href="../../css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+	<!-- <link rel="stylesheet" type="time/css" href="../../css/materialize.clockpicker.css"> -->
+
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script src="../../js/jquery.serializejson.js"></script>
+	<script src="../../js/alert.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+
+	<div class = "navbar-fixed">
+		<nav class="white" role="navigation">
+			<div class="nav-wrapper container"  style="z-index: 3">
+				<a id="logo-container" href="index.html" class="brand-logo hide-on-small-and-down"><i>Garde<b>Net  </b> Controller  <img src="../../photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
+				<a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-up text-align right"><i>Garde<b>Net  </b> Controller  </i></a>
+				<ul class="right hide-on-med-and-down">
+					<li><a href="../../index.html">Home</a></li>
+					<li class="active"><a href="#">GardeNet Controller</a></li>
+					<li><a href="../index.html">Logout</a></li>
+				</ul>
+
+				<!-- Mobile NavBar -->
+				<ul id="nav-mobile" class="side-nav teal text-white">
+					<li><a class= "white-text" href="../../index.html">Home: </a></li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li><a class="white-text collapsible-header" style="padding-left:2em;">- Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="../../index.html#documents">Documents</a></li>
+										<li><a class = "white-text" href="../../about.html">About Us</a></li>
+										<li><a class="white-text" href="../../blog.html">Blog</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li>
+								<a class="white-text collapsible-header" style="padding-left:2em;">- Community Gardens<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<li class="no-padding">
+						<ul class="collapsible collapsible-accordion">
+							<li>
+								<a class="white-text collapsible-header" style="padding-left:2em;">- Calvin College<i class="mdi-navigation-arrow-drop-down right"></i></a>
+								<div class="collapsible-body teal">
+									<ul>
+										<li><a class="white-text" href="http://www.calvin.edu/academic/engineering/">Calvin Engineering Website</a></li>
+										<li><a class = "white-text" href="http://www.calvin.edu/academic/engineering/senior-design/">Other Senior Design Projects</a></li>
+									</ul>
+								</div>
+							</li>
+						</ul>
+					</li>
+					<div class="divider white"></div>
+					<li class= "active"><a class = "teal-text" href="../index.html">GardeNet Controller:</a></li>
+					<div class="divider teal"></div>
+					<li><a class= "white-text" href="admin.html" style="padding-left:2em;">- Schedule</a></li>
+					<li><a class= "white-text" href="#" style="padding-left:2em;">- Historical Data</a></li>
+					<li class= "active"><a class= "teal-text" href="#" style="padding-left:2em;">- Alert Settings</a></li>
+					<li><a class= "white-text" href="account.html" style="padding-left:2em;">- Account Settings</a></li>
+					<div class="divider white"></div>
+					<li><a class= "white-text" href="../index.html">Logout</a></li>
+				</ul>
+				<a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+			</div>
+		</nav>
+	</div>
+
+	<div class = "navbar-fixed container hide-on-med-and-down" style="z-index: 2">
+		<nav class="teal darken-2 container subnav z-depth-0" role="navigation">
+			<div class="nav-wrapper">
+				<ul class="right">
+					<li><a class="white-text" href="admin.html">Schedule</a></li>
+					<li><a class="white-text" href="history.html">Historical Data</a></li>
+					<li class="active"><a class="white-text" href="#">Alert Settings</a></li>
+					<li><a class="white-text" href="account.html">Account Settings</a></li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+	
+
+	
+
+	<div class="container">
+		<div class="card">
+			
+			<div class="card-content">
+				<form>
+					<h4>Alert Settings</h4>
+					<p>Use the checkboxes to receive alerts via the GardeNet system!</p>
+					<p>Note: Changes are saved automatically!</p>
+					<div class="container">
+						<table>
+					        <thead>
+					          <tr>
+					              <th data-field="id">Warning Type</th>
+					              <th data-field="name">SMS</th>
+					              <th data-field="price">Email</th>
+					          </tr>
+					        </thead>
+
+					        <tbody>
+					          <tr>
+					            <td>Voltage Problem</td>
+					            <td><p><input type="checkbox" id="sms1"/><label for="sms1"></label></p></td>
+					            <td><input type="checkbox" id="email1"/><label for="email1"></label></td>
+					          </tr>
+					          <tr>
+					            <td>Connection to Server</td>
+					            <td><input type="checkbox" id="sms2"/><label for="sms2"></label></td>
+					            <td><input type="checkbox" id="email2"/><label for="email2"></label></td>
+					          </tr>
+					          <tr>
+					            <td>Connection to Node</td>
+					            <td><input type="checkbox" id="sms3"/><label for="sms3"></label></td>
+					            <td><input type="checkbox" id="email3"/><label for="email3"></label></td>
+					          </tr>
+					        </tbody>
+					    </table>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="card">
+			
+			<div class="card-content">
+				<h4>Alert Communication Settings</h4>
+				<p>Use the form below to change the alert settings for the GardeNet system!</p>
+				<br/><br/>
+				
+				<div class="row">
+
+					<div class="input-field col s1 offset-s1">
+						<input name="phone-1" type="text" maxlength="3" placeholder="xxx">
+						<label for="phone-1">Cell Number 1: </label>
+					</div>
+					<div class="input-field col s1">
+						<input type="text" name="phone-2" maxlength="3" placeholder="xxx">
+					</div>
+					<div class="input-field col s1">
+						<input type="text" name="phone-3" maxlength="4" placeholder="xxxx">
+					</div>
+					<div class="input-field col s1 offset-s3">
+						<input name="phone-4" type="text" maxlength="3" placeholder="xxx">
+						<label for="phone-4">Re-enter Cell Number 1: </label>
+					</div>
+					<div class="input-field col s1">
+						<input type="text" name="phone-5" maxlength="3" placeholder="xxx">
+					</div>
+					<div class="input-field col s1">
+						<input type="text" name="phone-6" maxlength="4" placeholder="xxxx">
+					</div>
+
+				</div>
+				<form class="col s5" id="alerts" method = "post">
+					<input name="CellNum1" type="text" class="hide">
+					<div class="row">
+						<div class="input-field col s4 offset-s1">
+							<input name="Email1" type="email" placeholder="johndoe@gmail.com" required="" class="validate">
+							<label class="active" for="Username" data-error="Invalid Email">Email Address: </label>
+						</div>
+						<div class="input-field col s4 offset-s2">
+							<input name="Email2" type="email" placeholder="johndoe@gmail.com" class="validate">
+							<label class="active" data-error="Invalid Email" for="Email2">Re-enter Email Address: </label>
+						</div>
+
+					</div>
+					<div class="row">
+						<span class="right"><a class="waves-effect waves-light btn" id="button3" onClick="alertSignal()">Submit<i class="material-icons right">send</i></a></span>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div id="div"></div>
+
+
+
+
+
+
+
+
+
+
+
+	<footer class="page-footer teal">
+		<div class="container">
+			<div class="row">
+				<div class="col l5 s13">
+					<h5 class="white-text">Company Bio</h5>
+					<p class="grey-text text-lighten-4">We are a team of college students working on this project for our Senior Design Project at Calvin College. Feel free to email us with any questions. Any help would also be greatly appreciated.</p>
+
+
+				</div>
+				<div class="col l3 s12">
+					<h5 class="white-text">Gardens</h5>
+					<ul>
+						<li><a class="white-text" href="http://caledoniacommunitygarden.org/">Caledonia Community Garden</a></li>
+						<li><a class="white-text" href="http://www.eighthdayfarm.org/">Eighth Day Farm</a></li>
+					</ul>
+				</div>
+				<div class="col l2 s12">
+					<h5 class="white-text">Connect</h5>
+					<ul>
+						<li><a class="white-text" href="mailto:jrc32@students.calvin.edu">John Connell</a></li>
+						<li><a class="white-text" href="mailto:xj22@students.calvin.edu">Anthony Jin</a></li>
+						<li><a class="white-text" href="mailto:cak33@students.calvin.edu">Charles Kingston</a></li>
+						<li><a class="white-text" href="mailto:knk9@students.calvin.edu">Kevin Kredit</a></li>
+					</ul>
+				</div>
+				<div class="col l1 s12">
+					<a href = "http://www.calvin.edu"><img src= "../../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
+				</div>
+			</div>
+		</div>
+		<div class="footer-copyright">
+			<div class="container">
+				Website by John Connell made with <a class="brown-text text-lighten-3" href="http://materializecss.com">Materialize</a> <a href = "http://i.imgur.com/UyDbQ7S.gif" class = "right-align teal-text text-darken-1">secrets are best kept by friends</a>
+			</div>
+		</div>
+	</footer>
+
+	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+	<script>
+
+	var sms1 = "";
+	var sms2= "";
+	var sms3= "";
+	var em1= "";
+	var em2= "";
+	var em3= "";
+	var jsonSting = "";
+		
+		$("#sms1").change(function(){
+			sms1 = $("#sms1").is(":checked");
+			sms2 = $("#sms2").is(":checked");
+			sms3 = $("#sms3").is(":checked");
+			em1 = $("#email1").is(":checked");
+			em2 = $("#email2").is(":checked");
+			em3 = $("#email3").is(":checked"); 
+			
+
+			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			$.ajax({
+						url: "../warning.php",
+						cache: false,
+						dataType: "text",
+						type: 'POST',
+						data: {jsonString: jsonString},
+						success: function(data) {
+							
+						}
+					});
+		});
+		$("#sms2").change(function(){
+			sms1 = $("#sms1").is(":checked");
+			sms2 = $("#sms2").is(":checked");
+			sms3 = $("#sms3").is(":checked");
+			em1 = $("#email1").is(":checked");
+			em2 = $("#email2").is(":checked");
+			em3 = $("#email3").is(":checked"); 
+			
+
+			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			$.ajax({
+						url: "../warning.php",
+						cache: false,
+						dataType: "text",
+						type: 'POST',
+						data: {jsonString: jsonString},
+						success: function(data) {
+							
+						}
+					});
+			
+		});
+		$("#sms3").change(function(){
+			sms1 = $("#sms1").is(":checked");
+			sms2 = $("#sms2").is(":checked");
+			sms3 = $("#sms3").is(":checked");
+			em1 = $("#email1").is(":checked");
+			em2 = $("#email2").is(":checked");
+			em3 = $("#email3").is(":checked"); 
+			
+
+			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			$.ajax({
+						url: "../warning.php",
+						cache: false,
+						dataType: "text",
+						type: 'POST',
+						data: {jsonString: jsonString},
+						success: function(data) {
+							
+						}
+					});
+		});
+		$("#email1").change(function(){
+			sms1 = $("#sms1").is(":checked");
+			sms2 = $("#sms2").is(":checked");
+			sms3 = $("#sms3").is(":checked");
+			em1 = $("#email1").is(":checked");
+			em2 = $("#email2").is(":checked");
+			em3 = $("#email3").is(":checked"); 
+			
+
+			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			$.ajax({
+						url: "../warning.php",
+						cache: false,
+						dataType: "text",
+						type: 'POST',
+						data: {jsonString: jsonString},
+						success: function(data) {
+							
+						}
+					});
+		});
+		$("#email2").change(function(){
+			sms1 = $("#sms1").is(":checked");
+			sms2 = $("#sms2").is(":checked");
+			sms3 = $("#sms3").is(":checked");
+			em1 = $("#email1").is(":checked");
+			em2 = $("#email2").is(":checked");
+			em3 = $("#email3").is(":checked"); 
+			
+
+			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			$.ajax({
+						url: "../warning.php",
+						cache: false,
+						dataType: "text",
+						type: 'POST',
+						data: {jsonString: jsonString},
+						success: function(data) {
+							
+						}
+					});
+		});
+		$("#email3").change(function(){
+			sms1 = $("#sms1").is(":checked");
+			sms2 = $("#sms2").is(":checked");
+			sms3 = $("#sms3").is(":checked");
+			em1 = $("#email1").is(":checked");
+			em2 = $("#email2").is(":checked");
+			em3 = $("#email3").is(":checked"); 
+			
+
+			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			$.ajax({
+						url: "../warning.php",
+						cache: false,
+						dataType: "text",
+						type: 'POST',
+						data: {jsonString: jsonString},
+						success: function(data) {
+							
+						}
+					});
+		});
+
+	</script>
+
+	<script>
+		$(document).ready(function() {
+			jQuery.get('../../garden_net/gn_util/alerts.txt', function(data) {
+			   //process text file line by line
+
+			   var lines = [];
+			   lines = data.split("\n");
+			   var tabs1 = [];
+			   var tabs2 = [];
+			   var tabs3 = [];
+			 
+			   	tabs1 = lines[0].split("\t");
+			   	tabs2 = lines[1].split("\t");
+			   	tabs3 = lines[2].split("\t");
+			   	
+			  
+
+			  	var sms1 = (tabs1[1] == "true");
+			  	var sms2 = (tabs2[1] == "true");
+			  	var sms3 = (tabs3[1] == "true");
+			  	var email1 = (tabs1[2] == "true");
+			  	var email2 = (tabs2[2] == "true");
+			  	var email3 = (tabs3[2] == "true");
+
+
+
+			  	$("#sms1").prop("checked", sms1);
+			  	$("#sms2").prop("checked", sms2);
+			  	$("#sms3").prop("checked", sms3);
+			  	$("#email1").prop("checked", email1);
+			  	$("#email2").prop("checked", email2);
+			  	$("#email3").prop("checked", email3);
+
+
+			});
+
+
+
+
+					
+		});
+
+
+
+
+
+	</script>
+
+
+	<script src="../../js/init.js"></script>
+
+	<script src="../../js/materialize.min.js"></script>
+
+	<!--  Scripts-->
+
+	<script src="../../js/jquery.serializejson.js"></script>
+
+	<script src="../../js/jquery.scrolltabs.js"></script>
+	<script src="../../js/jquery.mousewheel.js"></script>
+
+
+
+
+
+
+</body>
+</html>

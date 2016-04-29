@@ -4,6 +4,7 @@ var num = 4;
 var tab1num = 4;
 var tab2num = 4;
 var tab3num = 4;
+var tab4num = 4;
 var i= 0;
 var j= 0;
 $(document).ready(function(){
@@ -28,7 +29,10 @@ $(document).ready(function(){
 				num = tab2num;
 			} else if(id == "#tab3"){
 				num = tab3num;
+			}else if(id == "#tab4"){
+				num = tab4num;
 			}
+
 
 
 		}
@@ -37,7 +41,7 @@ $(document).ready(function(){
 
 
 
-$(document).ready(function(){
+function loadZonesandEvents(){
 	$.getJSON('../../garden_net/gn_util/garden_info.txt', function(jsondata){
 		$.each(jsondata, function(i, item){
 			var thingName = "";
@@ -51,6 +55,13 @@ $(document).ready(function(){
 						tab2num=event;
 					} else if(thingName=="Zone3"){
 						tab3num=event;
+					} else if(thingName=="Zone4"){
+						tab4num=event;
+					}
+				}else if(j=="openZones"){
+					number=event;
+					for(i=1; i<=number; i++){
+						tabs.addTab("<li id='li_"+i+"'><a id ='"+i+"' href='#tab"+i+"'>Zone "+i+"</li>");
 					}
 				}
 			});
@@ -67,14 +78,92 @@ $(document).ready(function(){
 	for(i=0; i<tab3num; i++){
 		$('#tab3 #row'+i+'').removeClass("hide");
 	}
+	for(i=0; i<tab4num; i++){
+		$('#tab4 #row'+i+'').removeClass("hide");
+	}
 
+	
+	});
+	
 
-
+	$.ajaxSetup({
+    	headers: { "cache-control": "no-cache" }
 	});
 
 	
 
-});
+}
+
+
+function login(){
+
+	if($('input[name="Username1"]').val() == $('input[name="Username2"]').val()){
+		if($('input[name="Password1"]').val() == $('input[name="Password2"]').val()){
+			var login = $("#login").serializeJSON();
+			var jsonString= JSON.stringify(login);
+			console.log(jsonString);
+
+
+			$.ajax({
+				url: "../login.php",
+				cache: false,
+				dataType: "text",
+				type: 'POST',
+				data: {jsonString: jsonString},
+				success: function(data) {
+					alert(data);
+				}
+				
+
+			});
+
+		}else{
+			alert("Alert: Passwords do not match.\nPlease enter the same password in both forms.");
+		}
+	}else{
+		alert("Alert: Usernames do not match.\nPlease enter the same username in both forms.");
+	}
+	
+
+
+}
+
+// function alert(){
+
+// 	if($('input[name="phone-1"]').val() == $('input[name="phone-4"]').val()){
+// 		if($('input[name="Email1"]').val() == $('input[name="Email2"]').val()){
+// 			var cell = $('input[name="CellNum1"]').val($('input[name="phone-1"]').val()+$('input[name="phone-2"]').val()+$('input[name="phone-3"]').val());
+// 			console.log(cell);
+
+// 			var login = $("#login").serializeJSON();
+// 			var jsonString= JSON.stringify(login);
+// 			console.log(jsonString);
+
+
+// 			// $.ajax({
+// 			// 	url: "../login.php",
+// 			// 	cache: false,
+// 			// 	dataType: "text",
+// 			// 	type: 'POST',
+// 			// 	data: {jsonString: jsonString},
+// 			// 	success: function(data) {
+// 			// 		alert(data);
+// 			// 	}
+				
+
+// 			// });
+
+// 		}else{
+// 			alert("Alert: Email Addresses do not match.\nPlease enter the same email in both forms.");
+// 		}
+// 	}else{
+// 		alert("Alert: Phone Numbers do not match.\nPlease enter the same number in both forms.");
+// 	}
+	
+
+
+// }
+
 
 
 
@@ -98,6 +187,12 @@ function editTitle(){
 		$('#newTitle3').removeClass("hide");
 		$('#subTitle3').removeClass("hide");
 		$('#zone3').addClass("hide");
+	}else if($('#tab4').hasClass("active")){
+		currentTitle = $('zone4').html();
+		$('#newTitle4').val();
+		$('#newTitle4').removeClass("hide");
+		$('#subTitle4').removeClass("hide");
+		$('#zone4').addClass("hide");
 	}
 
 }
@@ -125,6 +220,13 @@ function genTitle(){
 		$('#zone3').removeClass("hide");
 		$('#subTitle3').addClass("hide");
 		$('#3').html(newTitle);	
+	}else if($('#tab4').hasClass("active")){
+		newTitle = $('#newTitle4').val();
+		$('#zone4').text(newTitle);
+		$('#newTitle4').addClass("hide");
+		$('#zone4').removeClass("hide");
+		$('#subTitle4').addClass("hide");
+		$('#4').html(newTitle);	
 	}
 
 
@@ -162,7 +264,7 @@ function genTitle(){
 		type: 'POST',
 		data: {jsonString: jsonString},
 		success: function(data) {
-			alert(data);
+			alert("Garden Info Submitted!");
 		}
 		
 
@@ -189,6 +291,11 @@ function advanced(){
 		$('#valve3').removeClass("hide");
 		$('#NVChange3').removeClass("hide");
 		$('#adControls3').addClass("hide");
+	}else if($('#tab4').hasClass("active")){
+		$('#node4').removeClass("hide");
+		$('#valve4').removeClass("hide");
+		$('#NVChange4').removeClass("hide");
+		$('#adControls4').addClass("hide");
 	}
 }
 
@@ -208,6 +315,11 @@ function changeNV(){
 		$('#valve3').addClass("hide");
 		$('#NVChange3').addClass("hide");
 		$('#adControls3').removeClass("hide");
+	}else if ($('#tab4').hasClass("active")){
+		$('#node4').addClass("hide");
+		$('#valve4').addClass("hide");
+		$('#NVChange4').addClass("hide");
+		$('#adControls4').removeClass("hide");
 	}
 
 	for(i=0; i<21; i++){
@@ -247,7 +359,7 @@ function changeNV(){
 		type: 'POST',
 		data: {jsonString: jsonString},
 		success: function(data) {
-			alert(data);
+			alert("Garden Info Submitted!");
 		}
 		
 
@@ -273,6 +385,7 @@ function forwardFunction()
 	else{
 		$("#button").hide();   
 	}
+	$('input[name="Garden[openZones]"]').val(number);
 
 }
 
@@ -297,28 +410,33 @@ function deleteTabs()
 		$('.scroll_tab_right_finisher').remove();
 		$("#button2").hide();
 	}
+	$('input[name="Garden[openZones]"]').val(number);
 
 
 }
 function submit(){
-	for(i=tab1num-1; i<22; i++ ){
-		$('select[name="Zone1[event'+i+'[day]]"').val("Monday");
-		$('input[name="Zone1[event'+i+'[start_time]]"').val("00:00");
-		$('input[name="Zone1[event'+i+'[stop_time]]"').val("01:00");
-	}
-	for(i=tab2num-1; i<22; i++ ){
-		$('select[name="Zone2[event'+i+'[day]]"').val("Monday");
-		$('input[name="Zone2[event'+i+'[start_time]]"').val("00:00");
-		$('input[name="Zone2[event'+i+'[stop_time]]"').val("01:00");
-	}
-	for(i=tab3num-1; i<22; i++ ){
-		$('select[name="Zone3[event'+i+'[day]]"').val("Monday");
-		$('input[name="Zone3[event'+i+'[start_time]]"').val("00:00");
-		$('input[name="Zone3[event'+i+'[stop_time]]"').val("01:00");
-	}
-
 	
-
+	for(i=tab1num-1; i<20; i++){
+		$('select[name="Zone1[event'+i+'[day]]"]').val("Monday");
+		$('input[name="Zone1[event'+i+'[start_time]]"]').val("00:00");
+		$('input[name="Zone1[event'+i+'[stop_time]]"]').val("01:00");
+	}
+	for(i=tab2num-1; i<20; i++){
+		$('select[name="Zone2[event'+i+'[day]]"]').val("Monday");
+		$('input[name="Zone2[event'+i+'[start_time]]"]').val("00:00");
+		$('input[name="Zone2[event'+i+'[stop_time]]"]').val("01:00");
+	}
+	for(i=tab3num-1; i<20; i++){
+		$('select[name="Zone3[event'+i+'[day]]"]').val("Monday");
+		$('input[name="Zone3[event'+i+'[start_time]]"]').val("00:00");
+		$('input[name="Zone3[event'+i+'[stop_time]]"]').val("01:00");
+	}
+	for(i=tab4num-1; i<20; i++){
+		$('select[name="Zone4[event'+i+'[day]]"]').val("Monday");
+		$('input[name="Zone4[event'+i+'[start_time]]"]').val("00:00");
+		$('input[name="Zone4[event'+i+'[stop_time]]"]').val("01:00");
+	}
+	
 
 
 	for(i=1; i<10; i++){
@@ -326,6 +444,15 @@ function submit(){
 		$('input[name="Zone'+i+'[openevents]"]').prop("disabled", true);
 		$('input[name="Zone'+i+'[node]"]').prop("disabled", true);
 		$('input[name="Zone'+i+'[valve]"]').prop("disabled", true);
+	}
+	$('input[name="Garden[openZones]"]').prop("disabled", true);
+
+	for(j=0; j<21; j++){
+			$('select[name="Zone4[event'+j+'[day]]"]').prop("disabled", true);
+			$('input[name="Zone4[event'+j+'[start_time]]"]').prop("disabled", true);
+			$('input[name="Zone4[event'+j+'[stop_time]]"]').prop("disabled", true);
+			$('input[name="Zone4[event'+j+'[zone_ID]]"]').prop("disabled", true);
+			$('input[name="Zone4[event'+j+'[valve_num]]"]').prop("disabled", true);
 	}
 
 
@@ -336,22 +463,35 @@ function submit(){
 		$('input[name="Zone'+i+'[node]"]').prop("disabled", false);
 		$('input[name="Zone'+i+'[valve]"]').prop("disabled", false);
 	}
+	$('input[name="Garden[openZones]"]').prop("disabled", false);
+	for(i=0; i<6; i++){
+		for(j=0; j<24; j++){
+			var str1 = $('input[name="Zone'+i+'[event'+j+'[start_time]]"]').val();
+			var str2 = $('input[name="Zone'+i+'[event'+j+'[stop_time]]"]').val();
+
+			if(str1 > str2){
+				alert("ERROR: Cannot have stop time earlier than start time\n Error located in"+$('input[name="Zone'+i+'[name]"]').val()+" event "+(j+1)+"");
+				return;
+			}
+			
+		}
+
+	}
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
 
 	$.ajax({
 		url: "../savejson.php",
-		cache: false,
 		dataType: "text",
 		type: 'POST',
 		data: {jsonString: jsonString},
 		success: function(data) {
-			alert(data);
+			alert("Schedule Submitted!");
+			console.log(data);
 		}
 		
 
 	});
-
 
 
 	for(i=0; i<21; i++){
@@ -384,12 +524,11 @@ function submit(){
 
 	$.ajax({
 		url: "../saveinfo.php",
-		cache: false,
 		dataType: "text",
 		type: 'POST',
 		data: {jsonString: jsonString},
 		success: function(data) {
-			alert(data);
+			alert("Garden Info Submitted!");
 		}
 		
 
@@ -421,6 +560,9 @@ function addEvent1(){
 		} else if($('#tab3').hasClass("active") == true){
 			tab3num = num;
 			$('input[name="Zone3[openevents]"]').val(tab3num);
+		} else if($('#tab4').hasClass("active") == true){
+			tab4num = num;
+			$('input[name="Zone4[openevents]"]').val(tab4num);
 		}
 
 	
@@ -451,6 +593,9 @@ function deleteEvent1(){
 		} else if($('#tab3').hasClass("active") == true){
 			tab3num = num;
 			$('input[name="Zone3[openevents]"]').val(tab3num);
+		} else if($('#tab4').hasClass("active") == true){
+			tab4num = num;
+			$('input[name="Zone4[openevents]"]').val(tab4num);
 		}
 		
 
@@ -470,7 +615,7 @@ function switchCheck(){
 		type: 'POST',
 		data: {string: string},
 		success: function(data) {
-			alert(data);
+			alert("hi");
 		}
 		
 

@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 Valve Leak or Stoppage	true	true
 Node Voltage Level	true	true
 Gateway Reset Notification	true	false
 Radio Network Issues	false	true
+=======
+Voltage Level	true	true
+Connection to Server	true	false
+Connection to Node	false	false
+>>>>>>> c4c25c4e0881f4c0f3b7fdbba9466a1de1fec849
