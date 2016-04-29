@@ -101,6 +101,26 @@ time_t lastTime = 0;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////     Demo        ///////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct demoStruct{
+  uint8_t mode;// = 0;
+  bool v1;// = false;
+  bool v2;// = false;
+  bool v3;// = false;  
+};
+
+demoStruct forDemo;
+//forDemo.mode = 0;
+//forDemo.v1 = false;
+//forDemo.v2 = false;
+//forDemo.v3 = false;
+// @anthony_jin: when get a message from the server regarding the demo, just set these variables
+//               and everything else will work out
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////     ISRs        ///////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -885,6 +905,45 @@ void refreshReset(){
  * @postconditions: schedule applied to nodes
  */ 
 void checkSchedule(){
+
+  ///////////////////////////////////////////////////////////////////
+  // FOR THE DEMO ///////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////
+  if(forDemo.mode == 1){
+    // valve 1
+    if(gardenStatus.nodeStatusPtrs[1]->valveStates[1].state != forDemo.v1){
+      // send open/close signal
+      Valve_Command vc;
+      vc.whichValve = 1;
+      vc.onOrOff = forDemo.v1;
+      vc.timeToLive = VALVE_COMMAND_TTL;
+      safeMeshWrite(mesh.getAddress(1), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+    }
+    // valve 2
+    if(gardenStatus.nodeStatusPtrs[1]->valveStates[2].state != forDemo.v2){
+      // send open/close signal
+      Valve_Command vc;
+      vc.whichValve = 1;
+      vc.onOrOff = forDemo.v2;
+      vc.timeToLive = VALVE_COMMAND_TTL;
+      safeMeshWrite(mesh.getAddress(1), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+    }
+    // valve 3
+    if(gardenStatus.nodeStatusPtrs[1]->valveStates[3].state != forDemo.v3){
+      // send open/close signal
+      Valve_Command vc;
+      vc.whichValve = 1;
+      vc.onOrOff = forDemo.v3;
+      vc.timeToLive = VALVE_COMMAND_TTL;
+      safeMeshWrite(mesh.getAddress(1), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+    }
+    return;
+  }
+  ///////////////////////////////////////////////////////////////////
+  // END OF DEMO SECTION ////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////
+
+  
   // for each node
   uint8_t node;
   for(node=1; node<=16; node++){
@@ -1796,6 +1855,14 @@ void setup(){
   // TODO request schedule, alert setting, and garden on/off mode from server
   
   // checkAlerts(GATEWAY_RESET,0);
+
+  ///////////////////////////////////////////////////////////////////
+  // FOR THE DEMO ///////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////
+  forDemo.mode = 0;
+  forDemo.v1 = false;
+  forDemo.v2 = false;
+  forDemo.v3 = false;
 }
 
 
