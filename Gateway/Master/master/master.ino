@@ -253,6 +253,41 @@ void getModemIP() {
   }
 }
 
+/*
+ * TODO add comment
+*/
+void queryServerIP() {
+  // executes DNS query to solve host name 
+  Modem_Serial.println("AT#QDNS=\"gardenet.ddns.net\"");
+  bool gotHostIP = false;
+  
+  String queryString;
+  while(!gotHostIP) {
+    while(Modem_Serial.available() > 0) {
+      getModemResponse();
+      if(currentString == "#QDNS: \"gardenet.ddns.net\",") {
+        bool isIP = false;
+        while(!isIP) {
+          int myByte = Modem_Serial.read();
+          // Serial.write(incomingByte);
+          if(myByte == '\n') {
+            isIP = true;
+          } else if (myByte != '\"' && myByte != -1) {
+            queryString += char(myByte);
+          }
+        }
+        gotHostIP = true;
+        currentString = "";
+      }
+    }
+  }
+
+  Serial.println();
+  queryString.toCharArray(gardenStatus.serverIP, 20);
+  Serial.print("The server's IP address is: ");
+  Serial.println((String) gardenStatus.serverIP);
+}
+
 /* 
  * openSocket()
  *  
@@ -263,7 +298,7 @@ void getModemIP() {
 */
 void openSocket() {
   // initiate TCP socket dial in command mode
-  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",255,0,1");
+  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,1");
 }
 
 
@@ -299,6 +334,7 @@ void disconnectModem() {
  * TODO add comments
  */
 uint8_t decodeModemResponse() {
+//  while(Modem_Serial.available() > 0) {
   getModemResponse();
   // connection error
   if (currentString == "ERROR") {
@@ -389,6 +425,7 @@ uint8_t decodeModemResponse() {
   if (currentString == "NO CARRIER") {
     return TR_G_DISCONNECTED;
   }
+//  }
 
   return TR_G_NO_RESPONSE; // else modem has no response yet
 }
@@ -493,7 +530,7 @@ void handleModemOperation(uint8_t modemMode) {
       Serial.println("");
       Serial.println(alertSetting);
 
-      // TODO parse alert setting
+      // parse alert setting
       parseAlertSetting();
       
     break;
@@ -1154,7 +1191,7 @@ void isNewDay(){
   gardenStatus.isAwake = true;
   checkAlerts(DAILY_REPORT,0);
   // resynchronize timer -- delay is so that do not have resource issue with modem
-  timeInit();
+  // timeInit();
 
   // reset garden status
   gardenStatus.percentAwake = 100;
@@ -1703,13 +1740,13 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   Serial.print(myAlert);
   Serial.println("");
 
-  sendAlertmessage(myAlert);
+  sendAlertMessage(myAlert);
 }
 
 
 /*
 */
-void sendAlertmessage(String myMessage) {
+void sendAlertMessage(String myMessage) {
   Modem_Serial.print("AT#SSENDEXT=1,");
   Modem_Serial.println((String) myMessage.length());
   delay(250);
@@ -1752,10 +1789,10 @@ void parseAlertSetting() {
 
     // phone number
     if(i == 0) {
-      String myPhoneNum = "1"; // preset country code to 1
-      myPhoneNum += arg;
-      Serial.print("The phone number is "); Serial.println(myPhoneNum);
-      myPhoneNum.toCharArray(gardenStatus.phoneNum, 11);
+//      String myPhoneNum = "1"; // preset country code to 1
+//      myPhoneNum += arg;
+      Serial.print("The phone number is "); Serial.println(arg);
+      arg.toCharArray(gardenStatus.phoneNum, 11);
     // valve alert
     } else if (i == 1) {
       uint8_t myValue = atoi(charBuffer);
@@ -1863,7 +1900,7 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   while(PrintModemResponse() > 0);
 
   // assemble SMS message and send
-  Modem_Serial.print("AT+CMGS=\"+");
+  Modem_Serial.print("AT+CMGS=\"+1");
   Modem_Serial.print((String) gardenStatus.phoneNum);
   Modem_Serial.print("\"\r");
   delay(250);
@@ -1900,12 +1937,47 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
  * control the garden
 */
 void setupGarden() {
-  // TODO request alert setting from the server
+  // request alert setting from the server
+  sendAlertMessage("ALERT?");
+  bool alertGood = false;
+  while(!alertGood) {
+    while(Modem_Serial.available() > 0) {
+      getModemResponse();
+      uint8_t tr_g_opmode = decodeModemResponse();
+      if(tr_g_opmode == TR_G_ALERT_SETTING) {
+        handleModemOperation(tr_g_opmode);
+        alertGood = true;
+      }
+    }
+  }
   
-  // TODO request a schedule from the server
+  // request a schedule from the server
+  sendAlertMessage("SCHEDULE?");
+  bool scheduleGood = false;
+  while(!scheduleGood) {
+    while(Modem_Serial.available() > 0) {
+      getModemResponse();
+      uint8_t tr_g_opmode = decodeModemResponse();
+      handleModemOperation(tr_g_opmode);
+      if(eventCount == eventMaxCount && eventCount != 0) {
+        scheduleGood = true;
+      }
+    }
+  }
 
-  // TODO request garden state from the server (awake / asleep)
-
+  // request garden state from the server (awake / asleep)
+  sendAlertMessage("STATE?");
+  bool stateGood = false;
+  while(!stateGood) {
+    while(Modem_Serial.available() > 0) {
+      getModemResponse();
+      uint8_t tr_g_opmode = decodeModemResponse();
+      if(tr_g_opmode == TR_G_GARDEN_ON || tr_g_opmode == TR_G_GARDEN_OFF) {
+        handleModemOperation(tr_g_opmode);
+        stateGood = true;
+      }
+    }
+  }
 }
 
 
@@ -1946,6 +2018,7 @@ void setup(){
   // Setup 3G Modem
   setupModem();
   getModemIP();
+  queryServerIP();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
@@ -1954,7 +2027,7 @@ void setup(){
     Serial.println(F("Trouble setting up the mesh, trying again..."));
     delay(1000);
   }
-  Serial.println("");
+  Serial.println();
   Serial.println(F("Mesh created"));
   mesh.setAddress(MASTER_NODE_ID, MASTER_ADDRESS);
 
@@ -1968,26 +2041,26 @@ void setup(){
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
-  // setTime(23, 59, 45, 12, 4, 16);
+  setTime(1, 0, 45, 12, 4, 16);
 
   initPins2();
   
   // alert the server about gateway reset
-  openSocket();
-  boolean setupDone = false;
-  while(!setupDone) {
-    while(Modem_Serial.available()) {
-      getModemResponse();
-      if (currentString == "OK") {
-        gardenStatus.threeGState = TR_G_CONNECTED;
-        Serial.println("");
-        setupDone = true;
-      } else if (currentString == "ERROR") {
-        gardenStatus.threeGState = TR_G_DISCONNECTED;
-        openSocket();
-      }
-    }
-  }
+//  openSocket();
+//  boolean setupDone = false;
+//  while(!setupDone) {
+//    while(Modem_Serial.available()) {
+//      getModemResponse();
+//      if (currentString == "OK") {
+//        gardenStatus.threeGState = TR_G_CONNECTED;
+//        Serial.println("");
+//        setupDone = true;
+//      } else if (currentString == "ERROR") {
+//        gardenStatus.threeGState = TR_G_DISCONNECTED;
+//        openSocket();
+//      }
+//    }
+//  }
 
   // notify the server about modem reset
 //  checkAlerts(GATEWAY_RESET, 0);
@@ -2035,9 +2108,8 @@ void loop() {
   ////////////////////////////////////////////////////////////////////////////////////
 
   // Communication with server via 3G
-  uint8_t tr_g_opmode = TR_G_NO_RESPONSE;
   while(Modem_Serial.available() > 0) {
-    tr_g_opmode = decodeModemResponse();
+    uint8_t tr_g_opmode = decodeModemResponse();
     if(tr_g_opmode != TR_G_NO_RESPONSE) {
       handleModemOperation(tr_g_opmode);
     }
@@ -2045,7 +2117,7 @@ void loop() {
 
   // reprovision socket dial when 3G is disconnected
   if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
-    openSocket();
+    // openSocket();
   }
 
   // update node status if necessary

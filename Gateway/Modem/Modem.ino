@@ -47,23 +47,23 @@ void setup() {
 void loop() {
   while(Modem_Serial.available() > 0) {
     getModemResponse();
-    if(currentString.substring(currentString.length()-8, currentString.length()) == "SRING: 1") {
-      currentString = "";
-      ringFlag = true;
-    }
+//    if(currentString.substring(currentString.length()-8, currentString.length()) == "SRING: 1") {
+//      currentString = "";
+//      ringFlag = true;
+//    }
   }
 
-  if(ringFlag) {
-    delay(2000);
-    Modem_Serial.println("AT#SRECV=1,300");
-    ringFlag = false;
-  }
+//  if(ringFlag) {
+//    delay(2000);
+//    Modem_Serial.println("AT#SRECV=1,300");
+//    ringFlag = false;
+//  }
 
-  if(currentString.length() > 0) {
-    Serial.println("");
-    Serial.print(currentString);
-    currentString = "";
-  }
+//  if(currentString.length() > 0) {
+//    Serial.println("");
+//    Serial.print(currentString);
+//    currentString = "";
+//  }
 
 
 //  if(currentString == "NO CARRIER" || currentString == "ERROR") {
@@ -186,6 +186,10 @@ void getModemIP() {
   delay(500);
   while(PrintModemResponse() > 0);
 
+  Modem_Serial.println("AT#SCFGEXT=1,2,0,240,0,0");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
 
@@ -260,16 +264,13 @@ int PrintModemResponse() {
 void getModemResponse() {
   incomingByte = Modem_Serial.read();
   if(incomingByte != -1) {
-    currentString += char(incomingByte);
     Serial.write(incomingByte); 
-//    if (currentString != "NO CARRIER" && currentString != "ERROR" && currentString != "SRING: 1") {
-//      if(incomingByte == '\n') {
-//        currentString = "";
-//      } else {
-//        currentString += char(incomingByte);
-//      } 
-    }
-//  }
+    if(incomingByte == '\n') {
+      currentString = "";
+    } else {
+      currentString += char(incomingByte);
+    } 
+  }
 }
 
 /***************************************** JSON ******************************************/
