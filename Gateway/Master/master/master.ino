@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -1094,9 +1094,9 @@ void readMeshMessages(){
         gardenStatus.gardenState = GARDEN_NODE_ERROR;
         // report this to server
         checkAlerts(BAD_VOLTAGE_STATE, node);
-        if (gardenStatus.voltage_alert) {
-          checkSMSAlerts(BAD_VOLTAGE_STATE, node);
-        }
+//        if (gardenStatus.voltage_alert) {
+//          checkSMSAlerts(BAD_VOLTAGE_STATE, node);
+//        }
       }
       else if(gardenStatus.nodeStatusPtrs[node]->flowState != HAS_NO_METER &&
               gardenStatus.nodeStatusPtrs[node]->flowState != NO_FLOW_GOOD &&
@@ -1105,9 +1105,9 @@ void readMeshMessages(){
         gardenStatus.gardenState = GARDEN_NODE_ERROR;
         // report this to server
         checkAlerts(BAD_FLOW_RATE, node);
-        if (gardenStatus.valve_alert) {
-          checkSMSAlerts(BAD_FLOW_RATE, node);
-        }
+//        if (gardenStatus.valve_alert) {
+//          checkSMSAlerts(BAD_FLOW_RATE, node);
+//        }
       }
       
       break;
@@ -1227,7 +1227,8 @@ void initGardenStatus(){
   gardenStatus.percentMeshUptime = 100;
 
   // alert setting for SMS message
-  memset(&gardenStatus.phoneNum[0], 0, sizeof(gardenStatus.phoneNum));
+  // do we need to preset the phone number?
+  // memset(&gardenStatus.phoneNum[0], '0', sizeof(gardenStatus.phoneNum));
   gardenStatus.valve_alert = false;
   gardenStatus.mesh_alert = false;
   gardenStatus.reset_alert = false;
@@ -1702,20 +1703,29 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   Serial.print(myAlert);
   Serial.println("");
 
+  sendAlertmessage(myAlert);
+}
+
+
+/*
+*/
+void sendAlertmessage(String myMessage) {
   Modem_Serial.print("AT#SSENDEXT=1,");
-  Modem_Serial.println((String) myAlert.length());
+  Modem_Serial.println((String) myMessage.length());
   delay(250);
   while(PrintModemResponse() > 0);
 
 
-  Modem_Serial.print(myAlert);
+  Modem_Serial.print(myMessage);
   Modem_Serial.write(26);
   Modem_Serial.write('\r');
 
   delay(1000);
 
   while(PrintModemResponse() > 0);
+  
 }
+
 
 /*
  * parseAlertSetting()
@@ -1742,8 +1752,10 @@ void parseAlertSetting() {
 
     // phone number
     if(i == 0) {
-      Serial.print("The phone number is "); Serial.println(arg);
-      arg.toCharArray(gardenStatus.phoneNum, 10);
+      String myPhoneNum = "1"; // preset country code to 1
+      myPhoneNum += arg;
+      Serial.print("The phone number is "); Serial.println(myPhoneNum);
+      myPhoneNum.toCharArray(gardenStatus.phoneNum, 11);
     // valve alert
     } else if (i == 1) {
       uint8_t myValue = atoi(charBuffer);
@@ -1783,6 +1795,7 @@ void parseAlertSetting() {
     }
   }
 }
+
 
 /*
  * checkSMSAlerts(uint8_t opcode, uint8_t nodeNum)
@@ -1852,7 +1865,7 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   // assemble SMS message and send
   Modem_Serial.print("AT+CMGS=\"+");
   Modem_Serial.print((String) gardenStatus.phoneNum);
-  Modem_Serial.print("\"r");
+  Modem_Serial.print("\"\r");
   delay(250);
   while(PrintModemResponse() > 0);
 
@@ -1863,6 +1876,11 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   while(PrintModemResponse() > 0);
 
   Serial.println("SMS alert sent.");
+
+  // put modem back into PDU mode
+  Modem_Serial.println("AT+CMGF=0");
+  delay(250);
+  while(PrintModemResponse() > 0);
 }
 
 
@@ -1870,6 +1888,25 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////     Setup       ////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/*
+ * setupGarden()
+ * 
+ * This sequence requests the available schedule, alert settings, and garden state from the server
+ * 
+ * @preconditions: the modem just experienced a reset
+ * @postconditions: the modem received all necessary information fro mthe server to
+ * control the garden
+*/
+void setupGarden() {
+  // TODO request alert setting from the server
+  
+  // TODO request a schedule from the server
+
+  // TODO request garden state from the server (awake / asleep)
+
+}
 
 
 /* 
@@ -1902,12 +1939,13 @@ void setup(){
 
   // initialize gardenStatus
   initGardenStatus();
+  Serial.print("The phone number is: "); Serial.println((String) gardenStatus.phoneNum);
 
   // TODO print status?
 
   // Setup 3G Modem
-//  setupModem();
-//  getModemIP();
+  setupModem();
+  getModemIP();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
@@ -1919,7 +1957,6 @@ void setup(){
   Serial.println("");
   Serial.println(F("Mesh created"));
   mesh.setAddress(MASTER_NODE_ID, MASTER_ADDRESS);
-
 
   // init timer for regular system checks
   Timer1.initialize(TIMER1_PERIOD);
@@ -1936,28 +1973,31 @@ void setup(){
   initPins2();
   
   // alert the server about gateway reset
-//  openSocket();
-//  boolean setupDone = false;
-//  while(!setupDone) {
-//    while(Modem_Serial.available()) {
-//      getModemResponse();
-//      if (currentString == "OK") {
-//        gardenStatus.threeGState = TR_G_CONNECTED;
-//        Serial.println("");
-//        setupDone = true;
-//      } else if (currentString == "ERROR") {
-//        gardenStatus.threeGState = TR_G_DISCONNECTED;
-//        openSocket();
-//      }
-//    }
-//  }
+  openSocket();
+  boolean setupDone = false;
+  while(!setupDone) {
+    while(Modem_Serial.available()) {
+      getModemResponse();
+      if (currentString == "OK") {
+        gardenStatus.threeGState = TR_G_CONNECTED;
+        Serial.println("");
+        setupDone = true;
+      } else if (currentString == "ERROR") {
+        gardenStatus.threeGState = TR_G_DISCONNECTED;
+        openSocket();
+      }
+    }
+  }
 
-  // TODO request schedule, alert setting, and garden on/off mode from server
-  
+  // notify the server about modem reset
 //  checkAlerts(GATEWAY_RESET, 0);
 //  if (gardenStatus.reset_alert) {
 //    checkSMSAlerts(GATEWAY_RESET, 0);
 //  }
+
+  // request schedule, alert setting, and garden state from server
+  // setupGarden();
+
 
   ///////////////////////////////////////////////////////////////////
   // FOR THE DEMO ///////////////////////////////////////////////////
@@ -2004,9 +2044,9 @@ void loop() {
   }
 
   // reprovision socket dial when 3G is disconnected
-//  if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
-//    openSocket();
-//  }
+  if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
+    openSocket();
+  }
 
   // update node status if necessary
   if(updateStatusFlag){
