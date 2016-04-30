@@ -164,8 +164,10 @@ struct Garden_Status{
 // valve command errors
 #define NO_VALVE_ERROR        -1      // when no valve connected in given slot
 
-
-// alert engine op code 
+// alert engine settings
+#define NEW_ERROR             0
+#define RESOLVED_ERROR        1
+// alert engine op code gard
 //////// TEST RESULTS //////////////    Sends       Sends at correct time        Sends without duplicates
 #define DAILY_REPORT          00  //    yes               yes                         yes
 #define BAD_FLOW_RATE         01  //    yes               yes                         yes    
