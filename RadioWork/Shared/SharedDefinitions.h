@@ -87,8 +87,8 @@ struct Garden_Status{
 #define RENEWAL_TIMEOUT     15000         // time in ms before mesh.renewAddress() times out
 #define CONNECTION_TRIES    5             // number of tries to connect before waiting going to 
                                           //    sleep
-#define TIME_TILL_MESH_ERR  30            // number of consecutive times that the node must be 
-                                          //    disconnected before the master throws an error
+#define TIME_TILL_MESH_ERR  120           // time that the node must be disconnected before the 
+                                          //    master throws an error (in seconds)
 #define DISCONNECTED_SLEEP  (5*60000)     // (5 minutes) -- time to wait before trying to connect 
                                           //    again
 #define PERIOD_ASKS_STATUS  50
