@@ -424,7 +424,7 @@ void handleModemOperation(uint8_t modemMode) {
         Serial.print("but got "); Serial.print((String) eventCount); Serial.println(" events.");        
 
         // TODO send a request to the server to get a new schedule: RESENDSCHEDULE
-        checkAlerts(INCOMPLETE_JSON, 0, NEW_ERROR);
+        checkAlerts(INCOMPLETE_JSON, 0);
       }
       // reset counter
       eventMaxCount = 0;
@@ -761,7 +761,7 @@ void handleButtonPress(){
     }
   
     // report state to the server
-    checkAlerts(GARDEN_TOGGLE, 0, gardenStatus.isAwake);
+    checkAlerts(GARDEN_TOGGLE, 0);
   }
   
   // reset flag
@@ -1089,18 +1089,18 @@ void readMeshMessages(){
          gardenStatus.nodeStatusPtrs[node]->voltageState != oldNS.voltageState){
         gardenStatus.gardenState = GARDEN_NODE_ERROR;
         // report this to server
-        checkAlerts(BAD_VOLTAGE_STATE, node, NEW_ERROR);
-        if (gardenStatus.voltage_alert) {
-          checkSMSAlerts(BAD_VOLTAGE_STATE, node, NEW_ERROR);
+        checkAlerts(BAD_VOLTAGE_STATE, node);
+        if (gardenStatus.voltage_alert){
+          checkSMSAlerts(BAD_VOLTAGE_STATE, node);
         }
       }
       // check for voltage error resolved
       else if(gardenStatus.nodeStatusPtrs[node]->voltageState == GOOD_VOLTAGE &&
               gardenStatus.nodeStatusPtrs[node]->voltageState != oldNS.voltageState){
         // report this to server
-        checkAlerts(BAD_VOLTAGE_STATE, node, RESOLVED_ERROR);
-        if (gardenStatus.voltage_alert) {
-          checkSMSAlerts(BAD_VOLTAGE_STATE, node, RESOLVED_ERROR);
+        checkAlerts(BAD_VOLTAGE_STATE, node);
+        if (gardenStatus.voltage_alert){
+          checkSMSAlerts(BAD_VOLTAGE_STATE, node);
         }
       }
 
@@ -1111,9 +1111,9 @@ void readMeshMessages(){
               gardenStatus.nodeStatusPtrs[node]->flowState != oldNS.flowState){
         gardenStatus.gardenState = GARDEN_NODE_ERROR;
         // report this to server
-        checkAlerts(BAD_FLOW_RATE, node, NEW_ERROR);
-        if (gardenStatus.valve_alert) {
-          checkSMSAlerts(BAD_FLOW_RATE, node, NEW_ERROR);
+        checkAlerts(BAD_FLOW_RATE, node);
+        if (gardenStatus.valve_alert){
+          checkSMSAlerts(BAD_FLOW_RATE, node);
         }
       }
       // check for flow rate error resolved
@@ -1121,9 +1121,9 @@ void readMeshMessages(){
               gardenStatus.nodeStatusPtrs[node]->flowState == FLOWING_GOOD) &&
               gardenStatus.nodeStatusPtrs[node]->flowState != oldNS.flowState){
         // report this to server
-        checkAlerts(BAD_FLOW_RATE, node, RESOLVED_ERROR);
-        if (gardenStatus.valve_alert) {
-          checkSMSAlerts(BAD_FLOW_RATE, node, RESOLVED_ERROR);
+        checkAlerts(BAD_FLOW_RATE, node);
+        if (gardenStatus.valve_alert){
+          checkSMSAlerts(BAD_FLOW_RATE, node);
         }
       }
       
@@ -1169,7 +1169,7 @@ void readMeshMessages(){
  */ 
 void isNewDay(){
   gardenStatus.isAwake = true;
-  checkAlerts(DAILY_REPORT, 0, NEW_ERROR);
+  checkAlerts(DAILY_REPORT, 0);
   // resynchronize timer -- delay is so that do not have resource issue with modem
   timeInit();
 
@@ -1344,9 +1344,9 @@ void updateGardenStatus(){
       gardenStatus.meshState != MESH_ALL_NODES_GOOD){
     gardenStatus.meshState = MESH_ALL_NODES_GOOD;
     disconnectedCounter = 0;
-    checkAlerts(MESH_DOWN, 0, RESOLVED_ERROR);
+    checkAlerts(MESH_DOWN, 0);
     if(gardenStatus.mesh_alert){
-       checkSMSAlerts(MESH_DOWN, 0, RESOLVED_ERROR);
+       checkSMSAlerts(MESH_DOWN, 0);
     }
   }
   else if(gardenStatus.numConnectedNodes == 0){
@@ -1356,9 +1356,9 @@ void updateGardenStatus(){
     }
     else if(gardenStatus.meshState != MESH_ALL_NODES_DOWN && now() > disconnectedCounter + TIME_TILL_MESH_ERR){
       gardenStatus.meshState = MESH_ALL_NODES_DOWN;
-      checkAlerts(MESH_DOWN, 0, NEW_ERROR);
+      checkAlerts(MESH_DOWN, 0);
       if(gardenStatus.mesh_alert) {
-         checkSMSAlerts(MESH_DOWN, 0, NEW_ERROR);
+         checkSMSAlerts(MESH_DOWN, 0);
       }
     }
   }
@@ -1369,9 +1369,9 @@ void updateGardenStatus(){
     }
     else if(gardenStatus.meshState != MESH_SOME_NODES_DOWN && now() > disconnectedCounter + TIME_TILL_MESH_ERR){
       gardenStatus.meshState = MESH_SOME_NODES_DOWN;
-      checkAlerts(MESH_DOWN, 0, NEW_ERROR);
+      checkAlerts(MESH_DOWN, 0);
       if(gardenStatus.mesh_alert) {
-         checkSMSAlerts(MESH_DOWN, 0, NEW_ERROR);
+         checkSMSAlerts(MESH_DOWN, 0);
       }
     }
   }  
@@ -1629,12 +1629,11 @@ void printDigits(uint8_t digits){
  * 
  * @param uint8_t opcode: an opcode befined in the protocol
  * @param uint8_t nodeNum: the node number, only used for specific opcode
- * @param unit8_t type: whether the alert is new (0) or resolved (1); 
- *                      for gardentoggle, is ON or OFF
+ * @param unit8_t type: whether the alert is new (0) or resolved (1);
  *                      for daily report, means nothing
  *                      for gateway reset, means nothing
 */
-void checkAlerts(uint8_t opcode, uint8_t nodeNum, uint8_t type) {
+void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   String myAlert;
   // daily report
   switch(opcode) {
@@ -1690,8 +1689,6 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum, uint8_t type) {
     myAlert += (String) gardenStatus.nodeStatusPtrs[nodeNum]->flowState;
     myAlert += "%";
     myAlert += (String) gardenStatus.nodeStatusPtrs[nodeNum]->currentFlowRate;
-    myAlert += "%";
-    myAlert += (String) type;
     break;
     
   // mesh down
@@ -1699,9 +1696,6 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum, uint8_t type) {
     myAlert = "0" + (String) opcode;
     myAlert += "%";
     myAlert += (String) gardenStatus.meshState;
-    myAlert += "%";
-    myAlert += (String) type;
-    // TODO update protocol to differentiate totally and partially down (kk)
     break;
     
   // gateway self-reset
@@ -1716,15 +1710,11 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum, uint8_t type) {
     myAlert += nodeNum;
     myAlert += "%";
     myAlert += (String) gardenStatus.nodeStatusPtrs[nodeNum]->voltageState;
-    myAlert += "%";
-    myAlert += (String) type;
     break;
 
   case GARDEN_TOGGLE:
     myAlert = "0" + (String) opcode;
     myAlert += (String) gardenStatus.isAwake;
-    myAlert += "%";
-    myAlert += (String) type;
     break;
 
   case INCOMPLETE_JSON:
@@ -1849,25 +1839,32 @@ void parseAlertSetting() {
  *                      for daily report, means nothing
  *                      for gateway reset, means nothing
 */
-void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum, uint8_t type) {
+void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   String myAlert = "GardeNet user: ";
   // daily report
   switch(opcode) {
     case BAD_FLOW_RATE:
-      if(type == NEW_ERROR){
-        // bad flow rate
-        myAlert = "node ";
-        myAlert += nodeNum;
-        if (gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_OFF) {
-          myAlert += "is stuck off!";
-        } else if (gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_ON) {
-          myAlert += "is stuck on!";
-        }
-      }
-      else{
+      if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == HAS_NO_METER ||
+          gardenStatus.nodeStatusPtrs[nodeNum]->flowState == NO_FLOW_GOOD ||
+          gardenStatus.nodeStatusPtrs[nodeNum]->flowState == FLOWING_GOOD){
         myAlert += "the flow rate error on node ";
         myAlert += nodeNum;
         myAlert += " has been resolved.";
+      }
+      if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_OFF){
+        myAlert += "node ";
+        myAlert += nodeNum;
+        myAlert += "is stuck off!";
+      }
+      else if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_ON){
+        myAlert += "node ";
+        myAlert += nodeNum;
+        myAlert += "is stuck on!";
+      }
+      else{
+        myAlert += "node ";
+        myAlert += nodeNum;
+        myAlert += "is experiencing a flow rate issue!";
       }
       break;
     
@@ -1891,14 +1888,15 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum, uint8_t type) {
     
     // bad voltage state
     case BAD_VOLTAGE_STATE:
-      if(type == NEW_ERROR){
+      if(gardenStatus.nodeStatusPtrs[nodeNum]->voltageState == LOW_VOLTAGE){
         myAlert += "node ";
         myAlert += nodeNum;
-        if (gardenStatus.nodeStatusPtrs[nodeNum]->voltageState == LOW_VOLTAGE) {
-          myAlert += " has a low voltage.";
-        } else if (gardenStatus.nodeStatusPtrs[nodeNum]->voltageState == HIGH_VOLTAGE) {
-          myAlert += " has a high voltage.";
-        }
+        myAlert += " has a low voltage.";
+      }
+      else if(gardenStatus.nodeStatusPtrs[nodeNum]->voltageState == HIGH_VOLTAGE){
+        myAlert += "node ";
+        myAlert += nodeNum;
+        myAlert += " has a high voltage.";
       }
       else{
         myAlert += "the voltage issue on node ";
@@ -2055,9 +2053,9 @@ void setup(){
   }
 
   // notify the server about modem reset
-//  checkAlerts(GATEWAY_RESET, 0, NEW_ERROR);
+//  checkAlerts(GATEWAY_RESET, 0);
   if (gardenStatus.reset_alert) {
-    checkSMSAlerts(GATEWAY_RESET, 0, NEW_ERROR);
+    checkSMSAlerts(GATEWAY_RESET, 0);
   }
 
   // request schedule, alert setting, and garden state from server

@@ -26,35 +26,40 @@ Includes: numRegisteredNodes, %MeshUptime, %3GUptime, for each node { total accu
 Ex.) 00%1%0.99%0.99%0.99%1%50.5%1|2|3%209.3%false%1.11|1.25|1.38
 
 Alert cases:
-1. Bad valve state  (stuck on / stuck off) (includeflow rate?)
+1. Bad flow rate
 01
-%{Garden_Status->which_Node}(uint8_t)
-%{Node_Status->which_Valve}(uint8_t)
-%{Valve_Status: on or off (the opposite of what it should be}(string)
+%{which_Node}(uint8_t)
+%{flowState}(uint8_t) (see SharedDefinitions.h)
 %{Node_Status->currentFlowRate}(float)
-%type (uint8_t) -- NEW_ERROR or RESOLVED_ERROR (see SharedDefinitions.h)
-// want to send: which node, which valve, what the state is
 
-Ex.) 01%1%2%off%0.00%0
+Ex.) 01%1%5%0.00
 
 2. Mesh down
 02
 %{Garden_Status.meshState}(uint8_t)
-%type (uint8_t) -- NEW_ERROR or RESOLVED_ERROR (see SharedDefinitions.h)
 
-Ex.) 02%2%1
+Ex.) 02%2
 
 3. Gateway self-reset
 03
 
 4. Bad voltage state
 04
-%{Garden_Status->which_Node}
+%{whichNode}(uint8_t)
 %{Node_Status->voltageState}(uint8_t)	(SharedDefinitions line 113 - 115)
-%type (uint8_t) -- NEW_ERROR or RESOLVED_ERROR (see SharedDefinitions.h)
 
-Ex.) 04%1%0%0
+Ex.) 04%1%0
 
+5. Gateway sleep/wake toggle
+05
+%{Garden_Status.isAwake}(uint8_t) (see SharedDefinitions.h)
+
+Ex.) 05%1
+
+6. Incomplete JSON
+RESENDSCHEDULE
+
+////////////////////////// Below may be out of date //////////////////////////////////////////
 
 Special cases:
 5. No modem response sends email via server)                                      ////// but the modem can't tell the server that it's down if it's down
