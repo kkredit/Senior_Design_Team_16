@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -541,7 +541,6 @@ void handleModemOperation(uint8_t modemMode) {
   }
   
   currentString = "";
-
 }
 
 
@@ -1009,10 +1008,6 @@ void checkSchedule(){
         }
       }
       // else node is not connected to mesh
-      else{
-        // alert the server
-//        checkAlerts(MESH_DOWN, 0);
-      }
     }
     // else unregistered
   }    
@@ -1126,25 +1121,47 @@ void readMeshMessages(){
       network.read(header, gardenStatus.nodeStatusPtrs[node], sizeof(Node_Status));
 
       // compare and look for new items of concern
+      // check for new voltage error
       if(gardenStatus.nodeStatusPtrs[node]->voltageState != GOOD_VOLTAGE &&
          gardenStatus.nodeStatusPtrs[node]->voltageState != oldNS.voltageState){
         gardenStatus.gardenState = GARDEN_NODE_ERROR;
         // report this to server
         checkAlerts(BAD_VOLTAGE_STATE, node);
-//        if (gardenStatus.voltage_alert) {
-//          checkSMSAlerts(BAD_VOLTAGE_STATE, node);
-//        }
+        if (gardenStatus.voltage_alert){
+          checkSMSAlerts(BAD_VOLTAGE_STATE, node);
+        }
       }
-      else if(gardenStatus.nodeStatusPtrs[node]->flowState != HAS_NO_METER &&
+      // check for voltage error resolved
+      else if(gardenStatus.nodeStatusPtrs[node]->voltageState == GOOD_VOLTAGE &&
+              gardenStatus.nodeStatusPtrs[node]->voltageState != oldNS.voltageState){
+        // report this to server
+        checkAlerts(BAD_VOLTAGE_STATE, node);
+        if (gardenStatus.voltage_alert){
+          checkSMSAlerts(BAD_VOLTAGE_STATE, node);
+        }
+      }
+
+      // check for new flow rate error
+      if(gardenStatus.nodeStatusPtrs[node]->flowState != HAS_NO_METER &&
               gardenStatus.nodeStatusPtrs[node]->flowState != NO_FLOW_GOOD &&
               gardenStatus.nodeStatusPtrs[node]->flowState != FLOWING_GOOD &&
               gardenStatus.nodeStatusPtrs[node]->flowState != oldNS.flowState){
         gardenStatus.gardenState = GARDEN_NODE_ERROR;
         // report this to server
         checkAlerts(BAD_FLOW_RATE, node);
-//        if (gardenStatus.valve_alert) {
-//          checkSMSAlerts(BAD_FLOW_RATE, node);
-//        }
+        if (gardenStatus.valve_alert){
+          checkSMSAlerts(BAD_FLOW_RATE, node);
+        }
+      }
+      // check for flow rate error resolved
+      else if((gardenStatus.nodeStatusPtrs[node]->flowState == NO_FLOW_GOOD ||
+              gardenStatus.nodeStatusPtrs[node]->flowState == FLOWING_GOOD) &&
+              gardenStatus.nodeStatusPtrs[node]->flowState != oldNS.flowState){
+        // report this to server
+        checkAlerts(BAD_FLOW_RATE, node);
+        if (gardenStatus.valve_alert){
+          checkSMSAlerts(BAD_FLOW_RATE, node);
+        }
       }
       
       break;
@@ -1189,7 +1206,7 @@ void readMeshMessages(){
  */ 
 void isNewDay(){
   gardenStatus.isAwake = true;
-  checkAlerts(DAILY_REPORT,0);
+  checkAlerts(DAILY_REPORT, 0);
   // resynchronize timer -- delay is so that do not have resource issue with modem
   // timeInit();
 
@@ -1205,6 +1222,7 @@ void isNewDay(){
     if(gardenStatus.nodeStatusPtrs[node] != NULL){
       // if connected
       if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+          // this is handled a few minutes beforehand, elsewhere
 //        char placeholder = '0';
 //        safeMeshWrite(mesh.getAddress(node), &placeholder, IS_NEW_DAY_H, sizeof(placeholder), DEFAULT_SEND_TRIES);
       }
@@ -1265,7 +1283,7 @@ void initGardenStatus(){
 
   // alert setting for SMS message
   // do we need to preset the phone number?
-  // memset(&gardenStatus.phoneNum[0], '0', sizeof(gardenStatus.phoneNum));
+  memset(&gardenStatus.phoneNum[0], '0', sizeof(gardenStatus.phoneNum));
   gardenStatus.valve_alert = false;
   gardenStatus.mesh_alert = false;
   gardenStatus.reset_alert = false;
@@ -1359,9 +1377,14 @@ void updateGardenStatus(){
 
   // assume began, so just check ratio of connected nodes
   static time_t disconnectedCounter = 0; // NOTE only set to 0 first time; else keeps old value
-  if(gardenStatus.numConnectedNodes == gardenStatus.numRegisteredNodes){
+  if(gardenStatus.numConnectedNodes == gardenStatus.numRegisteredNodes &&
+      gardenStatus.meshState != MESH_ALL_NODES_GOOD){
     gardenStatus.meshState = MESH_ALL_NODES_GOOD;
     disconnectedCounter = 0;
+    checkAlerts(MESH_DOWN, 0);
+    if(gardenStatus.mesh_alert){
+       checkSMSAlerts(MESH_DOWN, 0);
+    }
   }
   else if(gardenStatus.numConnectedNodes == 0){
     // check if is new error, but only call it error if has happened three consective times
@@ -1372,7 +1395,7 @@ void updateGardenStatus(){
       gardenStatus.meshState = MESH_ALL_NODES_DOWN;
       checkAlerts(MESH_DOWN, 0);
       if(gardenStatus.mesh_alert) {
-        // checkSMSAlerts(MESH_DOWN, 0);
+         checkSMSAlerts(MESH_DOWN, 0);
       }
     }
   }
@@ -1385,7 +1408,7 @@ void updateGardenStatus(){
       gardenStatus.meshState = MESH_SOME_NODES_DOWN;
       checkAlerts(MESH_DOWN, 0);
       if(gardenStatus.mesh_alert) {
-        // checkSMSAlerts(MESH_DOWN, 0);
+         checkSMSAlerts(MESH_DOWN, 0);
       }
     }
   }  
@@ -1537,11 +1560,11 @@ void timeInit() {
       // reprovision if socket dial fails
       } else if (currentString == "ERROR") {
         delay(1000);
-        Modem_Serial.println("AT#SD=2,0,13,\"time.nist.gov\",0,0,0");
+        Modem_Serial.println(F("AT#SD=2,0,13,\"time.nist.gov\",0,0,0"));
       // reprovision if socket dial did not get proper response
       } else if (currentString == "NO CARRIER" && timeGood == false) {
         delay(1000);
-        Modem_Serial.println("AT#SD=1,0,13,\"time.nist.gov\",0,0,0");
+        Modem_Serial.println(F("AT#SD=1,0,13,\"time.nist.gov\",0,0,0"));
       }
     } 
   }
@@ -1633,7 +1656,7 @@ void printDigits(uint8_t digits){
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
- * checkAlerts(uint8_t opcode, uint8_t nodeNum);
+ * checkAlerts(uint8_t opcode, uint8_t nodeNum, uint8_t type);
  * 
  * This function sends a message to the server based an opcode + nodeNum combination.
  * Refer to alert_engine_protocol for the meaning of different alerts.
@@ -1642,7 +1665,10 @@ void printDigits(uint8_t digits){
  * @postconditions: an alert message is sent to the server
  * 
  * @param uint8_t opcode: an opcode befined in the protocol
- *        uint8_t nodeNum: the node number, only used for specific opcode
+ * @param uint8_t nodeNum: the node number, only used for specific opcode
+ * @param unit8_t type: whether the alert is new (0) or resolved (1);
+ *                      for daily report, means nothing
+ *                      for gateway reset, means nothing
 */
 void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   String myAlert;
@@ -1705,7 +1731,8 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   // mesh down
   case MESH_DOWN:
     myAlert = "0" + (String) opcode;
-    // TODO update protocol to differentiate totally and partially down (kk)
+    myAlert += "%";
+    myAlert += (String) gardenStatus.meshState;
     break;
     
   // gateway self-reset
@@ -1760,7 +1787,6 @@ void sendAlertMessage(String myMessage) {
   delay(1000);
 
   while(PrintModemResponse() > 0);
-  
 }
 
 
@@ -1835,7 +1861,7 @@ void parseAlertSetting() {
 
 
 /*
- * checkSMSAlerts(uint8_t opcode, uint8_t nodeNum)
+ * checkSMSAlerts(uint8_t opcode, uint8_t nodeNum, uint8_t type)
  * 
  * This function constructs an SMS message based on the different alert opcode
  * and forwards it to a designated phone number stored in the Garden_Status struct
@@ -1844,54 +1870,87 @@ void parseAlertSetting() {
  * @postconditions: the alert message is sent in the form of an SMS message
  * 
  * @param uint8_t opcode: an opcode defined for the alert engine protocol
- *        uint8_t nodeNum: the node ID to be reported on
+ * @param uint8_t nodeNum: the node ID to be reported on
+ * @param unit8_t type: whether the alert is new (0) or resolved (1); 
+ *                      for gardentoggle, is ON or OFF
+ *                      for daily report, means nothing
+ *                      for gateway reset, means nothing
 */
 void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   String myAlert = "GardeNet user: ";
   // daily report
   switch(opcode) {
     case BAD_FLOW_RATE:
-      // bad flow rate
-      myAlert = "node ";
-      myAlert += nodeNum;
-      if (gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_OFF) {
-        myAlert += " is stuck off! ";
-      } else if (gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_ON) {
-        myAlert += " is stuck on! ";
+      if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == HAS_NO_METER ||
+          gardenStatus.nodeStatusPtrs[nodeNum]->flowState == NO_FLOW_GOOD ||
+          gardenStatus.nodeStatusPtrs[nodeNum]->flowState == FLOWING_GOOD){
+        myAlert += "the flow rate error on node ";
+        myAlert += nodeNum;
+        myAlert += " has been resolved.";
       }
-    break;
+      if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_OFF){
+        myAlert += "node ";
+        myAlert += nodeNum;
+        myAlert += "is stuck off!";
+      }
+      else if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_ON){
+        myAlert += "node ";
+        myAlert += nodeNum;
+        myAlert += "is stuck on!";
+      }
+      else{
+        myAlert += "node ";
+        myAlert += nodeNum;
+        myAlert += "is experiencing a flow rate issue!";
+      }
+      break;
     
     // mesh down
     case MESH_DOWN:
-      // TODO update protocol to differentiate totally and partially down (kk)
-      
-    break;
+      if(gardenStatus.meshState == MESH_SOME_NODES_DOWN){
+        myAlert += "the onsite radio network is partially down!";
+      }
+      else if(gardenStatus.meshState == MESH_ALL_NODES_DOWN){
+        myAlert += "the onsite radio network is entirely down!";
+      }
+      else{
+        myAlert += "the onsite radio network issue has been resolved.";
+      }
+      break;
     
     // gateway self-reset
     case GATEWAY_RESET:
       myAlert += "the gateway has reset itself.";
-    break;
+      break;
     
     // bad voltage state
     case BAD_VOLTAGE_STATE:
-      myAlert += "node ";
-      myAlert += nodeNum;
-      if (gardenStatus.nodeStatusPtrs[nodeNum]->voltageState == LOW_VOLTAGE) {
+      if(gardenStatus.nodeStatusPtrs[nodeNum]->voltageState == LOW_VOLTAGE){
+        myAlert += "node ";
+        myAlert += nodeNum;
         myAlert += " has a low voltage.";
-      } else if (gardenStatus.nodeStatusPtrs[nodeNum]->voltageState == HIGH_VOLTAGE) {
+      }
+      else if(gardenStatus.nodeStatusPtrs[nodeNum]->voltageState == HIGH_VOLTAGE){
+        myAlert += "node ";
+        myAlert += nodeNum;
         myAlert += " has a high voltage.";
       }
-    break;
+      else{
+        myAlert += "the voltage issue on node ";
+        myAlert += nodeNum;
+        myAlert += " has been resolved.";
+      }
+      break;
 
     default:
-      // UNUSED
-    break;
+      break;
   }
   // debug
   Serial.println();
   Serial.print(myAlert);
   Serial.println("");
 
+<<<<<<< HEAD
   // send SMS message via modem
 
   // put modem into text mode
@@ -1918,6 +1977,38 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   Modem_Serial.println("AT+CMGF=0");
   delay(250);
   while(PrintModemResponse() > 0);
+=======
+  // send SMS message via modem if have a number
+  if(gardenStatus.phoneNum != "00000000000"){  
+    // put modem into text mode
+    Modem_Serial.println("AT+CMGF=1");
+    delay(250);
+    while(PrintModemResponse() > 0);
+  
+    // assemble SMS message and send
+    Modem_Serial.print("AT+CMGS=\"+");
+    Modem_Serial.print((String) gardenStatus.phoneNum);
+    Modem_Serial.print("\"\r");
+    delay(250);
+    while(PrintModemResponse() > 0);
+  
+    Modem_Serial.print(myAlert);
+    Modem_Serial.write(26);
+    Modem_Serial.write("\r");
+    delay(1000);
+    while(PrintModemResponse() > 0);
+  
+    Serial.println("SMS alert sent.");
+  
+    // put modem back into PDU mode
+    Modem_Serial.println("AT+CMGF=0");
+    delay(250);
+    while(PrintModemResponse() > 0);
+  }
+  else{
+    Serial.println(F("[Would send SMS alert, but do not have a number]"));
+  }
+>>>>>>> ac3b301c4cddec2382363c8c3d6fd94299c03f42
 }
 
 
@@ -2029,6 +2120,7 @@ void setup(){
   }
   Serial.println();
   Serial.println(F("Mesh created"));
+  gardenStatus.meshState = MESH_ALL_NODES_GOOD;
   mesh.setAddress(MASTER_NODE_ID, MASTER_ADDRESS);
 
   // init timer for regular system checks
@@ -2064,9 +2156,9 @@ void setup(){
 
   // notify the server about modem reset
 //  checkAlerts(GATEWAY_RESET, 0);
-//  if (gardenStatus.reset_alert) {
-//    checkSMSAlerts(GATEWAY_RESET, 0);
-//  }
+  if (gardenStatus.reset_alert) {
+    checkSMSAlerts(GATEWAY_RESET, 0);
+  }
 
   // request schedule, alert setting, and garden state from server
   // setupGarden();
