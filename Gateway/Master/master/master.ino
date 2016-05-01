@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -1134,7 +1134,8 @@ void readMeshMessages(){
     Serial.println(F("]"));
 
     // check that it's registered
-    checkNodeRegistered(mesh.getNodeID(header.from_node));
+    bool wasRegistered;
+    wasRegistered = checkNodeRegistered(mesh.getNodeID(header.from_node));
 
     switch(header.type){
     case SEND_NODE_STATUS_H:
@@ -1143,8 +1144,15 @@ void readMeshMessages(){
       node = mesh.getNodeID(header.from_node);
       
       // but first, store its old status to see if there are any new alerts
+      // if is first message, then prefill with good values
       Node_Status oldNS;
-      oldNS = *gardenStatus.nodeStatusPtrs[node];
+      if(wasRegistered == false){
+        oldNS.voltageState = GOOD_VOLTAGE;
+        oldNS.flowState = NO_FLOW_GOOD;        
+      }
+      else{
+        oldNS = *gardenStatus.nodeStatusPtrs[node];
+      }
       
       // read in the new status
       network.read(header, gardenStatus.nodeStatusPtrs[node], sizeof(Node_Status));
@@ -1185,7 +1193,9 @@ void readMeshMessages(){
       // check for flow rate error resolved
       else if((gardenStatus.nodeStatusPtrs[node]->flowState == NO_FLOW_GOOD ||
               gardenStatus.nodeStatusPtrs[node]->flowState == FLOWING_GOOD) &&
-              gardenStatus.nodeStatusPtrs[node]->flowState != oldNS.flowState){
+              (oldNS.flowState != HAS_NO_METER &&
+               oldNS.flowState != NO_FLOW_GOOD &&
+               oldNS.flowState != FLOWING_GOOD)){
         // report this to server
         checkAlerts(BAD_FLOW_RATE, node);
         if (gardenStatus.valve_alert){
@@ -1417,27 +1427,27 @@ void updateGardenStatus(){
     }
   }
   else if(gardenStatus.numConnectedNodes == 0){
-    // check if is new error, but only call it error if has happened three consective times
+    // check if is new error, but only call it error if has been so for TIME_TILL_MESH_ERR
     if(disconnectedCounter == 0){
       disconnectedCounter = now();
     }
     else if(gardenStatus.meshState != MESH_ALL_NODES_DOWN && now() > disconnectedCounter + TIME_TILL_MESH_ERR){
       gardenStatus.meshState = MESH_ALL_NODES_DOWN;
       checkAlerts(MESH_DOWN, 0);
-      if(gardenStatus.mesh_alert) {
+      if(gardenStatus.mesh_alert){
          checkSMSAlerts(MESH_DOWN, 0);
       }
     }
   }
-  else{
-    // check if is new error, but only call it error if has happened three consective times
+  else if(gardenStatus.numConnectedNodes < gardenStatus.numRegisteredNodes){
+    // check if is new error, but only call it error if has been so for TIME_TILL_MESH_ERR
     if(disconnectedCounter == 0){
       disconnectedCounter = now();
     }
     else if(gardenStatus.meshState != MESH_SOME_NODES_DOWN && now() > disconnectedCounter + TIME_TILL_MESH_ERR){
       gardenStatus.meshState = MESH_SOME_NODES_DOWN;
       checkAlerts(MESH_DOWN, 0);
-      if(gardenStatus.mesh_alert) {
+      if(gardenStatus.mesh_alert){
          checkSMSAlerts(MESH_DOWN, 0);
       }
     }
@@ -1918,20 +1928,20 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
         myAlert += nodeNum;
         myAlert += " has been resolved.";
       }
-      if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_OFF){
+      else if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_OFF){
         myAlert += "node ";
         myAlert += nodeNum;
-        myAlert += "is stuck off!";
+        myAlert += " is stuck off!";
       }
       else if(gardenStatus.nodeStatusPtrs[nodeNum]->flowState == STUCK_AT_ON){
         myAlert += "node ";
         myAlert += nodeNum;
-        myAlert += "is stuck on!";
+        myAlert += " is stuck on!";
       }
       else{
         myAlert += "node ";
         myAlert += nodeNum;
-        myAlert += "is experiencing a flow rate issue!";
+        myAlert += " is experiencing a flow rate issue!";
       }
       break;
     
@@ -2013,7 +2023,7 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
     while(PrintModemResponse() > 0);
   }
   else{
-    Serial.println(F("[Would send SMS alert, but do not have a number]"));
+    Serial.println(F("[Would send an SMS alert, but do not have a number]"));
   }
 }
 
