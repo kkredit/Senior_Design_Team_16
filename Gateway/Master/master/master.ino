@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -206,7 +206,9 @@ void setupModem() {
 
 
 /*
- * TODO add comment
+ * checkDataUsae()
+ * 
+ * This function checks the modem's internal data counter
 */
 void checkDataUsage() {
   // monitor data usage since last reset: <cid>, <tot>, <sent>, <received>
@@ -224,18 +226,34 @@ void checkDataUsage() {
 
 
 /*
- * TODO add comment
+ * socketConfigs()
+ * 
+ * This function configurates three of the modem's sockets to be used as TCP sockets
 */
 void socketConfigs() {
-  // TCP socket config 1: time-out periods
+  // TCP socket 1: used for inbound connection
   Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
   delay(1000);
   while(PrintModemResponse() > 0);
 
-  // TCP socket config 2: data mode and keepalive period
-  Modem_Serial.println("AT#SCFGEXT=1,2,0,240,0,0");
+  Modem_Serial.println("AT#SCFGEXT=1,2,0,10,0,0");
   delay(1000);
   while(PrintModemResponse() > 0);
+
+  // TCP socket 2: used for outbound connection
+  Modem_Serial.println("AT#SCFG=2,1,0,60,600,2");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+
+  Modem_Serial.println("AT#SCFGEXT=2,0,0,0,0,0");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+
+  // TCP socket 3: used for time initiation with NIST time server
+  Modem_Serial.println("AT#SCFG=3,1,0,10,600,2");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+  
 }
 
 
@@ -254,21 +272,44 @@ void getModemIP() {
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
   boolean IPGood = false;
+  String queryString;
   while(!IPGood) {
     while(Modem_Serial.available() > 0) {
       getModemResponse();
+      if(currentString == "#SGACT: \"") {
+        bool isIP = false;
+        while(!isIP) {
+          int myByte = Modem_Serial.read();
+          // Serial.write(incomingByte);
+          if(myByte == '\n') {
+            isIP = true;
+          } else if (myByte != '\"' && myByte != -1) {
+            queryString += char(myByte);
+          }
+        }
+        queryString.toCharArray(gardenStatus.modemIP, 20);
+        currentString = "";
+      }
       // if the modem already has an IP or retrieved IP 
       if(currentString == "ERROR" || currentString == "OK") {
         IPGood = true;
       }
     }
   }
+  Serial.println();
+  Serial.print("The modem's IP address is: ");
+  Serial.println((String) gardenStatus.modemIP);
   while(PrintModemResponse() > 0);
 }
 
 
 /*
- * TODO add comment
+ * queryServerIP()
+ * 
+ * This function query the server's DNS domain name into an IP address
+ * 
+ * @preconditions: the modem's PDP context is activated
+ * @postconditions: the server's IP address is stored in the gardenStatus struct
 */
 void queryServerIP() {
   // executes DNS query to solve host name 
@@ -295,11 +336,27 @@ void queryServerIP() {
       }
     }
   }
-  Serial.println();
   queryString.toCharArray(gardenStatus.serverIP, 20);
+  Serial.println();
   Serial.print("The server's IP address is: ");
   Serial.println((String) gardenStatus.serverIP);
 }
+
+
+/*
+ *  openFirewall()
+ *  
+ *  This function opens the modem's firewall for the server's IP address
+ *  
+ *  @preconditions: queryServerIP() returned an IP adress
+ *  @postconditions: the modem can accept inbound connection from the server
+*/
+void openFirewall() {
+  Serial.print("AT#FRWL=1,\"");
+  Serial.print((String) gardenStatus.serverIP);
+  Serial.println("\",\"255.255.0.0\"");
+}
+
 
 
 /* 
@@ -317,7 +374,12 @@ void openSocket() {
 
 
 /*
- * TODO add comment
+ * suspendSocket()
+ * 
+ * This function suspends a socket connection by sending an escape sequence
+ * 
+ * @preconditions: there is an active TCP socket connection
+ * @postconditions: the connection is suspended but can be reactivated
 */
 void suspendSocket() {
   Modem_Serial.println("+++");
@@ -325,7 +387,12 @@ void suspendSocket() {
 
 
 /*
- * TODO add comment
+ * restoreSocket()
+ * 
+ * This function restores a previously initiated socket dial
+ * 
+ * @preconditions: a socket connection was initiated and has been suspended
+ * @postconditions: the socket connection is back online
 */
 void restoreSocket() {
   Modem_Serial.println("AT#SO=1");
@@ -354,16 +421,50 @@ void disconnectModem() {
       } 
     } 
   }
-  while(PrintModemResponse() > 0); 
+  while(PrintModemResponse() > 0);
 }
 
 
 /*
- * TODO add comments
+ * socketListen()
+ * 
+ * This function listens for an inbound connection based on the firewall's filtered
+ * IP address accepted range
+ * 
+ * @preconditions: the modem's firewall has a filtered range of IP address
+ * @postconditions: if an inbound connection request is present, it is accepted
+*/
+void socketListen() {
+  Modem_Serial.println("AT#SL=1,1,3500,0");
+}
+
+
+/*
+ * socketAccept()
+ * 
+ * This function accept an socket connection when it is available
+ * 
+ * @preconditions: there is an inbound connection request
+ * @postconditions: the connection request is accepted
+*/
+void socketAccept() {
+  Modem_Serial.println("AT#SA=1,1");
+}
+
+
+/*
+ * decodeModemResponse()
+ * 
+ * This function decodes the current modem response and decide what action to take
+ * 
+ * @preconditions: currentString contains complete response
+ * @postconditions: the corresponding action instruction is sent to handleModemOperation()
+ * 
+ * @return: an operation code (uint8_t) defined in SharedDefinitions.h
  */
 uint8_t decodeModemResponse() {
-//  while(Modem_Serial.available() > 0) {
   getModemResponse();
+  
   // connection error
   if (currentString == "ERROR") {
     return TR_G_ERROR;
@@ -453,15 +554,20 @@ uint8_t decodeModemResponse() {
   if (currentString == "NO CARRIER") {
     return TR_G_DISCONNECTED;
   }
-//  }
 
   return TR_G_NO_RESPONSE; // else modem has no response yet
 }
 
 /*
- * TODO add comments
+ * handleModemOperation(uint8_t modemMode)
+ * 
+ * This function execute specific tasks based on the result of decodeModemResponse()
+ * 
+ * @preconditions: decodeModemResponse() returns a meaningful modem mode
+ * @postconditions: the corresponding action is executed
 */
 void handleModemOperation(uint8_t modemMode) {
+  
   switch(modemMode) {
 
     case TR_G_DISABLE_INT:
@@ -567,7 +673,6 @@ void handleModemOperation(uint8_t modemMode) {
       // UNUSED
       break;
   }
-  
   currentString = "";
 }
 
@@ -1573,7 +1678,7 @@ void printGardenStatus(){
 void timeInit() {
   int timeArray[6];
 
-  Modem_Serial.println("AT#SD=2,0,13,\"time.nist.gov\",0,0,0");
+  Modem_Serial.println("AT#SD=3,0,13,\"time.nist.gov\",0,0,0");
   delay(250);
 
   boolean timeGood = false;
@@ -1623,11 +1728,11 @@ void timeInit() {
       // reprovision if socket dial fails
       } else if (currentString == "ERROR") {
         delay(1000);
-        Modem_Serial.println(F("AT#SD=2,0,13,\"time.nist.gov\",0,0,0"));
+        Modem_Serial.println(F("AT#SD=3,0,13,\"time.nist.gov\",0,0,0"));
       // reprovision if socket dial did not get proper response
       } else if (currentString == "NO CARRIER" && timeGood == false) {
         delay(1000);
-        Modem_Serial.println(F("AT#SD=1,0,13,\"time.nist.gov\",0,0,0"));
+        Modem_Serial.println(F("AT#SD=3,0,13,\"time.nist.gov\",0,0,0"));
       }
     } 
   }
@@ -2146,7 +2251,6 @@ void setup(){
 
   // initialize gardenStatus
   initGardenStatus();
-  Serial.print("The phone number is: "); Serial.println((String) gardenStatus.phoneNum);
 
   // TODO print status?
 
@@ -2156,6 +2260,10 @@ void setup(){
   socketConfigs();
   getModemIP();
   queryServerIP();
+<<<<<<< HEAD
+=======
+  openFirewall();
+>>>>>>> f4c00af6361256331d9ea9c71d344d7899aa2706
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
@@ -2181,7 +2289,6 @@ void setup(){
   // remember to fix line 168 in Time.cpp
   setTime(1, 0, 45, 12, 4, 16);
   
-  // alert the server about gateway reset
   openSocket();
   boolean setupDone = false;
   uint8_t connectTries = 1;
@@ -2217,6 +2324,7 @@ void setup(){
 
   // request schedule, alert setting, and garden state from server
   // setupGarden();
+  // suspendSocket();
 
   // enable self-reset
   initPins2();
@@ -2256,6 +2364,9 @@ void loop() {
 //  }
   ////////////////////////////////////////////////////////////////////////////////////
 
+  // socketListen();
+
+
   // Communication with server via 3G
   while(Modem_Serial.available() > 0) {
     uint8_t tr_g_opmode = decodeModemResponse();
@@ -2286,7 +2397,7 @@ void loop() {
 
   // check if need to open/close valves according to schedule
   // to occur at the beginning of each new minute
-  if(now() >= lastTime + 60 && modemReceivingJSON == false){
+  if(now() >= lastTime + 60 && modemReceivingJSON == false) {
     if(gardenStatus.isAwake){
       checkSchedule();
     }

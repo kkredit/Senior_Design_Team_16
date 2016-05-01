@@ -73,6 +73,7 @@ struct Garden_Status{
   bool reset_alert;
   bool voltage_alert;
   char serverIP[20];
+  char modemIP[20];
 };
  
 // mesh settings
