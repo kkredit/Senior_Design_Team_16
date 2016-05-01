@@ -2155,7 +2155,7 @@ void setup(){
   checkDataUsage();
   socketConfigs();
   getModemIP();
-//  queryServerIP();
+  queryServerIP();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
@@ -2174,14 +2174,12 @@ void setup(){
   Timer1.attachInterrupt(updateStatusISR);
 
   // setup time
-//  timeInit();
+  timeInit();
   
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
   setTime(1, 0, 45, 12, 4, 16);
-
-  initPins2();
   
   // alert the server about gateway reset
   openSocket();
@@ -2212,7 +2210,7 @@ void setup(){
   }
 
   // notify the server about modem reset
-//  checkAlerts(GATEWAY_RESET, 0);
+  checkAlerts(GATEWAY_RESET, 0);
   if (gardenStatus.reset_alert) {
     checkSMSAlerts(GATEWAY_RESET, 0);
   }
@@ -2220,6 +2218,8 @@ void setup(){
   // request schedule, alert setting, and garden state from server
   // setupGarden();
 
+  // enable self-reset
+  initPins2();
 
   ///////////////////////////////////////////////////////////////////
   // FOR THE DEMO ///////////////////////////////////////////////////

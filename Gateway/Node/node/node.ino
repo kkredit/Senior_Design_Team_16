@@ -684,6 +684,7 @@ void updateNodeStatus(){
 
   // update mesh address in case it changed
   int16_t tempvar = mesh.getAddress(myStatus.nodeID);
+  Serial.print(F("mesh address query result: ")); Serial.println(tempvar);
   // this sometimes fails, but does not mean disconnected; simply check to see it worked
   if(tempvar > 0) myStatus.nodeMeshAddress = tempvar;
 
@@ -871,7 +872,9 @@ void setup(){
       else Serial.println(F("FAILED"));
     }
     if(!success){
-      Serial.println(F("Trying again in 15 minutes. Else powerdown or reset.\n"));
+      Serial.print(F("Trying again in "));
+      Serial.print(DISCONNECTED_SLEEP/60000);
+      Serial.println(F(" minutes. Else powerdown or reset.\n"));
       delay(DISCONNECTED_SLEEP);
     }
   }
