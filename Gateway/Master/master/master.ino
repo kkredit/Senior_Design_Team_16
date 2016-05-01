@@ -184,10 +184,6 @@ void setupModem() {
   delay(1000);
   while(PrintModemResponse() > 0);
 
-//  Modem_Serial.println("AT#MODE=ONLINE");
-//  delay(1000);
-//  while(PrintModemResponse() > 0);
-
   // Connect to 3G cellular network
   Serial.println("Waiting for network connection...");
   boolean connectionGood = false;
@@ -209,6 +205,40 @@ void setupModem() {
 }
 
 
+/*
+ * TODO add comment
+*/
+void checkDataUsage() {
+  // monitor data usage since last reset: <cid>, <tot>, <sent>, <received>
+  // mode 0: reset data counter
+  // mode 1: report data from last session
+  // mode 2: report data from last reset (of the data counter) 
+  Modem_Serial.println("AT#GDATAVOL=1");
+  delay(250);
+  while(PrintModemResponse() > 0);
+  
+  Modem_Serial.println("AT#GDATAVOL=2");
+  delay(250);
+  while(PrintModemResponse() > 0);
+}
+
+
+/*
+ * TODO add comment
+*/
+void socketConfigs() {
+  // TCP socket config 1: time-out periods
+  Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+
+  // TCP socket config 2: data mode and keepalive period
+  Modem_Serial.println("AT#SCFGEXT=1,2,0,240,0,0");
+  delay(1000);
+  while(PrintModemResponse() > 0);
+}
+
+
 /* 
  * getModemIP()
  *  
@@ -220,27 +250,9 @@ void setupModem() {
  * already has one
 */
 void getModemIP() {
-  Modem_Serial.println("AT#GDATAVOL=1");
-  delay(500);
-  while(PrintModemResponse() > 0);
-  
-  Modem_Serial.println("AT#GDATAVOL=2");
-  delay(500);
-  while(PrintModemResponse() > 0);
-
-  // TCP socket config
-  Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
-  delay(1000);
-  while(PrintModemResponse() > 0);
-
-  Modem_Serial.println("AT#SCFGEXT=1,2,0,240,0,0");
-  delay(1000);
-  while(PrintModemResponse() > 0);
-
   // retrieve IP address
   Modem_Serial.println("at#sgact=1,1");
   delay(500);
-
   boolean IPGood = false;
   while(!IPGood) {
     while(Modem_Serial.available() > 0) {
@@ -251,7 +263,9 @@ void getModemIP() {
       } 
     } 
   }
+  while(PrintModemResponse() > 0);
 }
+
 
 /*
  * TODO add comment
@@ -281,12 +295,12 @@ void queryServerIP() {
       }
     }
   }
-
   Serial.println();
   queryString.toCharArray(gardenStatus.serverIP, 20);
   Serial.print("The server's IP address is: ");
   Serial.println((String) gardenStatus.serverIP);
 }
+
 
 /* 
  * openSocket()
@@ -302,6 +316,22 @@ void openSocket() {
 }
 
 
+/*
+ * TODO add comment
+*/
+void suspendSocket() {
+  Modem_Serial.println("+++");
+}
+
+
+/*
+ * TODO add comment
+*/
+void restoreSocket() {
+  Modem_Serial.println("AT#SO=1");
+}
+
+
 /* 
  * disconnectModem()
  *  
@@ -313,20 +343,19 @@ void openSocket() {
 */
 void disconnectModem() {
   Modem_Serial.println("AT#SGACT=1,0");
-  delay(250);
+  delay(500);
+  boolean disconnected = false;
+  while(!disconnected) {
+    while(Modem_Serial.available() > 0) {
+      getModemResponse();
+      // if the modem already has an IP or retrieved IP 
+      if(currentString == "ERROR" || currentString == "OK") {
+        disconnected = true;
+      } 
+    } 
+  }
   while(PrintModemResponse() > 0);
-  delay(2000);
-  
-  // monitor data usage since last reset: <cid>, <tot>, <sent>, <received>
-  // mode 0: reset data counter
-  // mode 1: report data from last session
-  // mode 2: report data from last reset (of the data counter) 
-  Modem_Serial.println("AT#GDATAVOL=1");
-  delay(250);
-  while(PrintModemResponse() > 0);
-  Modem_Serial.println("AT#GDATAVOL=2");
-  delay(250);
-  while(PrintModemResponse() > 0);
+ 
 }
 
 
@@ -2085,6 +2114,8 @@ void setup(){
 
   // Setup 3G Modem
   setupModem();
+  checkDataUsage();
+  socketConfigs();
   getModemIP();
 //  queryServerIP();
 
