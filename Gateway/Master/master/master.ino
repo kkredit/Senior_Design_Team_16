@@ -293,8 +293,8 @@ void getModemIP() {
       // if the modem already has an IP or retrieved IP 
       if(currentString == "ERROR" || currentString == "OK") {
         IPGood = true;
-      } 
-    } 
+      }
+    }
   }
   Serial.println();
   Serial.print("The modem's IP address is: ");
@@ -421,7 +421,11 @@ void disconnectModem() {
       } 
     } 
   }
+<<<<<<< HEAD
   while(PrintModemResponse() > 0);
+=======
+  while(PrintModemResponse() > 0); 
+>>>>>>> e558c56495af6aa5938f9f9fc7f7f3830fef629b
 }
 
 
@@ -467,7 +471,7 @@ uint8_t decodeModemResponse() {
   getModemResponse();
   // connection error
   if (currentString == "ERROR") {
-    return TR_G_DISCONNECTED;
+    return TR_G_ERROR;
   }
 
   // connection is good
@@ -578,7 +582,7 @@ void handleModemOperation(uint8_t modemMode) {
       Serial.println("Delete the old schedule...");
       deleteSchedule();
       modemReceivingJSON = true;
-    break;
+      break;
 
     case TR_G_ENABLE_INT:
       if(eventCount == eventMaxCount) {
@@ -588,7 +592,8 @@ void handleModemOperation(uint8_t modemMode) {
         if(gardenStatus.isAwake){
           checkSchedule();
         }
-      } else {
+      } 
+      else {
         Serial.println("");
         Serial.println("I did not get all schedule events... Now request another schedule from the server...");
         Serial.print("I'm supposed to get "); Serial.print((String) eventMaxCount); Serial.print(" events; ");
@@ -604,20 +609,19 @@ void handleModemOperation(uint8_t modemMode) {
       Timer1.initialize(TIMER1_PERIOD);
       Timer1.attachInterrupt(updateStatusISR);
       modemReceivingJSON = false;
-    break;
+      break;
 
     case TR_G_JSON:
       parseJSON();
       eventCount += 1;
-    break;
+      break;
 
     case TR_G_GARDEN_ON:
       Serial.println("\nReceived 'Turn on' message from the server");
       gardenStatus.isAwake = true;
    
       // TODO disable scheduling based on weeklySchedule
-      
-    break;
+      break;
 
     case TR_G_GARDEN_OFF:
       Serial.println("\nReceived 'Go to sleep' message from the server");
@@ -638,11 +642,8 @@ void handleModemOperation(uint8_t modemMode) {
             safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
           }
         }
-      }
-
-      // TODO disable scheduling based on weeklySchedule
-      
-    break;
+      }    
+      break;
 
     case TR_G_NO_EVENTS:
       Serial.println("");
@@ -650,15 +651,15 @@ void handleModemOperation(uint8_t modemMode) {
 
       // TODO turn off all nodes and valves
       // TODO disable the next day's schedule events
-    break;
+      break;
 
     case TR_G_DISCONNECTED:
       gardenStatus.threeGState = TR_G_DISCONNECTED;
-    break;
+      break;
 
     case TR_G_CONNECTED:
       gardenStatus.threeGState = TR_G_CONNECTED;
-    break;
+      break;
 
     case TR_G_ALERT_SETTING:
       Serial.println("");
@@ -666,12 +667,15 @@ void handleModemOperation(uint8_t modemMode) {
 
       // parse alert setting
       parseAlertSetting();
-      
-    break;
+      break;
+
+    case TR_G_ERROR:
+      gardenStatus.threeGState = TR_G_ERROR;
+      break;
 
     default:
-    // UNUSED
-    break;
+      // UNUSED
+      break;
   }
   
   currentString = "";
@@ -1113,32 +1117,34 @@ void checkSchedule(){
         // for each valve
         uint8_t valve;
         for(valve=1; valve<=4; valve++){
-          Serial.print(F("Checking valve: ")); Serial.println(valve);
-          bool shouldBeOn;
-          shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday()-1, hour(), minute(), node, valve);
-          Serial.print(F("Valve is ")); Serial.print(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state);
-          Serial.print(F(" and should be ")); Serial.println(shouldBeOn);
-          
-          
-          // if schedule says should be open and is closed
-          if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
-            // send open signal
-            Valve_Command vc;
-            vc.whichValve = valve;
-            vc.onOrOff = ON;
-            vc.timeToLive = VALVE_COMMAND_TTL;
-            safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+          if(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].isConnected){
+            Serial.print(F("Checking valve: ")); Serial.println(valve);
+            bool shouldBeOn;
+            shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday()-1, hour(), minute(), node, valve);
+            Serial.print(F("Valve is ")); Serial.print(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state);
+            Serial.print(F(" and should be ")); Serial.println(shouldBeOn);
+            
+            
+            // if schedule says should be open and is closed
+            if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
+              // send open signal
+              Valve_Command vc;
+              vc.whichValve = valve;
+              vc.onOrOff = ON;
+              vc.timeToLive = VALVE_COMMAND_TTL;
+              safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+            }
+            // else if schedule says should be closed and is open
+            else if(shouldBeOn == false && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == ON){
+              // send close signal
+              Valve_Command vc;
+              vc.whichValve = valve;
+              vc.onOrOff = OFF;
+              vc.timeToLive = VALVE_COMMAND_TTL;
+              safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+            }
+            // else the state is as it should be
           }
-          // else if schedule says should be closed and is open
-          else if(shouldBeOn == false && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == ON){
-            // send close signal
-            Valve_Command vc;
-            vc.whichValve = valve;
-            vc.onOrOff = OFF;
-            vc.timeToLive = VALVE_COMMAND_TTL;
-            safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
-          }
-          // else the state is as it should be
         }
       }
       // else node is not connected to mesh
@@ -1449,7 +1455,29 @@ void updateGardenStatus(){
 
   //////////// CHECK 3G CONNECTION //////////// 
    
-  // Handled elsewhere based on modem response
+  // gardenStatus.threeGState is updated elsewhere based on modem response
+
+  // check if has been in TR_G_ERROR state for TIME_TILL_3G_ERR consecutive minutes
+  static time_t threeGDisconnectedTimer = 0;
+  if(gardenStatus.threeGState == TR_G_ERROR){
+    // if first time have seen this issue, record the time
+    if(threeGDisconnectedTimer == 0){
+      threeGDisconnectedTimer = now();
+    }
+    // else check if is late enough to send the alert
+    // resends the alert every 24 hours
+    else if((now() - (threeGDisconnectedTimer + TIME_TILL_3G_ERR*60))%(24*60*60) < TIMER1_PERIOD/1000000){
+      checkSMSAlerts(SERVER_COMM_DOWN, 0);
+    }
+  }
+  else{
+    // if already sent an alert, send a "fixed" alert
+    if(threeGDisconnectedTimer != 0 &&
+       now() > threeGDisconnectedTimer + TIME_TILL_3G_ERR*60){
+      checkSMSAlerts(SERVER_COMM_DOWN, 0);
+    }
+    threeGDisconnectedTimer = 0;
+  }
   
   
   //////////// CHECK NODE_STATUSES ////////////
@@ -1566,7 +1594,7 @@ void updateGardenStatus(){
   if(hour() > 0 || calledIsNewDay == true){
     gardenStatus.percentAwake = (gardenStatus.percentAwake * (statusCounter-1) + (gardenStatus.isAwake ? 100 : 0))/statusCounter;
   }
-  bool threeGGood = (gardenStatus.threeGState != TR_G_DISCONNECTED);
+  bool threeGGood = (gardenStatus.threeGState != TR_G_ERROR);
   gardenStatus.percent3GUptime = (gardenStatus.percent3GUptime * (statusCounter-1) + (threeGGood ? 100 : 0))/statusCounter;
   bool meshGood = (gardenStatus.meshState == MESH_ALL_NODES_GOOD);
   gardenStatus.percentMeshUptime = (gardenStatus.percentMeshUptime * (statusCounter-1) + (meshGood ? 100 : 0))/statusCounter;
@@ -1596,7 +1624,7 @@ void printGardenStatus(){
   Serial.println(F("%"));
 
   // print mesh stuff
-  Serial.print(F("Mesh status  : ")); 
+  Serial.print(F("Mesh status  : "));
   Serial.print(gardenStatus.numConnectedNodes); Serial.print(F("/"));
   Serial.print(gardenStatus.numRegisteredNodes); Serial.print(F("            : "));
   if(gardenStatus.meshState == MESH_ALL_NODES_GOOD){
@@ -1616,12 +1644,12 @@ void printGardenStatus(){
 
   // print 3G stuff
   Serial.print(F("3G status    : ")); 
-  if(gardenStatus.threeGState != TR_G_DISCONNECTED){
+  if(gardenStatus.threeGState != TR_G_ERROR){
     Serial.print(F("connected (")); Serial.print(gardenStatus.threeGState); 
     Serial.println(F(")  : good"));
   }
   else{
-    Serial.println(F("DISCONNECTED"));
+    Serial.println(F("CANNOT CONNECT"));
   }
   Serial.print(F("3G uptime    : ")); 
   Serial.print(gardenStatus.percent3GUptime); Serial.println(F("%"));
@@ -2087,20 +2115,25 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
       }
       break;
 
+    case SERVER_COMM_DOWN:
+      if(gardenStatus.threeGState == TR_G_ERROR){
+        myAlert += "the gateway cannot connect to the server. If this issue persists, ";
+        myAlert += "please cycle power on the server.";
+      }
+      else{
+        myAlert += "the gateway-server connection issue has been resolved.";
+      }
+      break;
+      
     default:
       break;
   }
   // debug
   Serial.println();
   Serial.print(myAlert);
-  Serial.println("");
-
-  // send SMS message via modem
-
-
+  Serial.println();
 
   // send SMS message via modem if have a number
-
   if(strcmp(gardenStatus.phoneNum, "0000000000") != 0){  
     // put modem into text mode
     Modem_Serial.println("AT+CMGF=1");
@@ -2262,6 +2295,7 @@ void setup(){
   
   openSocket();
   boolean setupDone = false;
+  uint8_t connectTries = 1;
   while(!setupDone) {
     while(Modem_Serial.available()) {
       getModemResponse();
@@ -2269,9 +2303,19 @@ void setup(){
         gardenStatus.threeGState = TR_G_CONNECTED;
         Serial.println("");
         setupDone = true;
-      } else if (currentString == "ERROR") {
-        gardenStatus.threeGState = TR_G_DISCONNECTED;
-        openSocket();
+      } 
+      else if (currentString == "ERROR") {
+        gardenStatus.threeGState = TR_G_ERROR;
+        if(connectTries < THREE_G_COMM_TRIES){
+          connectTries++;
+          openSocket();
+        }
+        else{
+          connectTries = 0;
+          Serial.print(F("\nCould not connect. Trying again in "));
+          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes\n"));
+          delay(THREE_G_SLEEP_PERIOD);
+        }
       }
     }
   }
@@ -2333,13 +2377,19 @@ void loop() {
     }
   }
 
-  // reprovision socket dial when 3G is disconnected
-  if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
-    openSocket();
-  }
+//  // reprovision socket dial when 3G is disconnected
+//  if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
+//    openSocket();
+//  }
 
   // update node status if necessary
   if(updateStatusFlag){
+    // reprovision/retest socket dial if 3G is cannot connect
+    if(gardenStatus.threeGState == TR_G_ERROR){
+      openSocket();
+      Serial.println();
+    }
+    
     updateGardenStatus();
     printGardenStatus();
     

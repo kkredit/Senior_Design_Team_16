@@ -122,6 +122,7 @@ struct Garden_Status{
 #define TR_G_GARDEN_OFF       7
 #define TR_G_NO_EVENTS        8
 #define TR_G_ALERT_SETTING    9
+#define TR_G_ERROR            10
 // meshStates
 #define MESH_ALL_NODES_GOOD   0
 #define MESH_NOT_BEGAN        1
@@ -167,7 +168,7 @@ struct Garden_Status{
 
 
 // alert engine op codes
-//////// TEST RESULTS //////////////    Sends       Sends at correct time        Sends without duplicates
+//////// TEST RESULTS //////////////    Sends       Sends at correct time   Sends without duplicates
 #define DAILY_REPORT          00  //    yes               yes                         yes
 #define BAD_FLOW_RATE         01  //    yes               yes                         yes    
 #define MESH_DOWN             02  //    yes               yes                         yes
@@ -175,21 +176,28 @@ struct Garden_Status{
 #define BAD_VOLTAGE_STATE     04  //    yes               yes                         yes
 #define GARDEN_TOGGLE         05  //    yes               yes                         yes  
 #define INCOMPLETE_JSON       06
+#define SERVER_COMM_DOWN      07
 
 // other settings
 #define ON                    true
 #define OFF                   false
 #define ALL_VALVES            5
-#define BAUD_RATE             9600    // serial communication baud rate
-#define TIMER1_PERIOD         5000000 /* 5s */ // timer period in microseconds (1000000 = 1 sec)
-#define RATE_MEASURING_PERIOD 5000    // number of ms over which to collect flowrate data
-#define VIN_EEPROM_ADDR       0       // address of the input voltage reading in EEPROM
-#define RESET_EEPROM_ADDR     4       // address of the toldToReset bool in EEPROM
-#define ACC_FLOW_EEPROM_ADDR  8       // address of accumulatedFlow float in EEPROM
-#define OK_VIN_RANGE          0.15    // amount that VIN can vary without generating an error
-#define OK_VIN_DROP_PER_ZONE  1.5     // amount that VIN is allowed to drop per add'l open valve
-#define MIN_MEASUREABLE_GPM   0.2642  // is 1 LPM, minimum measuring threshold for our meter 
-                                      //  also serves as max ok leakage rate
-#define MAX_MEASUREABLE_GPM   7.92516 // is 29 LPM, maximumm measureing threshold for our meter
+#define BAUD_RATE             9600      // serial communication baud rate
+#define TIMER1_PERIOD         5000000   /* 5s */ // timer period in microseconds (1000000 = 1 sec)
+#define RATE_MEASURING_PERIOD 5000      // number of ms over which to collect flowrate data
+#define VIN_EEPROM_ADDR       0         // address of the input voltage reading in EEPROM
+#define RESET_EEPROM_ADDR     4         // address of the toldToReset bool in EEPROM
+#define ACC_FLOW_EEPROM_ADDR  8         // address of accumulatedFlow float in EEPROM
+#define OK_VIN_RANGE          0.15      // amount that VIN can vary without generating an error
+#define OK_VIN_DROP_PER_ZONE  1.5       // amount that VIN is allowed to drop per add'l open valve
+#define MIN_MEASUREABLE_GPM   0.2642    // is 1 LPM, minimum measuring threshold for our meter 
+                                        //  also serves as max ok leakage rate
+#define MAX_MEASUREABLE_GPM   7.92516   // is 29 LPM, maximumm measureing threshold for our meter
 #define FLOW_RATE_SAMPLE_SIZE 100
-#define VALVE_COMMAND_TTL     5       // number of tries to execute a valve command
+#define VALVE_COMMAND_TTL     5         // number of tries to execute a valve command
+#define TIME_TILL_3G_ERR      15        // time that the gateway is disconnected from the serverIP
+                                        //    before it throws an error (in minutes)
+#define THREE_G_COMM_TRIES    5         // number of times that the gateway tries to connect to the
+                                        //    before is goes to sleep 
+#define THREE_G_SLEEP_PERIOD  (5*60000) // the time (in ms) that the gateway sleeps between tries to
+                                        //    connect to the server
