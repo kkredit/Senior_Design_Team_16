@@ -421,11 +421,7 @@ void disconnectModem() {
       } 
     } 
   }
-<<<<<<< HEAD
   while(PrintModemResponse() > 0);
-=======
-  while(PrintModemResponse() > 0); 
->>>>>>> e558c56495af6aa5938f9f9fc7f7f3830fef629b
 }
 
 
@@ -467,8 +463,8 @@ void socketAccept() {
  * @return: an operation code (uint8_t) defined in SharedDefinitions.h
  */
 uint8_t decodeModemResponse() {
-//  while(Modem_Serial.available() > 0) {
   getModemResponse();
+  
   // connection error
   if (currentString == "ERROR") {
     return TR_G_ERROR;
@@ -558,7 +554,6 @@ uint8_t decodeModemResponse() {
   if (currentString == "NO CARRIER") {
     return TR_G_DISCONNECTED;
   }
-//  }
 
   return TR_G_NO_RESPONSE; // else modem has no response yet
 }
@@ -572,6 +567,7 @@ uint8_t decodeModemResponse() {
  * @postconditions: the corresponding action is executed
 */
 void handleModemOperation(uint8_t modemMode) {
+  
   switch(modemMode) {
 
     case TR_G_DISABLE_INT:
@@ -677,7 +673,6 @@ void handleModemOperation(uint8_t modemMode) {
       // UNUSED
       break;
   }
-  
   currentString = "";
 }
 
