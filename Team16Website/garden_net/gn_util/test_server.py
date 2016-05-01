@@ -12,6 +12,7 @@
 	then restarts the server. Once all of that is complete, this script
 	rights the log file the time that the server restarted
 """
+
 # Third party Imports
 import socket
 import subprocess

@@ -9,6 +9,7 @@
 	Database and any other classes that are linked to it as well.
 
 """
+
 # Third Party Imports
 from sqlalchemy import Column, Integer, Sequence
 

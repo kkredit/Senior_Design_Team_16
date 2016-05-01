@@ -70,10 +70,21 @@ class Report():
 				Alert(TEXT)
 		# if opcode is 02 we have an alert that the mesh network has gone down
 		elif self._opcode == "02":
+			mesh_status = value.split('%')[1]
+			mesh_status_text = ""
+			if mesh_status == "0":
+				mesh_status_text = "All nodes are correctly functioning."
+			elif mesh_status == "1":
+				mesh_status_text = "The mesh did not begin correctly."
+			elif mesh_status == "2":
+				mesh_status_text = "Some of the nodes are reported to be down."
+			elif mesh_status == "3":
+				mesh_status_text = "All of the nodes have been reported as down."
 			# set the text for the email
 			TEXT = "Hello GardeNet User," \
-				"\n\nYour gateway has reported that the radio network has gone down and is not " \
-							"correctly communicating with the nodes.\n\nRegards, \nGardeNet"
+				"\n\nYour gateway has reported a radio network issue. The message received from " \
+				   "the gateway was:\n\n" + mesh_status_text + "\n\nRegards, \nGardeNet"
+			print(TEXT)
 			# if the user has signed up for this alert
 			if str(alert_settings[3]).split('\t')[2].split('\n')[0].upper() == "TRUE":
 				# send the email
@@ -105,6 +116,13 @@ class Report():
 			if str(alert_settings[1]).split('\t')[2].split('\n')[0].upper() == "TRUE":
 				# send the email
 				Alert(TEXT)
+		elif self._opcode == "05":
+			power_file = open("garden_power_status.txt", "w")
+			power_status = value.split('%')[1]
+			if power_status == "0":
+				power_file.write("OFF")
+			elif power_status == "1":
+				power_file.write("ON")
 """
 	This class is used to take the information from a general report that the
 	gateway sends and format the data so that the website can read the file
@@ -295,3 +313,4 @@ if __name__ == "__main__":
 	#print(it._percent3GUpTime)
 	#it = Report("00%100.00%77.78%100.00%{%1%0%100.00%0.00%0%[%1%0.00]%[%2%0.00]%[%3%0.00]%}")
 	#print(str(r))
+	Report("05%0")
