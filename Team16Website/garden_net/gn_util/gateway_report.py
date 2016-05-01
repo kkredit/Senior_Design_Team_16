@@ -55,16 +55,21 @@ class Report():
 			status = value.split('%')[2]
 			currentFlowRate = value.split('%')[3]
 			# determine if stuck on or off
-			if status == "5":
-				status_text = "stuck on"
-			else:
+			if status == "1":
+				status_text = "correctly not allowing water to flow"
+			elif status == "2":
+				status_text = "correctly allowing water to flow"
+			elif status == "5":
 				status_text = "stuck off"
+			elif status == "6":
+				status_text = "stuck on"
 			# Set the text for the Alert email
 			TEXT = "Hello GardeNet User," \
-							"\n\nIt seems that your gateway has notified the alert system that node " + node + \
+							"\n\nYour gateway has notified the alert system that node " + node + \
 							" is " + status_text + " and is recording a flow rate of: " + currentFlowRate + \
-							".\n\nRegards, \nGardeNet"
+							" GPM.\n\nRegards, \nGardeNet"
 			#check if the user has selected to be notified for this alert
+			print(TEXT)
 			if str(alert_settings[0]).split('\t')[2].split('\n')[0].upper() == "TRUE":
 				# send the email if the user has selected this alert
 				Alert(TEXT)
@@ -75,16 +80,16 @@ class Report():
 			if mesh_status == "0":
 				mesh_status_text = "All nodes are correctly functioning."
 			elif mesh_status == "1":
-				mesh_status_text = "The mesh did not begin correctly."
+				mesh_status_text = "The radio network did not begin correctly."
 			elif mesh_status == "2":
 				mesh_status_text = "Some of the nodes are reported to be down."
 			elif mesh_status == "3":
 				mesh_status_text = "All of the nodes have been reported as down."
 			# set the text for the email
 			TEXT = "Hello GardeNet User," \
-				"\n\nYour gateway has reported a radio network issue. The message received from " \
+				"\n\nYour gateway has reported a status update of the radio network. The message received from " \
 				   "the gateway was:\n\n" + mesh_status_text + "\n\nRegards, \nGardeNet"
-			print(TEXT)
+			#print(TEXT)
 			# if the user has signed up for this alert
 			if str(alert_settings[3]).split('\t')[2].split('\n')[0].upper() == "TRUE":
 				# send the email
@@ -104,7 +109,9 @@ class Report():
 			node = value.split('%')[1]
 			voltageState = value.split('%')[2]
 			# determine the voltage level issue
-			if voltageState == "1":
+			if voltageState == "0":
+				voltageState_text = "proper"
+			elif voltageState == "1":
 				voltageState_text = "low"
 			else:
 				voltageState_text = "high"
@@ -313,4 +320,4 @@ if __name__ == "__main__":
 	#print(it._percent3GUpTime)
 	#it = Report("00%100.00%77.78%100.00%{%1%0%100.00%0.00%0%[%1%0.00]%[%2%0.00]%[%3%0.00]%}")
 	#print(str(r))
-	Report("05%0")
+	Report("01%2%2%5.00")

@@ -15,7 +15,7 @@
 # Third Party Imports
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import and_, exists
+from sqlalchemy import and_, or_, exists
 
 # Local Imports
 from base import Base, Meta
@@ -99,7 +99,7 @@ class Database:
 		@:return: returns a list of the events on the given day
 	"""
 	def get_all_events_on_day(self, day: str):
-		if self.session.query(Event).filter(Event._day == day).all():
+		if self.session.query(Event).filter(or_(Event._day == day, Event._day == "Everyday")).all():
 			return sort_event_list(self.session.query(Event).filter(Event._day == day).all())
 		else:
 			raise ValueError("That day does not exist in the database")
@@ -128,8 +128,8 @@ class Database:
 	def get_events_on_day_for_zone(self, day, zone: int):
 		# for zone in zone_query:
 		# 	print(zone)
-		if self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)).all():
-			return sort_event_list(self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)).all())
+		if self.session.query(Event).filter(and_(Event._owner == zone, or_(Event._day == day, Event._day == "Everyday"))).all():
+			return sort_event_list(self.session.query(Event).filter(and_(Event._owner == zone, or_(Event._day == day, Event._day == "Everyday"))).all())
 		elif len(self.session.query(Event).filter(Event._owner == zone).all()) == 0:
 			raise KeyError("Zone does not exist")
 		elif len(self.session.query(Event).filter(and_(Event._owner == zone, Event._day == day)).all()) == 0:
