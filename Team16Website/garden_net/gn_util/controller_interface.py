@@ -307,6 +307,7 @@ def get_todays_schedule():
 			print(item)
 	send_event(True)
 
+<<<<<<< HEAD
 
 def convert_to_zero_or_one(value: str):
 	if value == "true":
@@ -314,6 +315,8 @@ def convert_to_zero_or_one(value: str):
 	else:
 		return "0"
 
+=======
+>>>>>>> fb34664e732de5699a4096ba39a07169c024e7e1
 """
 #######################################################################################################################
 """
@@ -412,6 +415,7 @@ while True:
 			status_client.close()
 			if args.verbose:
 				print("Closed the test garden_power_status.txt")
+<<<<<<< HEAD
 		elif sock == demo_one_socket:
 			if args.verbose:
 				print("Got a connection from the demo1")
@@ -446,6 +450,8 @@ while True:
 				string += line
 			create_event_list(string)
 			send_event(True)
+=======
+>>>>>>> fb34664e732de5699a4096ba39a07169c024e7e1
 		elif sock == ipc_socket:
 			if args.verbose:
 				print("Got a connection from myself")
@@ -480,9 +486,33 @@ while True:
 				f2.write(file_data)
 				f2.close()
 
+<<<<<<< HEAD
 				get_todays_schedule()
 				print("The length of the event list is: " + str(len(EVENT_LIST)))
 
+=======
+				# broadcast(converted, SOCKET_LIST)
+				# broadcast(file_data, SOCKET_LIST)
+				# if args.verbose:
+				# 	print("Creating the event list")
+				# # for item in EVENT_LIST:
+				# # 	EVENT_LIST.remove(item)
+				# # create_event_list(converted)
+				# if args.verbose:
+				# 	print("Event list created")
+				# # send_event()
+				# if args.verbose:
+				# 	for event in EVENT_LIST:
+				# 		print(str(event))
+				get_todays_schedule()
+				print("The length of the event list is: " + str(len(EVENT_LIST)))
+				# send_event(True)
+				# sock.close()
+				# print(file_data)
+				# broadcast(file_data, SOCKET_LIST)
+				# print(file_data)
+				# broadcast(file_data, SOCKET_LIST)
+>>>>>>> fb34664e732de5699a4096ba39a07169c024e7e1
 		try:
 			data = sock.recv(RECV_BUFFER)
 			if data:

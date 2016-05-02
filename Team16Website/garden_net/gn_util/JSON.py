@@ -228,5 +228,8 @@ if __name__ == "__main__":
 	convert = JSON_Interface()
 	converted = convert.all_events_from_DB_to_JSON(db)
 	#print(converted)
+<<<<<<< HEAD
 
+=======
+>>>>>>> fb34664e732de5699a4096ba39a07169c024e7e1
 
