@@ -704,6 +704,7 @@ void handleModemOperation(uint8_t modemMode) {
     case DEMO1:
       forDemo.mode = 1;
       parseDemoOneSetting();
+      checkSchedule();
     break;
 
     // DEMO2: the same as a normal schedule?
@@ -1119,7 +1120,7 @@ void checkSchedule(){
     if(gardenStatus.nodeStatusPtrs[1]->valveStates[2].state != forDemo.v2){
       // send open/close signal
       Valve_Command vc;
-      vc.whichValve = 1;
+      vc.whichValve = 2;
       vc.onOrOff = forDemo.v2;
       vc.timeToLive = VALVE_COMMAND_TTL;
       safeMeshWrite(mesh.getAddress(1), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
@@ -1128,7 +1129,7 @@ void checkSchedule(){
     if(gardenStatus.nodeStatusPtrs[1]->valveStates[3].state != forDemo.v3){
       // send open/close signal
       Valve_Command vc;
-      vc.whichValve = 1;
+      vc.whichValve = 3;
       vc.onOrOff = forDemo.v3;
       vc.timeToLive = VALVE_COMMAND_TTL;
       safeMeshWrite(mesh.getAddress(1), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
@@ -2092,7 +2093,7 @@ void parseDemoOneSetting() {
       } else {
         forDemo.v1 = false;
       }
-      Serial.print("V1 is ");
+      Serial.print("\nV1 is ");
       Serial.println(forDemo.v1);
     // valve 2
     } else if (i == 1) {
