@@ -47,6 +47,8 @@ from database import Database
 from event import Event
 from gateway_report import Report
 from socket import error as SocketError
+from weather_forecast import Forecast
+from zone import Zone
 import errno
 
 global last_message
@@ -69,6 +71,8 @@ db = Database(False)
 json_conversion = JSON_Interface()
 SOCKET_LIST = []
 EVENT_LIST = []
+forecast = Forecast()
+sending_todays_schedule = False
 
 # Parse the command line for the options on ways to run the script
 parser = argparse.ArgumentParser(description="A prattle server")
@@ -90,6 +94,44 @@ server_socket.listen(5)
 # Append it to the list for the select statement
 SOCKET_LIST.append(server_socket)
 server_socket.settimeout(0)
+
+# @demo_one_socket: Socket that listens for connections from the demo1 page
+demo_one_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+demo_one_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+host = socket.gethostname()
+demo_one_port = 5531
+if args.verbose:
+	print("The demo_one_socket port number for IPC communication is ", + demo_one_port)
+# Bind it to our host name
+demo_one_socket.bind(('localhost', demo_one_port))
+demo_one_socket.listen(5)
+# Append it to the list for the select statement
+SOCKET_LIST.append(demo_one_socket)
+
+# @demo_two_socket: Socket that listens for connections from the demo1 page
+demo_two_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+demo_two_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+host = socket.gethostname()
+demo_two_port = 5532
+if args.verbose:
+	print("The demo_two_socket port number for IPC communication is ", + demo_two_port)
+# Bind it to our host name
+demo_two_socket.bind(('localhost', demo_two_port))
+demo_two_socket.listen(5)
+# Append it to the list for the select statement
+SOCKET_LIST.append(demo_two_socket)
+
+# @garden_status_socket: Socket that listens to a connection from the slider
+garden_status_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+garden_status_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+garden_status_port = 5535
+# Bind it to the localhost for ipc communication
+garden_status_socket.bind(('localhost', garden_status_port))
+garden_status_socket.listen(5)
+if args.verbose:
+	print("The garden_status_socket port number for IPC communication is ", + garden_status_port)
+# Append it to the list for the select statement
+SOCKET_LIST.append(garden_status_socket)
 
 # @user_alert_socket: Socket that listens to a connection from the website
 user_alert_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -146,12 +188,13 @@ def broadcast(message: str, soc_list: list):
 	# iterate over the socket list
 	for s in soc_list:
 		# If the socket is not us, not the ipc_socket, or not the test_server_socket
-		if s != server_socket and s != ipc_socket and s != test_server_socket and s != user_alert_socket:
+		if s != server_socket and s != ipc_socket and s != test_server_socket and s != user_alert_socket\
+				and s != demo_one_socket and s != garden_status_socket and s != demo_two_socket:
 			# try to send the message
 			try:
 				# send the message to the controller
 				#encoded = base64.b64encode(message.encode('ascii'))
-				s.sendall(message.encode('utf'))
+				s.sendall(message.encode('utf-8'))
 				# close the socket
 				#s.close()
 				# remove it from our list
@@ -190,12 +233,9 @@ def create_event_list(json_str: str):
 					start_time = float(temp_start.replace(":", "."))
 					temp_stop = parsed[zone_string][event_string]['stop_time']
 					stop_time = float(temp_stop.replace(":", "."))
-					if (zone_id != i):
-						zone_id = i
 					valve = parsed[zone_string][event_string]['valve_num']
 					event = Event(start_time, stop_time, day, zone_id, valve)
 					EVENT_LIST.append(event)
-
 					# print(start_time)
 					# print(parsed[zone_string][event_string])
 					# print(event)
@@ -223,8 +263,8 @@ def send_event(begin_message):
 			time.sleep(5)
 			if args.verbose:
 				print("Successfully sent!")
-			if args.verbose:
-				print("Sent successfully ")
+			global sending_todays_schedule
+			sending_todays_schedule = True
 		elif begin_message:
 			begin = "START" + str(len(EVENT_LIST))
 			if args.verbose:
@@ -248,6 +288,31 @@ def send_event(begin_message):
 			if len(EVENT_LIST) == 0:
 				global last_message
 				last_message = True
+
+def get_todays_schedule():
+	day = forecast.get_current_day()
+	if args.verbose:
+		print("Today is " + day)
+	try:
+		events = db.get_all_events_on_day(day)
+	except Exception as e:
+		if args.verbose:
+			print(e)
+	if args.verbose:
+		print("Found " + str(len(events)) + " Events today.")
+	EVENT_LIST.clear()
+	for item in events:
+		EVENT_LIST.append(item)
+		if args.verbose:
+			print(item)
+	send_event(True)
+
+
+def convert_to_zero_or_one(value: str):
+	if value == "true":
+		return "1"
+	else:
+		return "0"
 
 """
 #######################################################################################################################
@@ -333,6 +398,54 @@ while True:
 			test.close()
 			if args.verbose:
 				print("Closed the test socket")
+		elif sock == garden_status_socket:
+			if args.verbose:
+				print("Got a connection from the slider")
+			status_client, status_addr = garden_status_socket.accept()
+			status_file = open("garden_power_status.txt", "r")
+			status = status_file.readline()
+			if args.verbose:
+				print("Sending: " + status)
+			broadcast(str(status), SOCKET_LIST)
+			if args.verbose:
+				print("Successfully sent!")
+			status_client.close()
+			if args.verbose:
+				print("Closed the test garden_power_status.txt")
+		elif sock == demo_one_socket:
+			if args.verbose:
+				print("Got a connection from the demo1")
+			demo1_client, demo1_addr = demo_one_socket.accept()
+			demo1_client.close()
+			demo1_file = open("demo1_file.txt", "r")
+			if args.verbose:
+				print("Closed demo1 socket")
+			demo1_file_contents = []
+			for line in demo1_file:
+				demo1_file_contents.append(line)
+			valve1 = str(demo1_file_contents[1]).split('\t')[0]
+			valve2 = str(demo1_file_contents[1]).split('\t')[1]
+			valve3 = str(demo1_file_contents[1]).split('\t')[2]
+			send_string = "DEMO1%"+convert_to_zero_or_one(valve1) + "%" + convert_to_zero_or_one(valve2) + "%" + convert_to_zero_or_one(valve3)
+			if args.verbose:
+				print("Sending: " + send_string)
+			broadcast(send_string, SOCKET_LIST)
+			if args.verbose:
+				print("Successfully sent!")
+		elif sock == demo_two_socket:
+			if args.verbose:
+				print("Got a connection from the demo2")
+			demo2_client, demo2_addr = demo_two_socket.accept()
+			demo2_client.close()
+			demo2_file = open("demo2_file.txt", "r")
+			if args.verbose:
+				print("Closed demo2 socket")
+			demo2_file = open("demo2_file.txt", "r")
+			string = ""
+			for line in demo2_file:
+				string += line
+			create_event_list(string)
+			send_event(True)
 		elif sock == ipc_socket:
 			if args.verbose:
 				print("Got a connection from myself")
@@ -367,26 +480,9 @@ while True:
 				f2.write(file_data)
 				f2.close()
 
-				# broadcast(converted, SOCKET_LIST)
-				# broadcast(file_data, SOCKET_LIST)
-				if args.verbose:
-					print("Creating the event list")
-				for item in EVENT_LIST:
-					EVENT_LIST.remove(item)
-				create_event_list(converted)
-				if args.verbose:
-					print("Event list created")
-				# send_event()
-				if args.verbose:
-					for event in EVENT_LIST:
-						print(str(event))
+				get_todays_schedule()
 				print("The length of the event list is: " + str(len(EVENT_LIST)))
-				send_event(True)
-				# sock.close()
-				# print(file_data)
-				# broadcast(file_data, SOCKET_LIST)
-				# print(file_data)
-				# broadcast(file_data, SOCKET_LIST)
+
 		try:
 			data = sock.recv(RECV_BUFFER)
 			if data:
@@ -394,15 +490,39 @@ while True:
 				if str(data.decode('utf-8')).upper() == "RESENDSCHEDULE":
 					if args.verbose:
 						print("I need to resend the schedule")
-						resend_port = 5538
-						try:
-							resend = socket.create_connection(('localhost', 5538))
-							if args.verbose:
-								print("Reconnecting to local host")
-						except:
-							if args.verbose:
-								print("Unable to connect")
-						resend.close()
+					resend_port = 5538
+					try:
+						resend = socket.create_connection(('localhost', resend_port))
+						if args.verbose:
+							print("Reconnecting to local host")
+					except:
+						if args.verbose:
+							print("Unable to connect")
+					resend.close()
+				elif str(data.decode('utf-8')).upper() == "SCHEDULE?":
+					if args.verbose:
+						print("Getting today's schedule")
+					get_todays_schedule()
+					if args.verbose:
+						print("Successfully sent today's schedule")
+				elif str(data.decode('utf-8')).upper() == "ALERT?":
+					if args.verbose:
+						print("Opening alert port")
+					awaken_alerts_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+					awaken_alerts_socket = socket.create_connection(('localhost', 5537))
+					awaken_alerts_socket.close()
+					if args.verbose:
+						print("Successfully sent alerts")
+				elif str(data.decode('utf-8')).upper() == "STATE?":
+					if args.verbose:
+						print("Sending the current state!")
+					state_file = open("garden_power_status.txt", "r")
+					state = state_file.readline().split("\n")[0]
+					if args.verbose:
+						print("Sending: " + state + " .........")
+					broadcast(str(state), SOCKET_LIST)
+					if args.verbose:
+						print("Successfully sent the state!")
 				else:
 					report = Report(data.decode('utf-8'))
 					if args.verbose:
@@ -415,4 +535,5 @@ while True:
 """
 #######################################################################################################################
 """
+
 

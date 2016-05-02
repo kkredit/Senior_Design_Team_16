@@ -123,13 +123,13 @@
 	<br/><br/><br/>
 	<div class="container">
 		<div class="card">
-			<h4 class="col s3" style="display:inline">FULL GARDEN SHUT  OFF</h4>
+			<h4 class="col s3" style="display:inline">Garden Power</h4>
 			<div class="switch right offset-s1">
 				<label>
-					Off
+					Sleep
 					<input id = "mySwitch" type="checkbox" onClick="switchCheck()">
 					<span class="lever" ></span>
-					On
+					Awake
 				</label>
 			</div>
 			<br/>
@@ -2773,8 +2773,8 @@
 									$('#zone2').text(event);
 									$('#2').html(event);
 								}else if(thingName=="Zone3"){
-								$('#zone3').text(event);
-								$('#3').html(event);
+									$('#zone3').text(event);
+									$('#3').html(event);
 								}else{
 									$('#zone4').text(event);
 									$('#4').html(event);
@@ -2800,15 +2800,26 @@
 								$("input[name='"+nextName+"']").val(event);
 							}
 						});
-					
+
 					});
 				});
+				
+				jQuery.get('../../garden_net/gn_util/garden_power_status.txt', function(data) {
+			   //process text file line by line
+
+			   var sw = (data == "true");
+			   $("#mySwitch").prop("checked", sw);
+
+			});
 			});
 
-		loadZonesandEvents();
+
+
+			loadZonesandEvents();
 
 
 		</script>
+
 		
 		<script src="../../js/materialize.min.js"></script>
 

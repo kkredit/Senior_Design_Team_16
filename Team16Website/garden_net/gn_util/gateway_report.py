@@ -69,7 +69,6 @@ class Report():
 							" is " + status_text + " and is recording a flow rate of: " + currentFlowRate + \
 							" GPM.\n\nRegards, \nGardeNet"
 			#check if the user has selected to be notified for this alert
-			print(TEXT)
 			if str(alert_settings[0]).split('\t')[2].split('\n')[0].upper() == "TRUE":
 				# send the email if the user has selected this alert
 				Alert(TEXT)
@@ -89,7 +88,6 @@ class Report():
 			TEXT = "Hello GardeNet User," \
 				"\n\nYour gateway has reported a status update of the radio network. The message received from " \
 				   "the gateway was:\n\n" + mesh_status_text + "\n\nRegards, \nGardeNet"
-			#print(TEXT)
 			# if the user has signed up for this alert
 			if str(alert_settings[3]).split('\t')[2].split('\n')[0].upper() == "TRUE":
 				# send the email
@@ -127,9 +125,9 @@ class Report():
 			power_file = open("garden_power_status.txt", "w")
 			power_status = value.split('%')[1]
 			if power_status == "0":
-				power_file.write("OFF")
+				power_file.write("false")
 			elif power_status == "1":
-				power_file.write("ON")
+				power_file.write("true")
 """
 	This class is used to take the information from a general report that the
 	gateway sends and format the data so that the website can read the file
