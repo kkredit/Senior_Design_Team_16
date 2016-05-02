@@ -27,14 +27,14 @@ z3 = Zone(3)
 db.add_zone(z)
 db.add_zone(z2)
 
-test_event0 = Event(3.0, 4.0, 'Everyday', 1, 1)
-test_event1 = Event(1.0, 2.0, 'Everyday', 1, 1)
-test_event2 = Event(2.0, 3.0, 'Everyday', 1, 1)
-test_event3 = Event(1.5, 2.5, 'Everyday', 1, 1)
-test_event4 = Event(1.0, 2.0, 'Everyday', 1, 2)
-test_event5 = Event(1.0, 2.0, 'Everyday', 1, 3)
-test_event6 = Event(1.5, 3.0, 'Everyday', 1, 3)
-test_event7 = Event(1.0, 2.0, 'Everyday', 1, 3)
+test_event0 = Event(3.0, 4.0, 'Sunday', 1, 1)
+test_event1 = Event(1.0, 2.0, 'Sunday', 1, 1)
+test_event2 = Event(2.0, 3.0, 'Sunday', 1, 1)
+test_event3 = Event(1.5, 2.5, 'Sunday', 1, 1)
+test_event4 = Event(1.0, 2.0, 'Sunday', 1, 2)
+test_event5 = Event(1.0, 2.0, 'Sunday', 1, 3)
+test_event6 = Event(1.5, 3.0, 'Sunday', 1, 3)
+test_event7 = Event(1.0, 2.0, 'Sunday', 1, 3)
 
 test_event8 = Event(3.0, 4.0, 'Everyday', 2, 1)
 test_event9 = Event(1.0, 2.0, 'Everyday', 2, 1)
@@ -135,13 +135,29 @@ else:
 		except:
 			break
 		zone += 1
+	while True:
+		try:
+			event_list = db.get_events_on_day_for_zone("Everyday", zone)
+			zone_obj = Zone(zone)
+			try:
+				db.get_events_on_day_for_zone("Everyday", zone+1)
+				it += json_convert.to_JSON(event_list, zone_obj, True)
+			except:
+				it += json_convert.to_JSON(event_list, zone_obj, False)
+		except:
+			break
+		zone += 1
 	it += "}"
 	f.write(it)
-	print(it)
+	#print(it)
 f.close()
 # try:
 # 	soc = socket.create_connection(('localhost', port))
 # except:
 # 	print("Unable to connect")
+# soc.close()
 
-soc.close()
+it = db.get_all_events_on_day("Tuesday")
+
+for nothing in it:
+	print(nothing)

@@ -123,8 +123,10 @@ class JSON_Interface:
 						#print(event)
 						try:
 							if str(event.start_time) != "0.0":
+								print("Adding: " + str(event))
 								db.add_event(event)
-						except:
+						except Exception as e:
+							print(e)
 							pass
 						j += 1
 					except(KeyError):
@@ -183,6 +185,8 @@ class JSON_Interface:
 					pass
 				try:
 					db.get_all_events_for_zone(i+1)
+					for item in events:
+						print(item)
 					string += self.to_JSON(events, Zone(i), True)
 				except:
 					string += self.to_JSON(events, Zone(i), False)
@@ -204,11 +208,26 @@ if __name__ == "__main__":
 	# json_string = json.to_JSON(list_e, z)
 	# print(json_string)
 
-	myjson = JSON_Interface()
-	name = 'input_JSON.txt'
+	# myjson = JSON_Interface()
+	# name = 'input_JSON.txt'
+	#
+	# string = myjson.from_JSON(name)
+	# parsed = json.loads(string)
+	#
+	# print(parsed['zone3']['event0']['day'])
 
-	string = myjson.from_JSON(name)
-	parsed = json.loads(string)
+	db = Database(False)
+	json_conversion = JSON_Interface()
+	ipc_file = "ipc_file.txt"
+	f = open(ipc_file, 'r')
+	file_data = ""
+	for line in f:
+		file_data += line
 
-	print(parsed['zone3']['event0']['day'])
+	db.clear_database()
+	json_conversion.create_events_from_JSON_string(file_data, db)
+
+	convert = JSON_Interface()
+	converted = convert.all_events_from_DB_to_JSON(db)
+	#print(converted)
 

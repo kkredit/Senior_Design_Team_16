@@ -32,9 +32,8 @@ port = 5539
 """
 def kill():
 	# Call the bashscript to restart the server
-	subprocess.call(['./server_script.sh'])
-	# get the current time and date
 	subprocess.call(['/var/www/Team16Website/garden_net/gn_util/server_script.sh'])
+	# get the current time and date
 	fmt = "%Y-%m-%d %H:%M:%S %Z%z"
 	now_time = datetime.datetime.now(timezone('US/Eastern'))
 	time = now_time.strftime(fmt)
@@ -51,16 +50,16 @@ try:
 except:
 	kill()
 
-print('Connected to the local host for IPC communication on port ', port, '.')
+#print('Connected to the local host for IPC communication on port ', port, '.')
 
 # Try to receive the message back from the server with a timeout of 10 seconds.
 try:
-	soc.settimeout(10)
+	soc.settimeout(20)
 	data = soc.recv(1024)
 	# if we got our response, go ahead and exit. Our work here is done
 	if data:
 		soc.close()
-		exit()
+		#exit()
 	# else kill it
 	else:
 		kill()
