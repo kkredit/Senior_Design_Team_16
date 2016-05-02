@@ -81,12 +81,14 @@ RF24Mesh mesh(radio, network);
 String currentString = "";
 String JSONString = "";
 String alertSetting = "";
+String demoString = "";
 
 // flags
 volatile bool hadButtonPress = false;
 volatile bool updateStatusFlag = false;
 volatile bool modemStartReceiving = false;
 volatile bool modemReceivingJSON = false;
+volatile bool gotAllEvents = false;
 bool sentNewDayAlertToNodes = false;
 bool calledIsNewDay = false;
 
@@ -355,8 +357,13 @@ void openFirewall() {
   Serial.print("AT#FRWL=1,\"");
   Serial.print((String) gardenStatus.serverIP);
   Serial.println("\",\"255.255.0.0\"");
-}
 
+//  Modem_Serial.print("AT#FRWL=1,\"");
+//  Modem_Serial.print((String) gardenStatus.serverIP);
+//  Modem_Serial.println("\",\"255.255.0.0\"");
+//  delay(500);
+//  while(PrintModemResponse() > 0);
+}
 
 
 /* 
@@ -495,6 +502,7 @@ uint8_t decodeModemResponse() {
 
   // change alert settings
   if (currentString.substring(currentString.length()-3, currentString.length()) == "SMS") {
+    alertSetting = "";
     bool getAlertSetting = false;
     while(!getAlertSetting) {
       int myByte = Modem_Serial.read();
@@ -523,6 +531,7 @@ uint8_t decodeModemResponse() {
         getJSON = true;
       }
     }
+    currentString = "";
     return TR_G_JSON;
   }
 
@@ -555,6 +564,24 @@ uint8_t decodeModemResponse() {
     return TR_G_DISCONNECTED;
   }
 
+  //////////////////////////////////////////////////////////////////////
+  //////////////////////////////// DEMO ////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
+  if (currentString.substring(currentString.length()-5 , currentString.length()) == "DEMO1") {
+    demoString = "";
+    bool getDemoString = false;
+    while(!getDemoString) {
+      int myByte = Modem_Serial.read();
+      if(myByte == '\n') {
+        getDemoString = true;
+      } else if (myByte != -1) {
+        demoString += char(myByte);
+      }
+    }
+    currentString = "";
+    return DEMO1;
+  } 
+
   return TR_G_NO_RESPONSE; // else modem has no response yet
 }
 
@@ -571,6 +598,7 @@ void handleModemOperation(uint8_t modemMode) {
   switch(modemMode) {
 
     case TR_G_DISABLE_INT:
+      forDemo.mode = 0; // turn off demo 1 mode
       Timer1.detachInterrupt();
       updateStatusFlag = false;
       Serial.println("");
@@ -584,6 +612,7 @@ void handleModemOperation(uint8_t modemMode) {
       if(eventCount == eventMaxCount) {
         Serial.println("");
         Serial.println("Schedules are all set!");
+        gotAllEvents = true;
         // check schedule now once
         if(gardenStatus.isAwake){
           checkSchedule();
@@ -594,8 +623,8 @@ void handleModemOperation(uint8_t modemMode) {
         Serial.println("I did not get all schedule events... Now request another schedule from the server...");
         Serial.print("I'm supposed to get "); Serial.print((String) eventMaxCount); Serial.print(" events; ");
         Serial.print("but got "); Serial.print((String) eventCount); Serial.println(" events.");        
-
-        // TODO send a request to the server to get a new schedule: RESENDSCHEDULE
+        gotAllEvents = false;
+        // send a request to the server to get a new schedule: RESENDSCHEDULE
         checkAlerts(INCOMPLETE_JSON, 0);
       }
       // reset counter
@@ -668,6 +697,16 @@ void handleModemOperation(uint8_t modemMode) {
     case TR_G_ERROR:
       gardenStatus.threeGState = TR_G_ERROR;
       break;
+
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////////////// DEMO ////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
+    case DEMO1:
+      forDemo.mode = 1;
+      parseDemoOneSetting();
+    break;
+
+    // DEMO2: the same as a normal schedule?
 
     default:
       // UNUSED
@@ -899,7 +938,7 @@ void handleButtonPress(){
 
   // Ignore if are in between getting final status and sending the report to the server
   // (it is in a psuedo-sleep, which we do not want to mess with)
-  if(hour() == 0 && calledIsNewDay == false){
+  if(!(hour() == 0 && calledIsNewDay == false)){
   
     Serial.println(F("\n[Detected buttonpress]"));
     
@@ -1554,7 +1593,8 @@ void updateGardenStatus(){
        checkSMSAlerts(MESH_DOWN, 0);
     }
   }
-  else if(gardenStatus.numConnectedNodes == 0){
+  else if(gardenStatus.numConnectedNodes == 0 &&
+          gardenStatus.numRegisteredNodes > 0){
     // check if is new error, but only call it error if has been so for TIME_TILL_MESH_ERR
     if(disconnectedCounter == 0){
       disconnectedCounter = now();
@@ -1612,10 +1652,10 @@ void printGardenStatus(){
 //  Serial.print(F("Time         : ")); digitalClockDisplay();
 //  Serial.print(F("\nDate         : ")); dateDisplay();
   Serial.println(); Serial.println(); digitalClockDisplay();
-  Serial.println(); dateDisplay();
+  Serial.println(); dateDisplay(); Serial.println();
 
   if(gardenStatus.isAwake == false) Serial.println(F("GARDEN IS IN STANDBY"));
-  Serial.print(F("\nTime Awake   : ")); Serial.print(gardenStatus.percentAwake); 
+  Serial.print(F("Time Awake   : ")); Serial.print(gardenStatus.percentAwake); 
   Serial.println(F("%"));
 
   // print mesh stuff
@@ -1919,6 +1959,7 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
 
   case GARDEN_TOGGLE:
     myAlert = "0" + (String) opcode;
+    myAlert += "%";
     myAlert += (String) gardenStatus.isAwake;
     break;
 
@@ -1936,6 +1977,10 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
   Serial.println("");
 
   sendAlertMessage(myAlert);
+
+  delay(1000);
+
+  while(PrintModemResponse() > 0);
 }
 
 
@@ -1951,10 +1996,6 @@ void sendAlertMessage(String myMessage) {
   Modem_Serial.print(myMessage);
   Modem_Serial.write(26);
   Modem_Serial.write('\r');
-
-  delay(1000);
-
-  while(PrintModemResponse() > 0);
 }
 
 
@@ -2023,6 +2064,56 @@ void parseAlertSetting() {
         gardenStatus.voltage_alert = false;
       }
       Serial.println(gardenStatus.voltage_alert);
+    }
+  }
+}
+
+void parseDemoOneSetting() {
+  int beginIdx = 0;
+  
+  // split the string by %
+  int idx = alertSetting.indexOf('%');
+  char charBuffer[16];
+  String arg;
+
+  for(int i = 0; i <= 2; i++) {
+    arg = alertSetting.substring(beginIdx, idx);
+
+    arg.toCharArray(charBuffer, 16);
+          
+    beginIdx = idx + 1;
+    idx = alertSetting.indexOf('%', beginIdx);
+
+    // valve 1
+    if (i == 0) {
+      uint8_t myValue = atoi(charBuffer);
+      if(myValue == 1) {
+        forDemo.v1 = true;
+      } else {
+        forDemo.v1 = false;
+      }
+      Serial.print("V1 is ");
+      Serial.println(forDemo.v1);
+    // valve 2
+    } else if (i == 1) {
+      uint8_t myValue = atoi(charBuffer);
+      if(myValue == 1) {
+        forDemo.v2 = true;
+      } else {
+        forDemo.v2 = false;
+      }
+      Serial.print("V2 is ");
+      Serial.println(forDemo.v2);
+    // valve 3
+    } else if (i == 2) {
+      uint8_t myValue = atoi(charBuffer);
+      if(myValue == 1) {
+        forDemo.v3 = true;
+      } else {
+        forDemo.v3 = false;
+      }
+      Serial.print("V3 is ");
+      Serial.println(forDemo.v3);
     }
   }
 }
@@ -2177,13 +2268,13 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
  * control the garden
 */
 void setupGarden() {
+  uint8_t tr_g_opmode = TR_G_NO_RESPONSE;
   // request alert setting from the server
   sendAlertMessage("ALERT?");
   bool alertGood = false;
   while(!alertGood) {
     while(Modem_Serial.available() > 0) {
-      getModemResponse();
-      uint8_t tr_g_opmode = decodeModemResponse();
+      tr_g_opmode = decodeModemResponse();
       if(tr_g_opmode == TR_G_ALERT_SETTING) {
         handleModemOperation(tr_g_opmode);
         alertGood = true;
@@ -2196,10 +2287,11 @@ void setupGarden() {
   bool scheduleGood = false;
   while(!scheduleGood) {
     while(Modem_Serial.available() > 0) {
-      getModemResponse();
-      uint8_t tr_g_opmode = decodeModemResponse();
-      handleModemOperation(tr_g_opmode);
-      if(eventCount == eventMaxCount && eventCount != 0) {
+      tr_g_opmode = decodeModemResponse();
+      if(tr_g_opmode != TR_G_NO_RESPONSE) {
+        handleModemOperation(tr_g_opmode);
+      }
+      if(tr_g_opmode == TR_G_ENABLE_INT && gotAllEvents) {
         scheduleGood = true;
       }
     }
@@ -2210,14 +2302,20 @@ void setupGarden() {
   bool stateGood = false;
   while(!stateGood) {
     while(Modem_Serial.available() > 0) {
-      getModemResponse();
-      uint8_t tr_g_opmode = decodeModemResponse();
+      tr_g_opmode = decodeModemResponse();
       if(tr_g_opmode == TR_G_GARDEN_ON || tr_g_opmode == TR_G_GARDEN_OFF) {
         handleModemOperation(tr_g_opmode);
         stateGood = true;
       }
     }
   }
+
+  // send modem IP address to server
+  String myIPAddr = "IP:";
+  myIPAddr += (String) gardenStatus.modemIP;
+  sendAlertMessage(myIPAddr);
+  delay(1000);
+  while(PrintModemResponse() > 0);
 }
 
 
@@ -2259,11 +2357,8 @@ void setup(){
   checkDataUsage();
   socketConfigs();
   getModemIP();
-  queryServerIP();
-<<<<<<< HEAD
-=======
-  openFirewall();
->>>>>>> f4c00af6361256331d9ea9c71d344d7899aa2706
+  // queryServerIP();
+  // openFirewall();
 
   // Setup mesh
   mesh.setNodeID(MASTER_NODE_ID);
@@ -2287,7 +2382,7 @@ void setup(){
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
-  setTime(1, 0, 45, 12, 4, 16);
+  // setTime(1, 0, 45, 12, 4, 16);
   
   openSocket();
   boolean setupDone = false;
@@ -2318,12 +2413,14 @@ void setup(){
 
   // notify the server about modem reset
   checkAlerts(GATEWAY_RESET, 0);
+
+  // request schedule, alert setting, and garden state from server
+  setupGarden();
+
   if (gardenStatus.reset_alert) {
     checkSMSAlerts(GATEWAY_RESET, 0);
   }
-
-  // request schedule, alert setting, and garden state from server
-  // setupGarden();
+  
   // suspendSocket();
 
   // enable self-reset
@@ -2445,5 +2542,6 @@ void loop() {
   // read in and respond to mesh messages
   readMeshMessages();
 }
+
 
 

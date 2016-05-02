@@ -123,6 +123,10 @@ struct Garden_Status{
 #define TR_G_NO_EVENTS        8
 #define TR_G_ALERT_SETTING    9
 #define TR_G_ERROR            10
+
+// demo
+#define DEMO1                 11
+
 // meshStates
 #define MESH_ALL_NODES_GOOD   0
 #define MESH_NOT_BEGAN        1
