@@ -24,7 +24,7 @@
 #include "RF24Mesh.h"
 #include <EEPROM.h>
 #include <TimerOne.h>
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/SharedDefinitions.h"
 
 // pins
 #define BUTTON    2
@@ -400,6 +400,9 @@ int8_t setValve(uint8_t whichValve, bool setTo){
  * @return bool: true means send success, false means send failure
  */ 
 bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t datasize, uint8_t timesToTry){  
+  // putting this here to see if it helps with mesh stability
+  mesh.update();
+  
   Serial.println();
 
   // If are trying to send status and were told of new day less than 5 minutes ago,
@@ -740,7 +743,7 @@ void printNodeStatus(){
       myStatus.valveStates[valve].state ? Serial.print(F("OPEN  ")) : Serial.print(F("closed"));
       if(myStatus.valveStates[valve].timeSpentWatering > 0){
         float minutes = myStatus.valveStates[valve].timeSpentWatering/60.0;
-        Serial.print(F("   : "));
+        Serial.print(F("   : on for "));
         Serial.print(minutes); Serial.println(F(" minutes today"));
       }
       else{

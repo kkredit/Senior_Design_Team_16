@@ -23,17 +23,6 @@ struct Valve_Status{
   uint32_t timeSpentWatering; // in seconds
 };
 
-// Valve_Response struct
-// essentially a combination of a command and a status
-// struct Valve_Response{
-  // bool nodeIsAwake;
-  // uint8_t whichValve;
-  // bool isConnected;
-  // bool commandedOnOrOff;
-  // int8_t actualState;
-  // uint8_t timeToLive;
-// };
-
 // Node_Status struct
 struct Node_Status{
   bool isAwake;

@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -1115,6 +1115,8 @@ void checkSchedule(){
   if(forDemo.mode == 1){
     // valve 1
     if(gardenStatus.nodeStatusPtrs[1]->valveStates[1].state != forDemo.v1){
+      Serial.print(F("Valve 1 is ")); Serial.print(gardenStatus.nodeStatusPtrs[1]->valveStates[1].state);
+      Serial.print(F(" and should be ")); Serial.println(forDemo.v1);
       // send open/close signal
       Valve_Command vc;
       vc.whichValve = 1;
@@ -1124,6 +1126,8 @@ void checkSchedule(){
     }
     // valve 2
     if(gardenStatus.nodeStatusPtrs[1]->valveStates[2].state != forDemo.v2){
+      Serial.print(F("Valve 2 is ")); Serial.print(gardenStatus.nodeStatusPtrs[1]->valveStates[2].state);
+      Serial.print(F(" and should be ")); Serial.println(forDemo.v2);
       // send open/close signal
       Valve_Command vc;
       vc.whichValve = 2;
@@ -1133,6 +1137,8 @@ void checkSchedule(){
     }
     // valve 3
     if(gardenStatus.nodeStatusPtrs[1]->valveStates[3].state != forDemo.v3){
+      Serial.print(F("Valve 3 is ")); Serial.print(gardenStatus.nodeStatusPtrs[1]->valveStates[3].state);
+      Serial.print(F(" and should be ")); Serial.println(forDemo.v3);
       // send open/close signal
       Valve_Command vc;
       vc.whichValve = 3;
@@ -1213,7 +1219,11 @@ void checkSchedule(){
  * 
  * @return bool: true means send success, false means send failure
  */ 
-bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t datasize, uint8_t timesToTry){  
+bool safeMeshWrite(uint8_t destination, void* payload, char header, uint8_t datasize, uint8_t timesToTry){
+  // putting these here to see if it helps with mesh stability
+  mesh.update();
+  mesh.DHCP();
+  
   // perform write
   if (!mesh.write(destination, payload, header, datasize)) {
     // if a write fails, check if have more tries
