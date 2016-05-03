@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -581,6 +581,8 @@ uint8_t decodeModemResponse() {
     currentString = "";
     return DEMO1;
   } 
+
+  Serial.println(currentString);
 
   return TR_G_NO_RESPONSE; // else modem has no response yet
 }
@@ -2271,6 +2273,7 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
  * control the garden
 */
 void setupGarden() {
+  
   uint8_t tr_g_opmode = TR_G_NO_RESPONSE;
   // request alert setting from the server
   sendAlertMessage("ALERT?");
@@ -2281,6 +2284,11 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_ALERT_SETTING) {
         handleModemOperation(tr_g_opmode);
         alertGood = true;
+      }
+      else if(tr_g_opmode == TR_G_DISCONNECTED){
+        Serial.println(F("Disconnected from the server, trying again in 5 minutes... "));
+        delay(5*60000);
+        setupGarden();
       }
     }
   }
@@ -2297,6 +2305,11 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_ENABLE_INT && gotAllEvents) {
         scheduleGood = true;
       }
+      else if(tr_g_opmode == TR_G_DISCONNECTED){
+        Serial.println(F("Disconnected from the server, trying again in 5 minutes... "));
+        delay(5*60000);
+        setupGarden();
+      }
     }
   }
 
@@ -2309,6 +2322,11 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_GARDEN_ON || tr_g_opmode == TR_G_GARDEN_OFF) {
         handleModemOperation(tr_g_opmode);
         stateGood = true;
+      }
+      else if(tr_g_opmode == TR_G_DISCONNECTED){
+        Serial.println(F("Disconnected from the server, trying again in 5 minutes... "));
+        delay(5*60000);
+        setupGarden();
       }
     }
   }
@@ -2407,7 +2425,7 @@ void setup(){
         else{
           connectTries = 0;
           Serial.print(F("\nCould not connect. Trying again in "));
-          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes\n"));
+          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
           delay(THREE_G_SLEEP_PERIOD);
         }
       }
