@@ -71,6 +71,7 @@ volatile uint16_t flowRatePos = 0;
 volatile bool hadButtonPress = false;
 volatile bool updateNodeStatusFlag = false;
 bool wasToldNewDayRecently = false;
+uint8_t changedValveRecently = 0;
 
 // other
 Node_Status myStatus;
@@ -351,6 +352,7 @@ void setLED(uint8_t setTo){
  *                       else returns the input values, setTo
  */ 
 int8_t setValve(uint8_t whichValve, bool setTo){
+  changedValveRecently = VALVE_VOLTAGE_WAIT;
   // check if valve is connected, then open/close and set state
   if(whichValve >= 1 && whichValve <= 4){
     if(myStatus.valveStates[whichValve].isConnected == false) return NO_VALVE_ERROR;
@@ -379,7 +381,7 @@ int8_t setValve(uint8_t whichValve, bool setTo){
 }
 
 
-/* 
+/*
  * safeMeshWrite()
  *
  * Performs mesh.writes, but adds reliability features, hence "safe". If mesh.write doesn't work, 
@@ -568,26 +570,15 @@ void updateNodeStatus(){
 
   //////////// CHECK INPUT VOLTAGE ////////////
 
-  // check input voltage if no valves are open (open valves descrease VIN, could give false error)
-//  if(myStatus.numOpenValves == 0){
-//    if(analogRead(VIN_REF) > myStatus.storedVIN*(1+OK_VIN_RANGE)){
-//      if(myStatus.voltageState != HIGH_VOLTAGE) sendToMasterFlag = true;
-//      myStatus.voltageState = HIGH_VOLTAGE;
-//    }
-//    else if (analogRead(VIN_REF) < myStatus.storedVIN*(1-OK_VIN_RANGE)){
-//      if(myStatus.voltageState != LOW_VOLTAGE) sendToMasterFlag = true;
-//      myStatus.voltageState = LOW_VOLTAGE;
-//    }
-//    else{ //if(myStatus.voltageState == HIGH_VOLTAGE || myStatus.voltageState == LOW_VOLTAGE)
-//      if(myStatus.voltageState != GOOD_VOLTAGE) sendToMasterFlag = true;
-//      myStatus.voltageState = GOOD_VOLTAGE;
-//    }
-//  }
   if(analogRead(VIN_REF) > myStatus.storedVIN*(1+OK_VIN_RANGE)){
     if(myStatus.voltageState != HIGH_VOLTAGE) sendToMasterFlag = true;
     myStatus.voltageState = HIGH_VOLTAGE;
   }
-  else if (analogRead(VIN_REF) < (myStatus.storedVIN-OK_VIN_DROP_PER_ZONE*myStatus.numOpenValves)*(1-OK_VIN_RANGE)){
+  else if (analogRead(VIN_REF) < (myStatus.storedVIN-OK_VIN_DROP_PER_ZONE*myStatus.numOpenValves)*(1-OK_VIN_RANGE)
+            && changedValveRecently == 0){
+    Serial.println(F("Low voltage: "));
+    Serial.print(F("reading:    ")); Serial.println(analogRead(VIN_REF));
+    Serial.print(F("threshold:  ")); Serial.println((myStatus.storedVIN-OK_VIN_DROP_PER_ZONE*myStatus.numOpenValves)*(1-OK_VIN_RANGE));
     if(myStatus.voltageState != LOW_VOLTAGE) sendToMasterFlag = true;
     myStatus.voltageState = LOW_VOLTAGE;
     // as safety feature, turn self asleep. Will try again tomorrow or upon reset.
@@ -684,7 +675,6 @@ void updateNodeStatus(){
 
   // update mesh address in case it changed
   int16_t tempvar = mesh.getAddress(myStatus.nodeID);
-  Serial.print(F("mesh address query result: ")); Serial.println(tempvar);
   // this sometimes fails, but does not mean disconnected; simply check to see it worked
   if(tempvar > 0) myStatus.nodeMeshAddress = tempvar;
 
@@ -705,6 +695,9 @@ void updateNodeStatus(){
     Serial.println(F("\nSTATUS HAS CHANGED: pushing my status to the master"));
     safeMeshWrite(MASTER_ADDRESS, &myStatus, SEND_NODE_STATUS_H, sizeof(myStatus), DEFAULT_SEND_TRIES); 
   }
+
+  // reset changed valve flag to false
+  if(changedValveRecently > 0) changedValveRecently--;
 }
 
 
