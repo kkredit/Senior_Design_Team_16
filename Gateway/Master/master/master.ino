@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/RadioWork/Shared/SharedDefinitions.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/RadioWork/Shared/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -234,11 +234,13 @@ void checkDataUsage() {
 */
 void socketConfigs() {
   // TCP socket 1: used for inbound connection
+  // set inactivity timeout to be 30 seconds?
   Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
   delay(1000);
   while(PrintModemResponse() > 0);
 
-  Modem_Serial.println("AT#SCFGEXT=1,2,0,10,0,0");
+  // choose data view mode and set the keepalive timeout period to 5 minutes?
+  Modem_Serial.println("AT#SCFGEXT=1,2,0,5,0,0");
   delay(1000);
   while(PrintModemResponse() > 0);
 
@@ -376,7 +378,7 @@ void openFirewall() {
 */
 void openSocket() {
   // initiate TCP socket dial in command mode
-  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",0,0,1");
+  Modem_Serial.println("AT#SD=1,0,5530,\"gardenet.ddns.net\",255,0,1");
 }
 
 
@@ -390,6 +392,8 @@ void openSocket() {
 */
 void suspendSocket() {
   Modem_Serial.println("+++");
+  delay(500);
+  while(PrintModemResponse() > 0);
 }
 
 
@@ -403,6 +407,8 @@ void suspendSocket() {
 */
 void restoreSocket() {
   Modem_Serial.println("AT#SO=1");
+  delay(500);
+  while(PrintModemResponse() > 0);
 }
 
 
@@ -581,8 +587,6 @@ uint8_t decodeModemResponse() {
     currentString = "";
     return DEMO1;
   } 
-
-  Serial.println(currentString);
 
   return TR_G_NO_RESPONSE; // else modem has no response yet
 }
@@ -1377,6 +1381,11 @@ void readMeshMessages(){
       network.read(header, &placeholder, sizeof(placeholder));
       Serial.println(F("Unknown message type."));
       break;
+    }
+
+    // if have a new node, check if it should be on
+    if(wasRegistered == false){
+      checkSchedule();
     }
   }
 }
@@ -2273,7 +2282,6 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
  * control the garden
 */
 void setupGarden() {
-  
   uint8_t tr_g_opmode = TR_G_NO_RESPONSE;
   // request alert setting from the server
   sendAlertMessage("ALERT?");
@@ -2284,11 +2292,6 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_ALERT_SETTING) {
         handleModemOperation(tr_g_opmode);
         alertGood = true;
-      }
-      else if(tr_g_opmode == TR_G_DISCONNECTED){
-        Serial.println(F("Disconnected from the server, trying again in 5 minutes... "));
-        delay(5*60000);
-        setupGarden();
       }
     }
   }
@@ -2305,11 +2308,6 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_ENABLE_INT && gotAllEvents) {
         scheduleGood = true;
       }
-      else if(tr_g_opmode == TR_G_DISCONNECTED){
-        Serial.println(F("Disconnected from the server, trying again in 5 minutes... "));
-        delay(5*60000);
-        setupGarden();
-      }
     }
   }
 
@@ -2322,11 +2320,6 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_GARDEN_ON || tr_g_opmode == TR_G_GARDEN_OFF) {
         handleModemOperation(tr_g_opmode);
         stateGood = true;
-      }
-      else if(tr_g_opmode == TR_G_DISCONNECTED){
-        Serial.println(F("Disconnected from the server, trying again in 5 minutes... "));
-        delay(5*60000);
-        setupGarden();
       }
     }
   }
@@ -2425,7 +2418,7 @@ void setup(){
         else{
           connectTries = 0;
           Serial.print(F("\nCould not connect. Trying again in "));
-          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes\n"));
           delay(THREE_G_SLEEP_PERIOD);
         }
       }
@@ -2436,13 +2429,11 @@ void setup(){
   //checkAlerts(GATEWAY_RESET, 0);
 
   // request schedule, alert setting, and garden state from server
-  setupGarden();
+  // setupGarden();
 
-  if (gardenStatus.reset_alert) {
-    checkSMSAlerts(GATEWAY_RESET, 0);
-  }
-  
-  // suspendSocket();
+//  if (gardenStatus.reset_alert) {
+//    checkSMSAlerts(GATEWAY_RESET, 0);
+//  }
 
   // start listening for incoming connection on socket 2
 // socketListen();
@@ -2493,7 +2484,7 @@ void loop() {
     }
   }
 
-//  // reprovision socket dial when 3G is disconnected
+  // reprovision socket dial when 3G is disconnected
 //  if(gardenStatus.threeGState == TR_G_DISCONNECTED) {
 //    openSocket();
 //  }
@@ -2511,7 +2502,7 @@ void loop() {
     
     // reset the flag
     updateStatusFlag = false;
-  } 
+  }
 
   // check if need to open/close valves according to schedule
   // to occur at the beginning of each new minute
