@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/SharedDefinitions.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/SharedDefinitions.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/SharedDefinitions.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2
@@ -89,7 +89,9 @@ volatile bool updateStatusFlag = false;
 volatile bool modemStartReceiving = false;
 volatile bool modemReceivingJSON = false;
 volatile bool gotAllEvents = false;
-bool sentNewDayAlertToNodes = false;
+volatile bool doDailySchedule = true;
+volatile bool sentNewDayAlertToNodes = false;
+bool modemConnected = false;
 bool calledIsNewDay = false;
 
 // other
@@ -233,28 +235,22 @@ void checkDataUsage() {
  * This function configurates three of the modem's sockets to be used as TCP sockets
 */
 void socketConfigs() {
-  // TCP socket 1: used for inbound connection
+  // TCP socket 1: used for connection with server
   // set inactivity timeout to be 30 seconds?
   Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
+  // socket inactivity timeout sset to be 5 minutes?
+  // Modem_Serial.println("AT#SCFG=1,1,0,300,600,2");
   delay(1000);
   while(PrintModemResponse() > 0);
 
   // choose data view mode and set the keepalive timeout period to 5 minutes?
   Modem_Serial.println("AT#SCFGEXT=1,2,0,5,0,0");
+  // Modem_Serial.println("AT#SCFGEXT=1,2,0,0,0,0");
   delay(1000);
   while(PrintModemResponse() > 0);
 
-  // TCP socket 2: used for outbound connection
-  Modem_Serial.println("AT#SCFG=2,1,0,60,600,2");
-  delay(1000);
-  while(PrintModemResponse() > 0);
-
-  Modem_Serial.println("AT#SCFGEXT=2,0,0,0,0,0");
-  delay(1000);
-  while(PrintModemResponse() > 0);
-
-  // TCP socket 3: used for time initiation with NIST time server
-  Modem_Serial.println("AT#SCFG=3,1,0,10,600,2");
+  // TCP socket 2: used for time initiation with NIST time server
+  Modem_Serial.println("AT#SCFG=2,1,0,10,600,2");
   delay(1000);
   while(PrintModemResponse() > 0);
   
@@ -284,11 +280,13 @@ void getModemIP() {
         bool isIP = false;
         while(!isIP) {
           int myByte = Modem_Serial.read();
-          // Serial.write(incomingByte);
-          if(myByte == '\n') {
-            isIP = true;
-          } else if (myByte != '\"' && myByte != -1) {
-            queryString += char(myByte);
+          if(myByte != -1) {
+            Serial.write(myByte);
+            if(myByte == '\n') {
+              isIP = true;
+            } else if (myByte != '\"') {
+              queryString += char(myByte);
+            }
           }
         }
         queryString.toCharArray(gardenStatus.modemIP, 20);
@@ -643,16 +641,13 @@ void handleModemOperation(uint8_t modemMode) {
       break;
 
     case TR_G_JSON:
-      parseJSON();
-      eventCount += 1;
-      break;
+      createEvent();
+    break;
 
     case TR_G_GARDEN_ON:
       Serial.println("\nReceived 'Turn on' message from the server");
       gardenStatus.isAwake = true;
-   
-      // TODO disable scheduling based on weeklySchedule
-      break;
+    break;
 
     case TR_G_GARDEN_OFF:
       Serial.println("\nReceived 'Go to sleep' message from the server");
@@ -674,23 +669,20 @@ void handleModemOperation(uint8_t modemMode) {
           }
         }
       }    
-      break;
+    break;
 
     case TR_G_NO_EVENTS:
-      Serial.println("");
-      Serial.println("I need to diasble the next day's schedule events");
-
-      // TODO turn off all nodes and valves
-      // TODO disable the next day's schedule events
-      break;
+      Serial.println("\nDisable the next day's schedule events.");
+      doDailySchedule = false;
+    break;
 
     case TR_G_DISCONNECTED:
       gardenStatus.threeGState = TR_G_DISCONNECTED;
-      break;
+    break;
 
     case TR_G_CONNECTED:
       gardenStatus.threeGState = TR_G_CONNECTED;
-      break;
+    break;
 
     case TR_G_ALERT_SETTING:
       Serial.println("");
@@ -698,11 +690,11 @@ void handleModemOperation(uint8_t modemMode) {
 
       // parse alert setting
       parseAlertSetting();
-      break;
+    break;
 
     case TR_G_ERROR:
       gardenStatus.threeGState = TR_G_ERROR;
-      break;
+    break;
 
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////// DEMO ////////////////////////////////
@@ -717,7 +709,7 @@ void handleModemOperation(uint8_t modemMode) {
 
     default:
       // UNUSED
-      break;
+    break;
   }
   currentString = "";
 }
@@ -758,12 +750,12 @@ int PrintModemResponse() {
  *  line character is detected and the current message is not an exception
 */
 void getModemResponse() {
-  uint8_t incomingByte = Modem_Serial.read();
+  int incomingByte = Modem_Serial.read();
   Serial.write(incomingByte);
   // reset currentString at the end of a line if it is not a special case
   if(incomingByte == '\n') {
     currentString = "";
-  } else {
+  } else if (incomingByte != -1) {
     currentString += char(incomingByte);
   } 
 }
@@ -778,21 +770,6 @@ void getModemResponse() {
 // {"start_time" : "1.10", "stop_time" : "2.30", "day" : "Monday", "zone_ID" : "3"}
 // New JSON format: 
 // {"start_time" : "1.10", "stop_time" : "2.30", "day" : "Monday", "zone_ID" : "3", "valve_num" : "x" } ?
-
-/* 
- * parseJSON()
- * 
- * This function examines the global string variable, currentString, and determines the corresponding action:
- * set up a new schedule, turn on the entire garden, or turn off the entire garden
- * 
- * @preconditions: currentString contains a JSON string or is true/false
- * @postconditions: the event is added to the schedule using createEvent
-*/
-void parseJSON() {
-    Serial.println("");
-    Serial.println("I got a scheduling event!");
-    createEvent();
-}
 
 
 /*
@@ -849,7 +826,10 @@ void createEvent() {
     // valve #
     } else if (i == 19) {
       int myValve = atoi(charBuffer);
-      tempEvent.setValveNum(myValve);
+      if(myValve > 0) {
+        tempEvent.setValveNum(myValve);
+        eventCount += 1;
+      }
       break;
     }
   }
@@ -1152,52 +1132,87 @@ void checkSchedule(){
   // END OF DEMO SECTION ////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////
 
-  
-  // for each node
-  uint8_t node;
-  for(node=1; node<=16; node++){
-    // if registered
-    if(gardenStatus.nodeStatusPtrs[node] != NULL){
-      // if connected
-      if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
-        Serial.print(F("Checking node: ")); Serial.println(node);
-        // for each valve
-        uint8_t valve;
-        for(valve=1; valve<=4; valve++){
-          if(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].isConnected){
-            Serial.print(F("Checking valve: ")); Serial.println(valve);
-            bool shouldBeOn;
-            shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday()-1, hour(), minute(), node, valve);
-            Serial.print(F("Valve is ")); Serial.print(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state);
-            Serial.print(F(" and should be ")); Serial.println(shouldBeOn);
-            
-            
-            // if schedule says should be open and is closed
-            if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
-              // send open signal
-              Valve_Command vc;
-              vc.whichValve = valve;
-              vc.onOrOff = ON;
-              vc.timeToLive = VALVE_COMMAND_TTL;
-              safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+  else if(doDailySchedule) {
+    // for each node
+    uint8_t node;
+    for(node=1; node<=16; node++){
+      // if registered
+      if(gardenStatus.nodeStatusPtrs[node] != NULL){
+        // if connected
+        if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+          Serial.print(F("Checking node: ")); Serial.println(node);
+          // for each valve
+          uint8_t valve;
+          for(valve=1; valve<=4; valve++){
+            if(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].isConnected){
+              Serial.print(F("Checking valve: ")); Serial.println(valve);
+              bool shouldBeOn;
+              shouldBeOn = weeklySchedule.shouldValveBeOpen(weekday()-1, hour(), minute(), node, valve);
+              Serial.print(F("Valve is ")); Serial.print(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state);
+              Serial.print(F(" and should be ")); Serial.println(shouldBeOn);
+              
+              
+              // if schedule says should be open and is closed
+              if(shouldBeOn && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == OFF){
+                // send open signal
+                Valve_Command vc;
+                vc.whichValve = valve;
+                vc.onOrOff = ON;
+                vc.timeToLive = VALVE_COMMAND_TTL;
+                safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+              }
+              // else if schedule says should be closed and is open
+              else if(shouldBeOn == false && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == ON){
+                // send close signal
+                Valve_Command vc;
+                vc.whichValve = valve;
+                vc.onOrOff = OFF;
+                vc.timeToLive = VALVE_COMMAND_TTL;
+                safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+              }
+              // else the state is as it should be
             }
-            // else if schedule says should be closed and is open
-            else if(shouldBeOn == false && gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == ON){
-              // send close signal
-              Valve_Command vc;
-              vc.whichValve = valve;
-              vc.onOrOff = OFF;
-              vc.timeToLive = VALVE_COMMAND_TTL;
-              safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+          }
+        }
+        // else node is not connected to mesh
+      }
+      // else unregistered
+    }    
+  }
+
+  // else make sure all valves are off
+  else {
+    // for each node
+    uint8_t node;
+    for(node=1; node<=16; node++){
+      // if registered
+      if(gardenStatus.nodeStatusPtrs[node] != NULL){
+        // if connected
+        if(gardenStatus.nodeStatusPtrs[node]->meshState == MESH_CONNECTED){
+          Serial.print(F("Checking node: ")); Serial.println(node);
+          // for each valve
+          uint8_t valve;
+          for(valve=1; valve<=4; valve++){
+            if(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].isConnected){
+              Serial.print(F("Checking valve: ")); Serial.println(valve);
+              Serial.print(F("Valve is ")); Serial.print(gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state);
+              Serial.print(F(" and should be ")); Serial.println(doDailySchedule);
+              
+              // if valve is open
+              if( gardenStatus.nodeStatusPtrs[node]->valveStates[valve].state == ON){
+                // send close signal
+                Valve_Command vc;
+                vc.whichValve = valve;
+                vc.onOrOff = OFF;
+                vc.timeToLive = VALVE_COMMAND_TTL;
+                safeMeshWrite(mesh.getAddress(node), &vc, SET_VALVE_H, sizeof(vc), DEFAULT_SEND_TRIES);
+              }
             }
-            // else the state is as it should be
           }
         }
       }
-      // else node is not connected to mesh
     }
-    // else unregistered
-  }    
+  }
 }
 
 
@@ -1412,6 +1427,7 @@ void readMeshMessages(){
  */ 
 void isNewDay(){
   gardenStatus.isAwake = true;
+  doDailySchedule = true;
   checkAlerts(GARDEN_TOGGLE, 0);
   checkAlerts(DAILY_REPORT, 0);
   // resynchronize timer -- delay is so that do not have resource issue with modem
@@ -1453,11 +1469,15 @@ void isNewDay(){
   bool scheduleGood = false;
   while(!scheduleGood) {
     while(Modem_Serial.available() > 0) {
+      getModemResponse();
       tr_g_opmode = decodeModemResponse();
       if(tr_g_opmode != TR_G_NO_RESPONSE) {
         handleModemOperation(tr_g_opmode);
       }
+      
       if(tr_g_opmode == TR_G_ENABLE_INT && gotAllEvents) {
+        scheduleGood = true;
+      } else if (tr_g_opmode == TR_G_NO_EVENTS) {
         scheduleGood = true;
       }
     }
@@ -1758,7 +1778,7 @@ void printGardenStatus(){
 void timeInit() {
   int timeArray[6];
 
-  Modem_Serial.println("AT#SD=3,0,13,\"time.nist.gov\",0,0,0");
+  Modem_Serial.println("AT#SD=2,0,13,\"time.nist.gov\",0");
   delay(250);
 
   boolean timeGood = false;
@@ -1812,7 +1832,7 @@ void timeInit() {
       // reprovision if socket dial did not get proper response
       } else if (currentString == "NO CARRIER" && timeGood == false) {
         delay(1000);
-        Modem_Serial.println(F("AT#SD=3,0,13,\"time.nist.gov\",0,0,0"));
+        Modem_Serial.println(F("AT#SD=2,0,13,\"time.nist.gov\",0"));
       }
     } 
   }
@@ -2310,19 +2330,6 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
 */
 void setupGarden() {
   uint8_t tr_g_opmode = TR_G_NO_RESPONSE;
-  // request alert setting from the server
-  sendAlertMessage("ALERT?");
-  bool alertGood = false;
-  while(!alertGood) {
-    while(Modem_Serial.available() > 0) {
-      tr_g_opmode = decodeModemResponse();
-      if(tr_g_opmode == TR_G_ALERT_SETTING) {
-        handleModemOperation(tr_g_opmode);
-        alertGood = true;
-      }
-    }
-  }
-  
   // request a schedule from the server
   sendAlertMessage("SCHEDULE?");
   bool scheduleGood = false;
@@ -2332,11 +2339,16 @@ void setupGarden() {
       if(tr_g_opmode != TR_G_NO_RESPONSE) {
         handleModemOperation(tr_g_opmode);
       }
+      
       if(tr_g_opmode == TR_G_ENABLE_INT && gotAllEvents) {
+        scheduleGood = true;
+      } else if (tr_g_opmode == TR_G_NO_EVENTS) {
         scheduleGood = true;
       }
     }
   }
+
+  delay(2000);
 
   // request garden state from the server (awake / asleep)
   sendAlertMessage("STATE?");
@@ -2347,6 +2359,21 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_GARDEN_ON || tr_g_opmode == TR_G_GARDEN_OFF) {
         handleModemOperation(tr_g_opmode);
         stateGood = true;
+      }
+    }
+  }
+
+  delay(2000);
+
+  // request alert setting from the server
+  sendAlertMessage("ALERT?");
+  bool alertGood = false;
+  while(!alertGood) {
+    while(Modem_Serial.available() > 0) {
+      tr_g_opmode = decodeModemResponse();
+      if(tr_g_opmode == TR_G_ALERT_SETTING) {
+        handleModemOperation(tr_g_opmode);
+        alertGood = true;
       }
     }
   }
@@ -2418,12 +2445,13 @@ void setup(){
   Timer1.attachInterrupt(updateStatusISR);
 
   // setup time
-  timeInit();
+  //timeInit();
   
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
-  // setTime(1, 0, 45, 12, 4, 16);
+  // setTime(0, 1, 25, 12, 4, 16);
+  setTime(5, 58, 45, 12, 4, 16);
   
   openSocket();
   boolean setupDone = false;
@@ -2453,14 +2481,14 @@ void setup(){
   }
 
   // notify the server about modem reset
-  //checkAlerts(GATEWAY_RESET, 0);
+  // checkAlerts(GATEWAY_RESET, 0);
 
   // request schedule, alert setting, and garden state from server
-  // setupGarden();
+  setupGarden();
 
-//  if (gardenStatus.reset_alert) {
-//    checkSMSAlerts(GATEWAY_RESET, 0);
-//  }
+  if (gardenStatus.reset_alert) {
+    checkSMSAlerts(GATEWAY_RESET, 0);
+  }
 
   // start listening for incoming connection on socket 2
 // socketListen();
@@ -2498,9 +2526,9 @@ void loop() {
 
   //////////////////////// Time acceleration for testing /////////////////////////////
   // jump to 50 seconds
-//  if(second() > 0 && second() < 15 ){
-//    setTime(now()+50-second());
-//  }
+  if(second() > 0 && second() < 15 ){
+    setTime(now()+50-second());
+  }
   ////////////////////////////////////////////////////////////////////////////////////
 
   // Communication with server via 3G
@@ -2548,7 +2576,7 @@ void loop() {
 
   // at midnight, let the nodes know it is a new day and request status in preparation for daily report
   // also go into standby so don't turn on nodes and request statuses until the report is sent
-  if(hour() == 0 && minute() == 0 && second() == 0 && sentNewDayAlertToNodes == false) {
+  if(hour() == 0 && minute() == 0 && sentNewDayAlertToNodes == false) {
     Serial.println(F("\nIt is midnight; alerting the nodes and asking for final statuses"));
     uint8_t node;
     for(node=1; node<=16; node++){
