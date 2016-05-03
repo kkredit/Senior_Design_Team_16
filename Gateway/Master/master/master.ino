@@ -1402,6 +1402,7 @@ void readMeshMessages(){
  */ 
 void isNewDay(){
   gardenStatus.isAwake = true;
+  checkAlerts(GARDEN_TOGGLE, 0);
   checkAlerts(DAILY_REPORT, 0);
   // resynchronize timer -- delay is so that do not have resource issue with modem
   // timeInit();
@@ -1434,7 +1435,23 @@ void isNewDay(){
         }
       }
     }
-  }            
+  }    
+
+  uint8_t tr_g_opmode = TR_G_NO_RESPONSE;
+  // rupdate schedule
+  sendAlertMessage("SCHEDULE?");
+  bool scheduleGood = false;
+  while(!scheduleGood) {
+    while(Modem_Serial.available() > 0) {
+      tr_g_opmode = decodeModemResponse();
+      if(tr_g_opmode != TR_G_NO_RESPONSE) {
+        handleModemOperation(tr_g_opmode);
+      }
+      if(tr_g_opmode == TR_G_ENABLE_INT && gotAllEvents) {
+        scheduleGood = true;
+      }
+    }
+  }
 }
 
 
