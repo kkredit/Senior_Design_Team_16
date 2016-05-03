@@ -442,7 +442,7 @@ void disconnectModem() {
  * @postconditions: if an inbound connection request is present, it is accepted
 */
 void socketListen() {
-  Modem_Serial.println("AT#SL=1,1,3500,0");
+  Modem_Serial.println("AT#SL=2,1,3500,0");
 }
 
 
@@ -455,7 +455,7 @@ void socketListen() {
  * @postconditions: the connection request is accepted
 */
 void socketAccept() {
-  Modem_Serial.println("AT#SA=1,1");
+  Modem_Serial.println("AT#SA=2,1");
 }
 
 
@@ -1658,6 +1658,7 @@ void printGardenStatus(){
   Serial.println(); dateDisplay(); Serial.println();
 
   if(gardenStatus.isAwake == false) Serial.println(F("GARDEN IS IN STANDBY"));
+  if(forDemo.mode == 1) Serial.println(F("Demo 1 mode"));
   Serial.print(F("Time Awake   : ")); Serial.print(gardenStatus.percentAwake); 
   Serial.println(F("%"));
 
@@ -2072,23 +2073,24 @@ void parseAlertSetting() {
 }
 
 void parseDemoOneSetting() {
+  
   int beginIdx = 0;
   
   // split the string by %
-  int idx = alertSetting.indexOf('%');
+  int idx = demoString.indexOf('%');
   char charBuffer[16];
   String arg;
 
-  for(int i = 0; i <= 2; i++) {
-    arg = alertSetting.substring(beginIdx, idx);
+  for(int i = 0; i <= 3; i++) {
+    arg = demoString.substring(beginIdx, idx);
 
     arg.toCharArray(charBuffer, 16);
           
     beginIdx = idx + 1;
-    idx = alertSetting.indexOf('%', beginIdx);
+    idx = demoString.indexOf('%', beginIdx);
 
     // valve 1
-    if (i == 0) {
+    if (i == 1) {
       uint8_t myValue = atoi(charBuffer);
       if(myValue == 1) {
         forDemo.v1 = true;
@@ -2098,7 +2100,7 @@ void parseDemoOneSetting() {
       Serial.print("\nV1 is ");
       Serial.println(forDemo.v1);
     // valve 2
-    } else if (i == 1) {
+    } else if (i == 2) {
       uint8_t myValue = atoi(charBuffer);
       if(myValue == 1) {
         forDemo.v2 = true;
@@ -2108,7 +2110,7 @@ void parseDemoOneSetting() {
       Serial.print("V2 is ");
       Serial.println(forDemo.v2);
     // valve 3
-    } else if (i == 2) {
+    } else if (i == 3) {
       uint8_t myValue = atoi(charBuffer);
       if(myValue == 1) {
         forDemo.v3 = true;
@@ -2431,7 +2433,7 @@ void setup(){
   }
 
   // notify the server about modem reset
-  checkAlerts(GATEWAY_RESET, 0);
+  //checkAlerts(GATEWAY_RESET, 0);
 
   // request schedule, alert setting, and garden state from server
   setupGarden();
@@ -2441,6 +2443,9 @@ void setup(){
   }
   
   // suspendSocket();
+
+  // start listening for incoming connection on socket 2
+// socketListen();
 
   // enable self-reset
   initPins2();
@@ -2479,9 +2484,6 @@ void loop() {
 //    setTime(now()+50-second());
 //  }
   ////////////////////////////////////////////////////////////////////////////////////
-
-  // socketListen();
-
 
   // Communication with server via 3G
   while(Modem_Serial.available() > 0) {
