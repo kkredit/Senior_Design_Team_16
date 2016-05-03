@@ -2175,7 +2175,7 @@ void parseDemoOneSetting() {
  *                      for gardentoggle, is ON or OFF
  *                      for daily report, means nothing
  *                      for gateway reset, means nothing
-*/
+ */
 void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   String myAlert = "GardeNet user: ";
   // daily report
@@ -2320,6 +2320,12 @@ void setupGarden() {
         handleModemOperation(tr_g_opmode);
         alertGood = true;
       }
+      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
+        Serial.print(F("Connection dropped. Trying again in "));
+        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+        delay(THREE_G_SLEEP_PERIOD);
+        setupGarden();
+      }
     }
   }
   
@@ -2335,6 +2341,12 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_ENABLE_INT && gotAllEvents) {
         scheduleGood = true;
       }
+      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
+        Serial.print(F("Connection dropped. Trying again in "));
+        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+        delay(THREE_G_SLEEP_PERIOD);
+        setupGarden();
+      }
     }
   }
 
@@ -2347,6 +2359,12 @@ void setupGarden() {
       if(tr_g_opmode == TR_G_GARDEN_ON || tr_g_opmode == TR_G_GARDEN_OFF) {
         handleModemOperation(tr_g_opmode);
         stateGood = true;
+      }
+      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
+        Serial.print(F("Connection dropped. Trying again in "));
+        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+        delay(THREE_G_SLEEP_PERIOD);
+        setupGarden();
       }
     }
   }
@@ -2443,9 +2461,9 @@ void setup(){
           openSocket();
         }
         else{
-          connectTries = 0;
+          connectTries = 1;
           Serial.print(F("\nCould not connect. Trying again in "));
-          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes\n"));
+          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
           delay(THREE_G_SLEEP_PERIOD);
         }
       }
@@ -2453,14 +2471,14 @@ void setup(){
   }
 
   // notify the server about modem reset
-  //checkAlerts(GATEWAY_RESET, 0);
+  checkAlerts(GATEWAY_RESET, 0);
 
   // request schedule, alert setting, and garden state from server
-  // setupGarden();
+   setupGarden();
 
-//  if (gardenStatus.reset_alert) {
-//    checkSMSAlerts(GATEWAY_RESET, 0);
-//  }
+  if (gardenStatus.reset_alert) {
+    checkSMSAlerts(GATEWAY_RESET, 0);
+  }
 
   // start listening for incoming connection on socket 2
 // socketListen();
