@@ -238,14 +238,11 @@ void socketConfigs() {
   // TCP socket 1: used for connection with server
   // set inactivity timeout to be 30 seconds?
   Modem_Serial.println("AT#SCFG=1,1,0,0,600,2");
-  // socket inactivity timeout sset to be 5 minutes?
-  // Modem_Serial.println("AT#SCFG=1,1,0,300,600,2");
   delay(1000);
   while(PrintModemResponse() > 0);
 
   // choose data view mode and set the keepalive timeout period to 5 minutes?
   Modem_Serial.println("AT#SCFGEXT=1,2,0,5,0,0");
-  // Modem_Serial.println("AT#SCFGEXT=1,2,0,0,0,0");
   delay(1000);
   while(PrintModemResponse() > 0);
 
@@ -2049,9 +2046,8 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
 void sendAlertMessage(String myMessage) {
   Modem_Serial.print("AT#SSENDEXT=1,");
   Modem_Serial.println((String) myMessage.length());
-  delay(250);
+  delay(500);
   while(PrintModemResponse() > 0);
-
 
   Modem_Serial.print(myMessage);
   Modem_Serial.write(26);
@@ -2330,8 +2326,6 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
 */
 void setupGarden() {
   uint8_t tr_g_opmode = TR_G_NO_RESPONSE;
-<<<<<<< HEAD
-=======
   // request alert setting from the server
   sendAlertMessage("ALERT?");
   bool alertGood = false;
@@ -2342,16 +2336,15 @@ void setupGarden() {
         handleModemOperation(tr_g_opmode);
         alertGood = true;
       }
-      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
-        Serial.print(F("Connection dropped. Trying again in "));
-        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
-        delay(THREE_G_SLEEP_PERIOD);
-        setupGarden();
-      }
+//      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
+//        Serial.print(F("Connection dropped. Trying again in "));
+//        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+//        delay(THREE_G_SLEEP_PERIOD);
+//        setupGarden();
+//      }
     }
   }
   
->>>>>>> 34e742f7bc667e8536865ee45b07e1b46b7c6d31
   // request a schedule from the server
   sendAlertMessage("SCHEDULE?");
   bool scheduleGood = false;
@@ -2367,16 +2360,14 @@ void setupGarden() {
       } else if (tr_g_opmode == TR_G_NO_EVENTS) {
         scheduleGood = true;
       }
-      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
-        Serial.print(F("Connection dropped. Trying again in "));
-        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
-        delay(THREE_G_SLEEP_PERIOD);
-        setupGarden();
-      }
+//      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
+//        Serial.print(F("Connection dropped. Trying again in "));
+//        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+//        delay(THREE_G_SLEEP_PERIOD);
+//        setupGarden();
+//      }
     }
   }
-
-  delay(2000);
 
   // request garden state from the server (awake / asleep)
   sendAlertMessage("STATE?");
@@ -2388,27 +2379,12 @@ void setupGarden() {
         handleModemOperation(tr_g_opmode);
         stateGood = true;
       }
-      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
-        Serial.print(F("Connection dropped. Trying again in "));
-        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
-        delay(THREE_G_SLEEP_PERIOD);
-        setupGarden();
-      }
-    }
-  }
-
-  delay(2000);
-
-  // request alert setting from the server
-  sendAlertMessage("ALERT?");
-  bool alertGood = false;
-  while(!alertGood) {
-    while(Modem_Serial.available() > 0) {
-      tr_g_opmode = decodeModemResponse();
-      if(tr_g_opmode == TR_G_ALERT_SETTING) {
-        handleModemOperation(tr_g_opmode);
-        alertGood = true;
-      }
+//      else if(tr_g_opmode == TR_G_ERROR || tr_g_opmode == TR_G_DISCONNECTED){
+//        Serial.print(F("Connection dropped. Trying again in "));
+//        Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+//        delay(THREE_G_SLEEP_PERIOD);
+//        setupGarden();
+//      }
     }
   }
 
@@ -2475,17 +2451,18 @@ void setup(){
   mesh.setAddress(MASTER_NODE_ID, MASTER_ADDRESS);
 
   // init timer for regular system checks
-  Timer1.initialize(TIMER1_PERIOD);
+  // Timer1.initialize(TIMER1_PERIOD);
+  Timer1.initialize(10000000);
   Timer1.attachInterrupt(updateStatusISR);
 
   // setup time
-  //timeInit();
+  // timeInit();
   
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
   // setTime(0, 1, 25, 12, 4, 16);
-  setTime(5, 58, 45, 12, 4, 16);
+  setTime(21, 0, 0, 3, 5, 16);
   
   openSocket();
   boolean setupDone = false;
@@ -2504,28 +2481,37 @@ void setup(){
           connectTries++;
           openSocket();
         }
-        else{
-          connectTries = 1;
-          Serial.print(F("\nCould not connect. Trying again in "));
-          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
-          delay(THREE_G_SLEEP_PERIOD);
+//        else{
+//          connectTries = 1;
+//          Serial.print(F("\nCould not connect. Trying again in "));
+//          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+//          delay(THREE_G_SLEEP_PERIOD);
+//        }
+      } else if (currentString == "NO CARRIER") {
+        gardenStatus.threeGState = TR_G_DISCONNECTED;
+        if(connectTries < THREE_G_COMM_TRIES){
+          connectTries++;
+          openSocket();
         }
+//        else{
+//          connectTries = 1;
+//          Serial.print(F("\nCould not connect. Trying again in "));
+//          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
+//          delay(THREE_G_SLEEP_PERIOD);
+//        }
       }
     }
   }
 
-  // notify the server about modem reset
-<<<<<<< HEAD
-  // checkAlerts(GATEWAY_RESET, 0);
+  // enable self-reset
+  initPins2();
 
   // request schedule, alert setting, and garden state from server
   setupGarden();
-=======
+  
+  // notify the server about modem reset
   checkAlerts(GATEWAY_RESET, 0);
 
-  // request schedule, alert setting, and garden state from server
-   setupGarden();
->>>>>>> 34e742f7bc667e8536865ee45b07e1b46b7c6d31
 
   if (gardenStatus.reset_alert) {
     checkSMSAlerts(GATEWAY_RESET, 0);
@@ -2533,9 +2519,6 @@ void setup(){
 
   // start listening for incoming connection on socket 2
 // socketListen();
-
-  // enable self-reset
-  initPins2();
 
   ///////////////////////////////////////////////////////////////////
   // FOR THE DEMO ///////////////////////////////////////////////////
@@ -2588,7 +2571,7 @@ void loop() {
   // update node status if necessary
   if(updateStatusFlag){
     // reprovision/retest socket dial if 3G is cannot connect
-    if(gardenStatus.threeGState == TR_G_ERROR){
+    if(gardenStatus.threeGState == TR_G_ERROR || gardenStatus.threeGState == TR_G_DISCONNECTED){
       openSocket();
       Serial.println();
     }
