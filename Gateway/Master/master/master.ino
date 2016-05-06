@@ -242,7 +242,7 @@ void socketConfigs() {
   while(PrintModemResponse() > 0);
 
   // choose data view mode and set the keepalive timeout period to 5 minutes?
-  Modem_Serial.println("AT#SCFGEXT=1,2,0,5,0,0");
+  Modem_Serial.println("AT#SCFGEXT=1,2,0,1,0,0");
   delay(1000);
   while(PrintModemResponse() > 0);
 
@@ -638,6 +638,7 @@ void handleModemOperation(uint8_t modemMode) {
       break;
 
     case TR_G_JSON:
+    Serial.prinln(JSONString);
       createEvent();
     break;
 
@@ -1825,7 +1826,7 @@ void timeInit() {
       // reprovision if socket dial fails
       } else if (currentString == "ERROR") {
         delay(1000);
-        Modem_Serial.println(F("AT#SD=3,0,13,\"time.nist.gov\",0,0,0"));
+        Modem_Serial.println(F("AT#SD=2,0,13,\"time.nist.gov\",0"));
       // reprovision if socket dial did not get proper response
       } else if (currentString == "NO CARRIER" && timeGood == false) {
         delay(1000);
@@ -2456,13 +2457,16 @@ void setup(){
   Timer1.attachInterrupt(updateStatusISR);
 
   // setup time
-  // timeInit();
+  timeInit();
   
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
   // remember to fix line 168 in Time.cpp
   // setTime(0, 1, 25, 12, 4, 16);
-  setTime(21, 0, 0, 3, 5, 16);
+  // setTime(21, 0, 0, 3, 5, 16);
+
+  // enable self-reset
+  initPins2();
   
   openSocket();
   boolean setupDone = false;
@@ -2502,9 +2506,6 @@ void setup(){
       }
     }
   }
-
-  // enable self-reset
-  initPins2();
 
   // request schedule, alert setting, and garden state from server
   setupGarden();
@@ -2550,9 +2551,9 @@ void loop() {
 
   //////////////////////// Time acceleration for testing /////////////////////////////
   // jump to 50 seconds
-  if(second() > 0 && second() < 15 ){
-    setTime(now()+50-second());
-  }
+//  if(second() > 0 && second() < 15 ){
+//    setTime(now()+50-second());
+//  }
   ////////////////////////////////////////////////////////////////////////////////////
 
   // Communication with server via 3G
@@ -2585,7 +2586,7 @@ void loop() {
 
   // check if need to open/close valves according to schedule
   // to occur at the beginning of each new minute
-  if(now() >= lastTime + 60 && modemReceivingJSON == false) {
+  if(now() >= lastTime + 60 && second() == 0 && modemReceivingJSON == false) {
     if(gardenStatus.isAwake){
       checkSchedule();
     }
@@ -2618,7 +2619,7 @@ void loop() {
   }
 
   // at 12:01, after statuses are all collected, call isNewDay to send report to the serverr
-  if(hour() == 0 && minute() == 2 && second() == 0 && calledIsNewDay == false) {
+  if(hour() == 0 && minute() == 2 && second() < 5 && calledIsNewDay == false) {
     Serial.println(F("\nIt is 12:02 AM; sending the daily report to the server"));
     isNewDay();
     calledIsNewDay = true;
