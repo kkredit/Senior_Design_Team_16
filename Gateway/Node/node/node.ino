@@ -136,7 +136,9 @@ SIGNAL(TIMER0_COMPA_vect){
   }
 
   myStatus.currentFlowRate -= flowRates[flowRatePos]/FLOW_RATE_SAMPLE_SIZE;
-  flowRates[flowRatePos] = 60.0*2.0*0.264172/lastflowratetimer;
+  flowRates[flowRatePos] = 60.0*2.0*0.264172/lastflowratetimer/2; // div 2 to catch only
+                                                                  // rising edge of pulse?
+//  flowRates[flowRatePos] = 60.0*0.000528344/lastflowratetimer;
   myStatus.currentFlowRate += flowRates[flowRatePos]/FLOW_RATE_SAMPLE_SIZE;
   flowRatePos = (flowRatePos + 1) % FLOW_RATE_SAMPLE_SIZE;
   myStatus.currentFlowRate = max(0, myStatus.currentFlowRate); // can't be negative
@@ -623,7 +625,7 @@ void updateNodeStatus(){
         myStatus.flowState = FLOWING_GOOD;
       }
       // if no water flowing, bad
-      else{
+      else if(changedValveRecently == 0){
         if(myStatus.flowState != STUCK_AT_OFF) sendToMasterFlag = true;
         myStatus.flowState = STUCK_AT_OFF;
       }
@@ -637,7 +639,7 @@ void updateNodeStatus(){
         myStatus.flowState = STUCK_AT_ON;
       }
       // if no water flowing, good
-      else{
+      else if(changedValveRecently == 0){
         if(myStatus.flowState != NO_FLOW_GOOD) sendToMasterFlag = true;
         myStatus.flowState = NO_FLOW_GOOD;
       }
@@ -848,7 +850,7 @@ void setup(){
   
   // should use myStatus.hasFlowRateMeter, but in case of false negative, check again
   Serial.print(F("FRate:   "));
-  digitalRead(FRATE) ? Serial.println(F("CONNECTED\n")) : Serial.println(F("disconnected\n"));
+  (digitalRead(FRATE) || myStatus.accumulatedFlow > 0) ? Serial.println(F("CONNECTED\n")) : Serial.println(F("disconnected\n"));
 
   // set NodeID and prep for mesh.begin()
   mesh.setNodeID(myStatus.nodeID); // do manually
@@ -858,7 +860,7 @@ void setup(){
   bool success = false;
   while(!success){
     uint8_t attempt;
-    for(attempt=1; attempt<=CONNECTION_TRIES; attempt++){
+    for(attempt=1; attempt<=99; attempt++){
       Serial.print(F("Connecting to the mesh (attempt ")); Serial.print(attempt); Serial.print(F(")... "));
       success = mesh.begin(COMM_CHANNEL, DATA_RATE, CONNECT_TIMEOUT);
       if(success){
