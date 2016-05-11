@@ -169,7 +169,7 @@ struct Garden_Status{
 #define GATEWAY_RESET         03  //    yes               yes                         yes
 #define BAD_VOLTAGE_STATE     04  //    yes               yes                         yes
 #define GARDEN_TOGGLE         05  //    yes               yes                         yes  
-#define INCOMPLETE_JSON       06
+#define INCOMPLETE_SCHEDULE   06
 #define SERVER_COMM_DOWN      07
 
 // other settings

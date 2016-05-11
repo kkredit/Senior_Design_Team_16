@@ -461,7 +461,7 @@ void handleModemOperation(uint8_t modemMode) {
         Serial.print("but got "); Serial.print((String) eventCount); Serial.println(" events.");        
         gotAllEvents = false;
         // send a request to the server to get a new schedule: RESENDSCHEDULE
-        checkAlerts(INCOMPLETE_JSON, 0);
+        checkAlerts(INCOMPLETE_SCHEDULE, 0);
       }
       // reset counter
       eventMaxCount = 0;
@@ -1811,7 +1811,7 @@ void checkAlerts(uint8_t opcode, uint8_t nodeNum) {
       myAlert = "0" + (String) opcode + "%" + (String) gardenStatus.isAwake;
     break;
   
-    case INCOMPLETE_JSON:
+    case INCOMPLETE_SCHEDULE:
       myAlert = "RESENDSCHEDULE";
     break;
   
@@ -2114,8 +2114,20 @@ void checkSMSAlerts(uint8_t opcode, uint8_t nodeNum) {
   
     // put modem back into PDU mode
     Modem_Serial.println("AT+CMGF=0");
-    delay(250);
-    while(PrintModemResponse() > 0);
+//    delay(250);
+//    while(PrintModemResponse() > 0);
+
+    // wait until modem goes back to normal operation mode
+    bool modemBack = false;
+    currentString = "";
+    while(!modemBack) {
+      while(Modem_Serial.available() > 0) {
+        getModemResponse();
+        if (currentString == "OK") {
+          modemBack = true;
+        }
+      }
+    }
   }
   else {
     Serial.println(F("[Would send an SMS alert, but do not have a number]"));
@@ -2290,13 +2302,13 @@ void socketAccept() {
 */
 void setupGarden() {
   currentString = "";
+  time_t myTime = now();  // save the current time for future reference
   // request alert setting from the server
   sendAlertMessage("ALERT?");
-  delay(250);
-  while(PrintModemResponse() > 0);
   bool alertGood = false;
   while(!alertGood) {
     while(Modem_Serial.available() > 0) {
+      myTime = now();
       char incomingByte = Modem_Serial.read();
       Serial.print(incomingByte);
       if(incomingByte == '\n') {
@@ -2310,6 +2322,12 @@ void setupGarden() {
         currentString += incomingByte;
       }
     }
+
+    // wait for 15 seconds before we ask again
+    if (now() - myTime >= 15) {
+      sendAlertMessage("ALERT?");
+      myTime = now();
+    }
   }
   
   // request a schedule from the server
@@ -2317,6 +2335,7 @@ void setupGarden() {
   bool scheduleGood = false;
   while(!scheduleGood) {
     while(Modem_Serial.available() > 0) {
+      myTime = now(); // update if the modem is receiving data packets
       char incomingByte = Modem_Serial.read();
       Serial.print(incomingByte);
       if(incomingByte == '\n') {
@@ -2335,15 +2354,20 @@ void setupGarden() {
         currentString += incomingByte;
       }
     }
+
+    // wait for 15 seconds before we ask again
+    if (now() - myTime >= 15) {
+      checkAlerts(INCOMPLETE_SCHEDULE, 0);
+      myTime = now();
+    }
   }
 
   // request garden state from the server (awake / asleep)
   sendAlertMessage("STATE?");
-  delay(250);
-  while(PrintModemResponse() > 0);
   bool stateGood = false;
   while(!stateGood) {
     while(Modem_Serial.available() > 0) {
+      myTime = now();
       char incomingByte = Modem_Serial.read();
       Serial.print(incomingByte);
       if(incomingByte == '\n') {
@@ -2356,6 +2380,12 @@ void setupGarden() {
       } else if (incomingByte != '\r' && incomingByte != '\n') {
         currentString += incomingByte;
       }
+    }
+
+    // wait for 15 seconds before we ask again
+    if (now() - myTime >= 15) {
+      sendAlertMessage("STATE?");
+      myTime = now();
     }
   }
 
@@ -2399,6 +2429,10 @@ void setup() {
   // initialize gardenStatus
   initGardenStatus();
 
+  // enable self-reset
+  delay(50);
+  initPins2();
+
   // Setup 3G Modem
   setupModem();
   checkDataUsage();
@@ -2425,12 +2459,10 @@ void setup() {
   
   // Hard-coded time for testing purpose
   // setTime(hr,min,sec,day,mnth,yr)
-  // remember to fix line 168 in Time.cpp
-  // (0, 1, 25, 12, 4, 16);
   // setTime(21, 0, 0, 3, 5, 16);
 
-  // enable self-reset
-  initPins2();
+  // discharge the capacitor in case the above code took a while
+  refreshReset();
   
   openSocket();
   boolean setupDone = false;
@@ -2449,24 +2481,13 @@ void setup() {
           connectTries++;
           openSocket();
         }
-//        else{
-//          connectTries = 1;
-//          Serial.print(F("\nCould not connect. Trying again in "));
-//          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
-//          delay(THREE_G_SLEEP_PERIOD);
-//        }
+
       } else if (currentString == "NO CARRIER") {
         gardenStatus.threeGState = TR_G_DISCONNECTED;
         if(connectTries < THREE_G_COMM_TRIES) {
           connectTries++;
           openSocket();
         }
-//        else{
-//          connectTries = 1;
-//          Serial.print(F("\nCould not connect. Trying again in "));
-//          Serial.print(THREE_G_SLEEP_PERIOD/60000); Serial.println(F(" minutes...\n"));
-//          delay(THREE_G_SLEEP_PERIOD);
-//        }
       }
     }
   }
@@ -2489,6 +2510,10 @@ void setup() {
   forDemo.v1 = false;
   forDemo.v2 = false;
   forDemo.v3 = false;
+
+  // discharge the capacitor one more time before entering the main
+  //    loop
+  refreshReset();
 }
 
 
@@ -2534,7 +2559,9 @@ void loop() {
   // update node status if necessary
   if(updateStatusFlag) {
     // reprovision/retest socket dial if 3G is cannot connect
-    if(gardenStatus.threeGState == TR_G_ERROR || gardenStatus.threeGState == TR_G_DISCONNECTED) {
+    if(minute()%5 == 0 &&
+       (gardenStatus.threeGState == TR_G_ERROR || 
+       gardenStatus.threeGState == TR_G_DISCONNECTED)) {
       openSocket();
       Serial.println();
     }
