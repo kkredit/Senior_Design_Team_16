@@ -1,2 +1,2 @@
-email: xj22@students.calvin.edu
-phone_number: 6163282086
+email: 
+phone_number: 

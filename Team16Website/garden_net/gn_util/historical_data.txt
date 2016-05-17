@@ -8,3 +8,291 @@ date: 04-25-2016
 			valve_num: 3 totalWateringTime: 0.00
 
 
+date: 05-03-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+
+
+date: 05-03-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+
+
+date: 05-03-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-03-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 6.17
+			valve_num: 2 totalWateringTime: 4.75
+			valve_num: 3 totalWateringTime: 4.00
+
+
+date: 05-03-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 6.17
+			valve_num: 2 totalWateringTime: 4.75
+			valve_num: 3 totalWateringTime: 4.00
+
+
+date: 05-03-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 99.97
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 11.00
+			valve_num: 2 totalWateringTime: 10.83
+			valve_num: 3 totalWateringTime: 10.92
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 99.97
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 94.74
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.08
+			valve_num: 2 totalWateringTime: 0.08
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-04-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+
+date: 05-05-2016
+	opcode: 00
+	percentMeshUp: 100.00
+	percent3GUp: 100.00
+		node: 1 meshState: 0 percentNodeAwake: 100.0 accumulatedFlow: 0.0
+			valve_num: 1 totalWateringTime: 0.00
+			valve_num: 2 totalWateringTime: 0.00
+			valve_num: 3 totalWateringTime: 0.00
+
+

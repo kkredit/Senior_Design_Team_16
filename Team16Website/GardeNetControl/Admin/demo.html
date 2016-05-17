@@ -155,8 +155,19 @@
 
 			</div>
 			<div id="demo2" class="tab-content card-content hide">
+
 				<form class="col s12" id="demoForm" method = "post">
-					<h4> Demo 2 </h4>
+					<h4> Demo 2</h4>
+					<div class="row">
+						<div id="weather1" class="input-field col s2 right">
+							<select id="weather">
+								<option value="Normal">Normal</option>
+								<option value="Rainy">Rainy</option>
+								<option value="Hot">Hot</option>
+							</select>
+							<label> Weather Mode: </label>
+						</div>
+					</div>
 
 					<h5> Zone 1 </h5>
 
@@ -345,7 +356,7 @@
 					</div>
 				</form>
 				<div class="row">
-					<button type= "button" onClick="submit()" class="right">Submit</button>
+					<button type= "button" onClick="submit()" class="waves-effect waves-light btn right">Submit</button>
 				</div>
 			</div>
 			
@@ -393,6 +404,26 @@
 	</footer>
 	<script src="../../js/materialize.min.js"></script>
 	<script>
+		$('#weather').change(function (){
+			var rain = ($('#weather').val() == "Rainy");
+			var hot = ($('#weather').val() == "Hot");
+			var jsonString = "rain\t"+rain+"\nhot\t"+hot+"\n";
+
+			$.ajax({
+				url: "../demo_weather.php",
+				cache: false,
+				dataType: "text",
+				type: 'POST',
+				data: {jsonString: jsonString},
+				success: function(data) {
+					console.log(data);
+				}
+				
+
+			});
+
+
+		});
 		$("#mySwitch1").change(function(){
 
 		var sw1 = $('#mySwitch1').prop('checked');
@@ -462,6 +493,7 @@
 	</script>
 	<script>
 	$(document).ready(function() {
+		
 			jQuery.get('../../garden_net/gn_util/demo1_file.txt', function(data) {
 			   //process text file line by line
 
@@ -512,6 +544,31 @@
 
 
 			});
+			jQuery.get('../../garden_net/gn_util/demo_weather_reports.txt', function(data) {
+			   //process text file line by line
+
+			   var lines = [];
+			   lines = data.split("\n");
+			   var rain = [];
+			   var hot = [];
+			 
+			   	rain = lines[0].split("\t");
+			   	hot = lines[1].split("\t");
+			   	
+			  
+			   	var s0;
+			   	var s1;
+			   	if(hot[1] == "true"){
+			   		$('select#weather').val("Hot");
+			   	
+			   	}else if(rain[1] == "true"){
+			   		$('select#weather').val("Rainy");
+			   	}
+			  	$('select#weather').material_select();
+			  });
+	</script>
+	<script type="text/javascript">
+		
 	</script>
 
 

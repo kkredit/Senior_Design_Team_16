@@ -454,7 +454,7 @@
 						type: 'POST',
 						data: {jsonString: jsonString},
 						success: function(data) {
-							
+							console.log(data);
 						}
 					});
 		});
@@ -472,28 +472,35 @@
 			   var tabs1 = [];
 			   var tabs2 = [];
 			   var tabs3 = [];
+			   var tabs4 = [];
 			 
 			   	tabs1 = lines[0].split("\t");
 			   	tabs2 = lines[1].split("\t");
 			   	tabs3 = lines[2].split("\t");
+			   	tabs4 = lines[3].split("\t");
 			   	
 			  
 
 			  	var sms1 = (tabs1[1] == "true");
 			  	var sms2 = (tabs2[1] == "true");
 			  	var sms3 = (tabs3[1] == "true");
+			  	var sms4 = (tabs4[1] == "true");
+
 			  	var email1 = (tabs1[2] == "true");
 			  	var email2 = (tabs2[2] == "true");
 			  	var email3 = (tabs3[2] == "true");
+			  	var email4 = (tabs4[2] == "true");
 
 
 
 			  	$("#sms1").prop("checked", sms1);
 			  	$("#sms2").prop("checked", sms2);
 			  	$("#sms3").prop("checked", sms3);
+				$("#sms4").prop("checked", sms3);
 			  	$("#email1").prop("checked", email1);
 			  	$("#email2").prop("checked", email2);
 			  	$("#email3").prop("checked", email3);
+			  	$("#email4").prop("checked", email3);
 
 
 			});

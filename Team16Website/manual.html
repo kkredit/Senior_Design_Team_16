@@ -1,0 +1,573 @@
+<pre style="font: monospace;">
+////////////////////////////////////////////////////////////////////////////////////
+//   ____               _      _   _      _     __  __                         _  //
+//  / ___| __ _ _ __ __| | ___| \ | | ___| |_  |  \/  | __ _ _ __  _   _  __ _| | //
+// | |  _ / _` | '__/ _` |/ _ \  \| |/ _ \ __| | |\/| |/ _` | '_ \| | | |/ _` | | //
+// | |_| | (_| | | | (_| |  __/ |\  |  __/ |_  | |  | | (_| | | | | |_| | (_| | | //
+//  \____|\__,_|_|  \__,_|\___|_| \_|\___|\__| |_|  |_|\__,_|_| |_|\__,_|\__,_|_| //
+////////////////////////////////////////////////////////////////////////////////////
+
+
+
+Table of Contents
+
+
+1. Introduction
+
+2. Operating GardeNet
+
+3. Installation Guide
+
+4. Troubleshooting
+
+5. Contact Informaiton
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////
+/1. Introduction:/
+//////////////////
+
+  The GardeNet system was originally developed for Caledonia Community Garden
+  (CCG) by Calvin College's Team 16. The team was comprised of four Electrical 
+  Engineering majors: John Connell, Anthony Jin, Charles Kingston, and Kevin
+  Kredit. Each member contributed to the success of the GardeNet system and 
+  this manual is to help others operate the system successfully.
+
+
+////////////////////////
+/2. Operating GardeNet:/
+////////////////////////
+
+  In this section, the directions for operating the GardeNet system are laid
+  out in steps to ensure ease of use for the consumer. Refer to the troubleshoot
+  guide below for specific instructions of error correction.
+
+
+  2.1. The Website
+  ................
+
+    The Website of GardeNet was designed to handle instructions of switches 
+    and schedules that would be sent to the server and eventually onto the 
+    gateway controlling the garden. The website is divided into two main
+    components: the information and the controller. The information gives
+    a basic About section and information about the GardeNet's system. The
+    controller controls each portion of the garden and serves as a basic
+    application to network with the rest of the components of the garden.
+
+    The controller is also divided into two main sections: the guest view
+    and the admin view. The guest view can observe the current schedule and
+    the graph of the historical data. The admin view can have the same pages
+    with a bit more functionality as well as pages designated for account 
+    and alert settings. This manual is used to serve the controller portion
+    of the website and all subsections of 2.1. will only reference the 
+    controller section of the website.
+
+
+    2.1.1. Guest View
+    ................. 
+
+      The Guest view of the website is comprised of two web pages. The first
+      page is to view the last input schedule and the second is to view the
+      historical data in graphs on the website. The schedule page has no 
+      ability to change or edit the schedule in any way. It is merely a form
+      that can be read as the user wishes and it is also to help a non-admin 
+      user know the current schedule. The historical data page is much the
+      same way. It does not have any ability to edit or alter anything in the
+      garden but rather can only be used to view the graphical data and the 
+      average radio network and 3G modem uptime.
+
+    2.1.2. Admin View
+    .................
+
+      The Admin view of the website has a total of four web pages. Each page
+      serves a different function that combined will help the user control 
+      the garden from their PC, phone, or tablet. The first is the main admin
+      page. This page is used to edit a schedule and other advanced options.
+      The second is the historical data page. This page is much like the 
+      guest version only it has the ability to download the data into a text
+      file or delete the data completely. The third page is the alert setting
+      page. It is used to alter the email address and cell phone number used
+      to receive alerts and can also specify which kind of alerts the user
+      would like to receive. The final page is the account settings page
+      that is used to change the username and password used in accessing
+      the admin pages of the website.
+
+      2.1.2.1. Schedule Page
+      ......................
+
+        The schedule page includes user-friendly navigation between webpages 
+        located at the upper-right corner of the screen. As you navigate
+        down the page, a current forecast is shown with tomorrow's weather.
+        The Garden Power switch displays the current power mode the garden
+        is operating at. Awake means the garden is fully functioning and
+        running on the current schedule. Sleep means the garden goes to 
+        sleep for the rest of the day and all schedules are stopped.
+
+        Further down the page is the actual schedule portion. The tabs
+        above the card portion are the current zones that are being used
+        and their respective names. The buttons above are used to add
+        and delete zones up to a certain amount. Each zone tab has the
+        same functionality.
+
+        The zone tabs are first represented by their custom title. If the
+        title is clicked, the user can change the name on the zone to 
+        whatever they wish. Note that a longer title will create a larger
+        tab space above. The upper-right portion of the card has advanced
+        controls. These are used to change the node, valve, and weather
+        sensitivity of the zone. Below the title are the events. To add
+        an event, simply click the ADD button in the bottom left of the 
+        card. Events are saved after each submission. Every event has three
+        inputs: the day, the start time, and the stop time. The days are
+        scheduled every week until changed. Please note that the events must
+        have a start time earlier than the stop time to be submitted.
+
+        When the schedule for each zone is done, click the submit button
+        at the bottom to send the schedule to the server and to save the 
+        schedule for the next user. The next time the page is accessed, 
+        the schedule will be saved and ready to be altered.
+
+      2.1.2.2. Historical Data
+      ........................
+
+        Historical data displays current information about the GardeNet 
+        system. At the top, data of average percent uptime is displayed.
+        Both the radio network out in the field and the 3G modem track
+        the amount of time they're functioning and return it to the server.
+        The data is shown in percents to give the user some comfort in
+        knowing that the system works for a large amount of the time.
+
+        Below the percentages are the graphical data. The first graph is overall
+        water usage in the garden. Depending on the number of nodes, the data
+        displays one line of daily flow per node and one line of cumulative flow
+        per node. If more nodes were added, the graphical data should automatically
+        adjust for the amount of nodes in the garden.
+
+        The lower graph displays the time in minutes that each valve is 
+        opened. The user can track this data and know which areas
+        are being watered the most of the garden and which could 
+        potentially need more watering. Note that if more valves or
+        nodes are added, the system should automatically account for 
+        them and create graphical data.
+
+        The bottom buttons are for downloading the historical data
+        text file to your own computer for personal records, or
+        deleting the current historical data and starting with
+        fresh data the next day.
+
+        ***NOTE: If for any reason the graphical data does not
+        display, it could be due to a parsing error on the side
+        of the server. Options are to delete the current data and
+        restart, download the data to see any abnormalities, or 
+        contact John for any other concerns. ***
+
+      2.1.2.3. Alert Settings
+      .......................
+
+
+
+      2.1.2.4. Account Settings
+      .........................
+
+  2.2. The Server
+  ...............
+
+    The server handles all of the communications between the gateway and the website.
+    The communication scheme used for the server is TCP sockets. There are four different
+    sockets used to handle the various applications needed for the GardeNet system. Of 
+    these four sockets, only one socket connects to the outside world and the rest are 
+    local loopback sockets that only allow connections from the same machine as itself.
+
+    The server also implements some reliability features to assure the correct 
+    functionaility of it throughout the day. Using a platform called Cron, the server is
+    periodically tested with a script to assure that it is not caught in a software
+    freeze.
+
+    2.2.1 PORT 5530
+    ...............
+
+      Port number 5530 is the port that connects to the outside world. This means that port
+      forwarding will need to be set up on the router of the network that the raspberry pi
+      will be residing. The purpose of this socket is to continuously keep a TCP connection
+      open with the gateway. The data is sent to and received from the gateway on this port.
+
+    2.2.2 PORT 5535
+    ...............
+
+      Port number 5535 is the used to connect the website to the main server script. It is 
+      bound to only allow connections from "<em>localhost</em>" which means it only allows 
+      connections from the same machine(itself). When a connection is made on this port, it 
+      identifies that the website has received a user's input to change the state of the 
+      garden. The server then takes the state that the user has switched to and immediately 
+      sends it to the gateway in order for the system to take the corrective actions. 
+
+    2.2.3 PORT 5537
+    ...............
+
+      Port number 5537 is used to connect the website to the main server script running. When
+      a connection is made on this port, it identifies that the website has received a user's 
+      input of alert information. The server then forwards this information to the gateway so
+      that it may handle all of the text message alerts.
+
+    2.2.4 PORT 5538
+    ...............
+
+      
+
+  2.3. The Gateway
+  ................
+    The gateway is the onsite controller that controls the nodes to turn individual valves
+    on an off. It also actuates the GardeNet system's alert engine. One gateway can control
+    up to 16 nodes and requires a Nimbelink 3G modem with a data plan activated. The following 
+    describes how to use the gateway.
+    
+    2.3.1. Setting up the gateway
+    ..............................
+    
+      Before using the gateway, set up the desired number of nodes following the procedures
+      described in Section 2.4. Connect the gateway to a computer using an USB port. Open the 
+      Arduino IDE program. Then open Tools/Serial Monitor to monitor the gateway's program. You
+      should see the program running in the following sequence:
+      
+      -> The gateway is connected to the 3G network (Connection successful!)
+      -> The gateway reports the total data usage in bytes since last time the 3G modem got reset
+         (#GDATAVOL: socket number, total data usage, total data sent, total data received)
+      -> The gateway retrieves an IP address (#SGACT:"IP Address")
+      
+      The gateway then proceeds to synchronize its internal timer and initiate connection with the
+      GardeNet server. By the end of the setup routine, the gateway should have retrieved the alert
+      setting, watering schedule, and state of the garden from the server. From this point on, the
+      gateway reports the status of the garden every five seconds, and you can monitor:
+    
+      -> current time
+      -> percent time garden awake
+      -> connected nodes in the mesh network
+      -> mesh network uptime
+      -> 3G status
+      -> 3G uptime
+      -> Node states (if there is an issue)
+      
+      After the initial setup, the gateway does not have to be connected to a computer in order to
+      work. If you are not concerned with monitoring these information, connect the gateway to an
+      outlet using an AC/DC adaptor.
+
+    2.3.2. Reset the gateway
+    .........................
+    
+      If you believe the gateway is not running (e.g. no valve is turning on according to the
+      schedule), hit the reset button on the upper right conner of the gateway and the gateway 
+      program will restart.
+      
+    2.3.3. Toggle the garden state
+    ..............................
+    
+      If you want to turn the garden awake or asleep, hit the toggle button on the gateway located
+      to the left of the green LED. The garden will then toggle its state (e.g. awake -> asleep).
+      
+    2.3.4. Alert Engine
+    ....................
+    
+      The gateway manages the alert engine for the GardeNet system. As mentioned in Section 2.1.2.3,
+      you will receive an email or SMS message when there is an issue / alert available in the
+      garden.
+      
+      
+  2.4. The Nodes
+  ..............
+
+    The nodes are the devices that actually control the valves and flow rate meters. 
+    It communicates wirelessly with and is controlled by the gateway. One node can 
+    control between 0 and 4 valves and between 0 and 1 flow rate meters. The following
+    sections describe how to setup, control, and interact with the device. The particulars
+    of these instructions are specific to the prototype installed at CCG.
+    
+    2.4.1. Setting up a node
+    ..........................
+    
+      Before applying power to the node, connect the desired number of valves and/or
+      flow rate meters. To connect the valves, input the two leads in an ajacent pair
+      of connecters in the green output terminal. The polarity of the leads does not matter.
+      The pair closest to the black power switch corresponds to Valve 1. 
+      
+      In order to let the node know how many and which valves are connected, flip the
+      red toggle switches on ('on' means pointing towards the black power switch). The
+      first switch (closest to the power switch) corresponds to the first output in the
+      terminal block.
+      
+      The presence of a flow rate meter is automatically detected. To connect the flow 
+      rate meter, connect the three wires as follows, opposite the button: GREEN in row 
+      37, YELLOW in row 38, and ORANGE in row 39.
+      
+      In order to differentiate the nodes, each has a unique ID between 1 and 16. The ID 
+      is defined by pins A3 through A6 on the Arduino Nano. The ID is decoded from from 
+      the pins, with pins connected to ground representing binary '1's and pins not 
+      connected to ground considered '0's. For example, for a node with ID 1, only pin A3
+      is grounded. An ID of 2 would have only A4 grounded. An ID of 9, for example, would 
+      have pins A6 and A3 grounded. The special case is 16. To have an ID of 16, leave 
+      all of the pins ungrounded.
+      
+      Once the above items are completed, the node is ready to be powered on. Connect a
+      12V 5A (60W) DC power supply (provided for CCG). WHEN STARTING FOR THE FIRST TIME,
+      OR AFTER ANY HARDWARE CHANGES, HOLD DOWN THE BLACK PUSHBUTTON WHILE POWER IS 
+      APPLIED. The node is then running, and will connect and register itself with the
+      gateway automatically.
+      
+    2.4.2. Controlling and Interacting with a Node
+    ................................................
+    
+      The node is controlled according to the schedule the gateway, but can be interacted 
+      with directly as well. Besides the red toggle switches, which are used only to 
+      indicate attached valves, there are three ways to control the node: the power 
+      switch, the pushbutton, and the reset button. The state of the node can be inferred
+      from the state of the 5 red LEDs. 
+      
+      The power switch is the black rocker switch next to the input power connector. To 
+      power on, rock the switch towards the outside of the node. To power off, rock the
+      switch towards the green output terminal.
+      
+      The black pushbutton has two uses. If pressed during boot, the node refreshes its
+      status and checks for a new hardware configuration (new valves or a new ID). If 
+      pressed otherwise, it toggles the node between awake, which is normal behavior, and 
+      asleep, which is where it turns off its valves and ignores valve commands from the
+      gateway.
+      
+      The reset button restarts the node, which may help to alleviate certain types of 
+      node errors.
+      
+      There are four LEDs arrayed next to the valve switches, and one next to the Arduino.
+      The set of four each correlate to the state of its corresponding valve, where the 
+      LED on means the vavle is open and the LED off means the valve is closed. The LED 
+      closest to the green output terminal corresponds to Valve 1, and so on. The LED near
+      the Arduino shows the state of the node. When it is on, it is disconnected from 
+      the gateway; when it is off, it is connected. A short blink followed by a long 
+      blink means it just turned awake; a long blink followed by a short blink means it 
+      just turned asleep.
+      
+    2.4.3. Other comments
+    .....................
+      
+      It is important to avoid getting the electronics wet, though a few drops will not
+      damage them. It is okay for the connections on the valve to get wet; even fully
+      submerged in water, they function correctly (yes we tested that). Lastly, the 
+      node can be monitored using a serial connection through USB using a baud rate of 
+      9600. HOWEVER, NEVER ATTACH THE USB IF THE NODE IS NOT POWERED ON--THIS WILL 
+      DAMAGE THE POWER REGULATOR ON THE ARDUINO.
+      
+  
+////////////////////////
+/3. Installation Guide:/
+////////////////////////
+
+  Installing GardeNet is designed to be fast and easy. Follow the following steps and 
+  you will be on your way to an automated garden.
+  
+  3.1. Website and Server Setup and Installation
+  ..............................................
+    
+    The website and server reside on a small computer called a Raspberry Pi (RPi). The 
+    RPi can be physically located anywhere, such as a home or church office. In order 
+    for it to function, it needs (1) and internet connection and (2) port forwarding
+    for the web server. 
+    
+    The internet connection can be through either ethernet or Wi-Fi. The team does not
+    provide a Wi-Fi dongle for the RPi, but does provide an ethernet cable.
+    
+    Port forwarding needs to be configured on the router through which the RPi is 
+    connected to the internet so that it can respond to port 80 and port 5530 requests. 
+    Port 80 is used to host the website, gardenet.ddns.net, and port 5530 is used to 
+    communicate with the gateway. (You may want to forward port 22 as well, so that 
+    you or the team can use SSH for updates and maintenance.) To enable port forwarding 
+    on these ports, refer to the instructions for your router.
+    
+  3.2. Gateway and Nodes Setup and Installation
+  .............................................
+  
+    The gateway must be on location. All that the user has to do is provide power in
+    a secure, waterproof shelter. The gateway uses the Verizon network, so check that
+    Verizon covers your area. 
+    
+    Once the setup procedure in section 2.4.1 has been completed, simply connect the 
+    pipes or hoses (the CCG version comes with 1/2 FIP valves fitted with 3/4" hose
+    adapters) and provide power. Your system is now up and running.
+  
+  
+/////////////////////
+/4. Troubleshooting:/
+/////////////////////
+
+  This section addresses each problem in terms of "problem"-"possible causes"-"course
+  of action". If the suggested course of action does not solve the problem, contact
+  the team with the information provided below.
+  
+  PROBLEM: The website will not load or is unresponsive.
+  POSSIBLE CAUSES: The RPi may have crashed or entered a bad state. The Dynamic DNS
+    client may be down. The Dynamic DNS provider may have stopped supporting
+    GardeNet due to a failure to register or renew the domain name.
+  COURSE OF ACTION: First, restart the RPi. If the RPi is given a new IP address by
+    your DHCP server (most likely your router), then the DDNS client may take a
+    while to resolve "gardenet.ddns.net" to the new IP address and/or you may have
+    to reconfigure the port forwarding on your router.
+    If that does not work, check your account with noip.com to ensure that they
+    are still providing DNS services for GardeNet.
+    
+  PROBLEM: Are not receiving email or text alerts.
+  POSSIBLE CAUSES: You may have turned alerts off. The system may be sending the 
+    alerts to a different email address or phone number. The system may 
+    (correctly or erroneously) not be generating alerts.
+  COURSE OF ACTION: In the "Alert Settings" tab in the admin portion of the website,
+    check the boxes for the types of alerts that you want. To confirm that it is 
+    working, force the system into a situation that will generate an alert for 
+    which you are subscribed (such as restarting the gateway, perhaps).
+    If you do not begin receiving alerts, re-enter your information. NOTE: as of the 
+    date of installation at CCG, the system supports sending alerts to only one 
+    email address and one phone number.
+  
+  PROBLEM: Cannot unsubscribe from email or text alerts via email or text.
+  POSSIBLE CAUSES: GardeNet does not support this feature.
+  COURSE OF ACTION: To stop receiving alerts, you may unsubscribe using the check-
+    boxes in the "Alert Settings" tab. You may also enter an empty email address
+    and phone number.
+  
+  PROBLEM: Are receiving too many email or text alerts.
+  POSSIBLE CAUSES: The system may send more alerts than you desire. The system may
+    be sending false-positives.
+  COURSE OF ACTION: If the system is sending you more alerts than you want to 
+    receive, then you may unsubscribe using the check-boxes in the "Alert Settings" 
+    tab. If it is generating false-positives, then unsubscribe from the alert and
+    record the situation and let the team know.
+  
+  PROBLEM: The gateway is using more data then the dataplan allows for (>1 MB).
+  POSSIBLE CAUSES: The gateway is rebooting or generating alerts more than it 
+    should be.
+  COURSE OF ACTION: Unsubscribe from text alerts (unsubscribing from email alerts
+    will not save data). If the problem persists, then pay the overage fee (only 
+    $2 for each extra MB). Nimbelink has previously indicated that it will likely
+    update its plans soon (as of spring 2016), offering more data at lower costs.
+    The only other option is to disable the system; GardeNet does not currently 
+    offer Wi-Fi or wired connection options.
+  
+  PROBLEM: The node will not connect to the gateway.
+  POSSIBLE CAUSES: The mesh network may be failing to connect. The gateway may 
+    not recognize the node even if the node thinks it is connected.
+  COURSE OF ACTION: First, reboot the node. If that does not work, reboot the 
+    gateway and the node (the node may take up to 5 minutes to connect).
+  
+  Experiencing other problems? Contact the team with the information provided below.
+
+  
+/////////////////////////
+/5. Contact Information:/
+/////////////////////////
+
+  The team comprised of John Connell, Anthony Jin, Charles Kingston and Kevin Kredit 
+  commits minimally to support the system during the gardening season of 2016. The 
+  following information can be used to contact them with any questions or suggestions:
+  
+  Team Member           Specialty             Email                 Phone
+  -----------           ---------             -----                 -----
+  John Connell          Website
+  Anthony Jin           Gateway and 3G
+  Charles Kingston      Server
+  Kevin Kredit          Node and hardware     k.kredit.us@ieee.org  (425)318-9793
+
+
+////////////////////////////////////////////////////////////////////////////////////
+<pre style="font: 8px/4px monospace;"> 
+                                                                                                   
+                                                                                                        
+                                                                                                        
+                                                      `````                                             
+                                                   .:'''''++':`                                         
+                                                 :''''''''+++++'`                                       
+                                               `'''''''''++++++++;                                      
+                                              .+'''''''''++++++++++`                                    
+                                             :''''''''''++++++++++++.                                   
+                                            ;'+'''''''''++++++++++++'.                                  
+                                           .++'''''''''++++++++++++++'.                                 
+                                          .++++''''''''+++++++++++++'+'                                 
+                                          ++++''''''''++++++++++++++''':                                
+                                         ;++++''''''';++++++++++++++''''.                               
+                                        `+++++'''''''+++++++++++++++'''''                               
+                                        '+++++'''''''+++++++++++++++'''''.                              
+                                       `++++++'''''''+++++++++++++++''''''                              
+                                       :++++++''''''+++++++++++++++++'''''`                             
+                                       +++++++''''''++++++++++++++++'''''':                             
+                                      .+++++++''''''+++++++++++++++''''''';                             
+                                      ;+++++++'''''+++++++++++++++++'''''''                             
+                                      ++++++++'''''++++++++++++++++''''''''                             
+                                     `+++++++''''''++++++++++++++++''''''''`                            
+                                     .+++++++''''''++++++++++++++++''''';''`                            
+                                     ;+++++++'''''++++++++++++++++'''''';''`                            
+                                     '++++++''''''++++++++++++++++''''';;''`                            
+                                     ++++++++'''''++++++++++++++++''''';;''`                            
+                                     ++++++++'''''++++++++++++++++''''':;''`                            
+                                    `++++++++'''''++++++++++++++++''''':'''                             
+                                    .++++++++'''''++++++++++++++++''''':'''                             
+                                    .++++++++''''+++++++++++++++++''''':'';                             
+                                    .++++++++''''++++++++++++++++''''':;''`                             
+                                    .++++++++''''++++++++++++++++''''':'''                              
+                                    .+++++++'''''++++++++++++++++''''';'':                              
+                                    `+++++++'''''++++++++++++++++'''';'''                               
+                                     +++++++'''''++++++++++++++++''''''':                               
+                                     +++++++'''''++++++++++++++++'''''''                                
+                                     '++++++'''''+++++++++++++++'''''''.                                
+                                     ;++++++'''''+++++++++++++++'''''';                                 
+                                     .++++++'''''++++++++++++++'''''''                                  
+                                     `++++++'''''++++++++++++++''''''.                                  
+                                      ++++++'''''+++++++++++++++'''':                                   
+                                      ;+++++'''''+++++++++++++++''':                                    
+                                      .+++++'''''+++++++++++++++'''                                     
+                                       ++++''''''++++++++++++++'''                                      
+                                       ++++''''''+++++++++++++'''`                                      
+                                       :+++''''''++++++++++++++'.                                       
+                                       `'++''''''+++++++++++++'.                                        
+                                        +++''''''++++++++++++'.                                         
+                                        ;++''''''+++++++++++':                                          
+                                        .'+''''''+++++++++++;                                           
+                                         +'''''''++++++++++;                                            
+                                         :+''''''++++++++++                                             
+                                         .'+'''''++++++++'.                                             
+                                          +''''''++++++++:                                              
+                                          ;'''''''++++++'                                               
+                                          `'''''''++++++.                                               
+                                           ;''''''+++++;                                                
+                                           .''''''+++++`                                                
+                                            ''''''++++'                                                 
+                                            .'''''++++`                                                 
+                                             '''''++++                                                  
+                                             .'''''++;                                                  
+                                              '''''++`                                                  
+                                              `''''++`                                                  
+                                               :'''++                                                   
+                                                '''++                                                   
+                                                .''';                                                   
+                                                 :'';                                                   
+                                                  ;''                                                   
+                                                   '+                                                   
+                                                   `'                                                   
+                                                    `.                                                  
+                                                                                                        
+                                                                                                        
+                                                     .                                                  
+                                                    ,,:                                                 
+                                                   ,,,,,                                                
+                                                  `,:,,,.                                               
+                                                  :,,,,,,`                                              
+                                                 .,,,,,,,,                                              
+                                                 :,,,,,,,,`                                             
+                                                `:,,,,,,,,`                                             
+                                                `,,,....,,.                                             
+                                                `,,......,.                                             
+                                                `,..```....                                             
+                                                 ..`` ``..`                                             
+                                                 ,.`   ``.                                              
+                                                 `.`` ```.                                              
+                                                  ,.````.`                                              
+                                                   ......                                               
+                                                    `..                                                 
+
+</pre>
+</pre>

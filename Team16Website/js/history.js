@@ -32,6 +32,8 @@ function drawChart() {
 	var dateArray = [];
 	var numNodes = 0;
 	var numValves = 0;
+	var lines = [];
+	var noNodeDates = [];
 
 	data2.addColumn('date', 'Day');
 	data1.addColumn('date', 'Day');
@@ -49,32 +51,44 @@ function drawChart() {
 		success: function(data){
 			info = data;
 			dates = info.split("\n\n\n");
-			var lines = info.split("\n");
+			for(var i = 0; i<dates.length; i++){
+				lines.push(dates[i].split("\n"));
+			}
+			
 			var nodeLine = [];
 			var valveLine = [];
-			console.log(dates);
 			dates.pop();
+			lines.pop();
+
+			var noNodes = 0;
+			
+			
 
 
+			for(var i = 0; i<dates.length; i++){
+				if(lines[i].length < 8){
+						++noNodes;
+						noNodeDates.push(i);
+					}
+				for(var j = 0; j<lines[i].length; j++){ 
+					
+					
+					if(lines[i][j].indexOf("node: ") > -1){
+						nodeLine.push(lines[i][j]);
+					}else if(((lines[i][j]).indexOf("valve_num:")) > -1){
+						valveLine.push(lines[i][j]);
 
-
-			for(var i=lines.length-1; i>=0; i--){
-				if(((lines[i]).indexOf("node:")) > -1){
-					nodeLine.push(lines[i]);
-				}else if(((lines[i]).indexOf("valve_num:")) > -1){
-					valveLine.push(lines[i]);
-
-				}
+					}
+				}				
 			}
-			nodeLine.reverse();
-			valveLine.reverse();
 
-			numValves = valveLine.length/(dates.length);
-			numNodes = nodeLine.length/(dates.length);
+			numValves = valveLine.length/(dates.length - noNodes);
+			numNodes = nodeLine.length/(dates.length - noNodes);
 			console.log(numValves);
 			console.log(numNodes);
 			for(var i=1; i<numNodes+1; i++){
 				data2.addColumn('number', "Flow Node "+[i]+"");
+				data2.addColumn('number', "Cumulative Flow Node "+[i]+"");
 				for(var j=1; j<(numValves/numNodes)+1; j++){
 					data1.addColumn('number', "Node"+[i]+", Valve "+[j]+"");
 				}
@@ -203,19 +217,10 @@ function drawChart() {
 			}
 			console.log(nodeValveArray);
 
-
-
-
-
-			
-
-
-
-
 			for(var i=0; i<dates.length; i++){
 
+
 				rest = dates[i].split("\t", 4);
-				console.log(rest);
 
 
 				dateArray.push((rest[0].split(" ")[1]));
@@ -232,26 +237,83 @@ function drawChart() {
 
     }
 	});
+	var duplicates = [];
+	var cumulativeFlowArray = [];
+	for(var i = 0; i<numNodes; i++){
+		cumulativeFlowArray[i]= new Array();
+	}
 	
+
 	console.log(dateArray.length);
+	console.log(noNodeDates);
+	
+
+	dateArray = $.grep(dateArray, function(n, i) {
+	    return $.inArray(i, noNodeDates) ==-1;
+	});
+	console.log(dateArray);
+	for(var i = 0; i<dateArray.length; i++){
+		if(dateArray[i+1] == dateArray[i]){
+			duplicates.push(i);
+		}
+
+		
+	}
+	console.log(duplicates);
+	console.log(duplicates.length);
+	dateArray = $.grep(dateArray, function(n, i) {
+	    return $.inArray(i, duplicates) ==-1;
+	});
+	for(var i = 0; i<numNodes; i++){
+		for(var j = 0; j<numValves; j++){
+			nodeValveArray[i][j] = $.grep(nodeValveArray[i][j], function(n, i) {
+						    return $.inArray(i, duplicates) ==-1;
+						});
+		}
+	}
+
+	console.log(dateArray);
+	
+	console.log(nodeValveArray);
+	for(var i=0; i<numNodes; i++){
+		for(var j = 0; j<dateArray.length; j++){
+
+			if(j==0){
+				cumulativeFlowArray[i].push(flowArray[i][j]);
+			}else{
+				cumulativeFlowArray[i].push((flowArray[i][j] + cumulativeFlowArray[i][j-1]));
+			}
+
+
+			
+
+
+		}
+
+	}
+
+
+
+	console.log(cumulativeFlowArray);
+	console.log(flowArray);
+
 	for(var i=0; i<dateArray.length+1; i++){
 		
 		if(numNodes== 1){
-			data2.addRows([[new Date(dateArray[i]), flowArray[0][i]]]);
+			data2.addRows([[new Date(dateArray[i]), flowArray[0][i], cumulativeFlowArray[0][i]]]);
 			data1.addRows([[new Date(dateArray[i]), nodeValveArray[0][0][i], nodeValveArray[0][1][i], nodeValveArray[0][2][i]]]);
 		}else if(numNodes == 2){
-			data2.addRows([[new Date(dateArray[i]), flowArray[0][i], flowArray[1][i]]]);
+			data2.addRows([[new Date(dateArray[i]), flowArray[0][i], cumulativeFlowArray[0][i], flowArray[1][i], cumulativeFlowArray[1][i]]]);
 			data1.addRows([[new Date(dateArray[i]), nodeValveArray[0][0][i], nodeValveArray[0][1][i], nodeValveArray[0][2][i], nodeValveArray[1][0][i], nodeValveArray[1][1][i], nodeValveArray[1][2][i] ]]);
 		}else if(numNodes == 3){
-			data2.addRows([[new Date(dateArray[i]), flowArray[0][i], flowArray[1][i], flowArray[2][i]]]);
+			data2.addRows([[new Date(dateArray[i]), flowArray[0][i], cumulativeFlowArray[0][i], flowArray[1][i], cumulativeFlowArray[1][i], flowArray[2][i], cumulativeFlowArray[2][i]]]);
 			data1.addRows([[new Date(dateArray[i]), nodeValveArray[0][0][i], nodeValveArray[0][1][i], nodeValveArray[0][2][i], nodeValveArray[1][0][i], nodeValveArray[1][1][i], nodeValveArray[1][2][i], nodeValveArray[2][0][i], nodeValveArray[2][1][i], nodeValveArray[2][2][i] ]]);
 		}
 		
 
 	}
 	console.log(numNodes);
-	console.log(data1);
-	console.log(data2);
+
 
 
 
@@ -271,7 +333,16 @@ function drawChart() {
 			color: '00000',
 			fontName: 'Arial',
 			fontSize: 20
-		}
+		},
+		pointSize: 10,
+		series: {
+                0: { pointShape: 'circle' },
+                1: { pointShape: 'triangle' },
+                2: { pointShape: 'square' },
+                3: { pointShape: 'diamond' },
+                4: { pointShape: 'star' },
+                5: { pointShape: 'polygon' }
+        }
 
 	};
 
@@ -288,7 +359,16 @@ function drawChart() {
 			color: '00000',
 			fontName: 'Arial',
 			fontSize: 20
-		}
+		},
+		pointSize: 10,
+		series: {
+                0: { pointShape: 'circle' },
+                1: { pointShape: 'triangle' },
+                2: { pointShape: 'square' },
+                3: { pointShape: 'diamond' },
+                4: { pointShape: 'star' },
+                5: { pointShape: 'polygon' }
+        }
 	};
 
 

@@ -154,12 +154,24 @@
 						<label for="Garden[openZones]" class="active">Open Zones</label>
 					</div>
 					<div id="tab1" class="tab-content card-content active">
-						<span class="col s5" onClick="editTitle()"><h4 id="zone1" class="zoneTitle" >Zone 1</h4></span>
-						<input id="newTitle1" type = "text" class="col s3 offset-s1 hide" name="Zone1[name]">
-						<button id="subTitle1" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+						<div id="Title1">
+						<span class="col s4" onClick="editTitle(); changeNV();"><h4 id="zone1" class="zoneTitle" >Zone 1</h4></span>
+						<input id="newTitle1" type = "text" class="col s3 hide" name="Zone1[name]">
+						<button id="subTitle1" type = "button" class="col s2 hide" onClick="genTitle()"> Change Title </button>
+						</div>
 						<br/>
-						<a id="adControls1" class="right" onClick="advanced()">Advanced Controls</a>
-						<div class="input-field col s2 offset-s2 hide" id="node1">
+						
+						<a id="adControls1" class="right" onClick="advanced(); genTitle();">Advanced Controls</a>
+						<div id="advancedControls1">
+						<div id="weather1" class="input-field col s2 offset-s1 hide">
+							<select name="Zone1[weather]">
+								<option value="None">None</option>
+								<option value="Partial">Partial</option>
+								<option value="Full">Full</option>
+							</select>
+							<label> Weather Sensitivity: </label>
+						</div>
+						<div class="input-field col s2 hide" id="node1">
 							<input name="Zone1[node]"  type="number" value="1" min="1" max="">
 							<label id="node1name" for="Zone1[node]" class="active">Node</label>
 						</div>
@@ -168,9 +180,12 @@
 							<label for="Zone1[valve]" class="active">Valve</label>
 						</div>
 						<br/>
-						<button id="NVChange1" type="button" class="hide" onClick="changeNV()"> Submit</button>
+						<button id="NVChange1" type="button" class="col s1 hide" onClick="changeNV()"> Submit</button>
+						</div>
 						<br/><br/><br/>
+						
 						<input value="7" name="Zone1[openevents]" class="hide">
+						
 						<br/>
 						<div id="row1" class="row hide">
 							<div class="col s3">
@@ -785,23 +800,39 @@
 
 
 						<div id="tab2" class="tab-content card-content hide">
-							<span class="col s5" onClick="editTitle()"><h4 id="zone2" class="zoneTitle" >Zone 2</h4></span>
-							<input id="newTitle2" type = "text" class="col s3 offset-s1 hide" name="Zone2[name]">
-							<button id="subTitle2" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+							<div id="Title2">
+							<span class="col s4" onClick="editTitle(); changeNV();"><h4 id="zone2" class="zoneTitle" >Zone 2</h4></span>
+							<input id="newTitle2" type = "text" class="col s3 hide" name="Zone2[name]">
+							<button id="subTitle2" type = "button" class="col s2 hide" onClick="genTitle()"> Change Title </button>
+							</div>
 							<br/>
-							<a id="adControls2" class="right" onClick="advanced()">Advanced Controls</a>
-							<div class="input-field col s1 offset-s4 hide" id="node2">
+							
+							<a id="adControls2" class="right" onClick="advanced(); genTitle();">Advanced Controls</a>
+							<div id="advancedControls2">
+							<div id="weather2" class="input-field col s2 offset-s1 hide">
+								<select name="Zone2[weather]">
+									<option value="None">None</option>
+									<option value="Partial">Partial</option>
+									<option value="Full">Full</option>
+								</select>
+							<label> Weather Sensitivity: </label>
+							</div>
+							<div class="input-field col s2  hide" id="node2">
 								<input name="Zone2[node]"  type="number" value="2">
 								<label id="node2name" for="Zone2[node]" class="active">Node</label>
 							</div>
-							<div class="input-field col s1 hide" id="valve2">
+
+							<div class="input-field col s2 hide" id="valve2">
 								<input name="Zone2[valve]"  type="number" value="2">
 								<label for="Zone2[valve]" class="active">Valve</label>
 							</div>
 							<br/>
-							<button id="NVChange2" type="button" class="hide" onClick="changeNV()"> Submit</button>
+							<button id="NVChange2" type="button" class="col s1 hide" onClick="changeNV()"> Submit</button>
 							<br/><br/><br/>
+							
+							
 							<input value="5" name="Zone2[openevents]" class="hide">
+							</div>
 							<br/>
 							<div id="row1" class="row hide">
 								<div class="col s3">
@@ -1414,23 +1445,39 @@
 							</div>
 						</div>
 						<div id="tab3" class="tab-content card-content hide">
-							<span class="col s5" onClick="editTitle()"><h4 id="zone3" class="zoneTitle" >Zone 3</h4></span>
-							<input id="newTitle3" type = "text" class="col s3 offset-s1 hide" name="Zone3[name]">
-							<button id="subTitle3" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+							<div id="Title3">
+							<span class="col s4" onClick="editTitle(); changeNV();"><h4 id="zone3" class="zoneTitle" >Zone 3</h4></span>
+							<input id="newTitle3" type = "text" class="col s3 hide" name="Zone3[name]">
+							<button id="subTitle3" type = "button" class="col s2 hide" onClick="genTitle()"> Change Title </button>
+							</div>
 							<br/>
-							<a id="adControls3" class="right" onClick="advanced()">Advanced Controls</a>
-							<div class="input-field col s1 offset-s4 hide" id="node3">
+							
+							<a id="adControls3" class="right" onClick="advanced(); genTitle();">Advanced Controls</a>
+							<div id="advancedControls3">
+							<div id="weather3" class="input-field col s2 hide">
+								<select name="Zone3[weather]">
+									<option value="None">None</option>
+									<option value="Partial">Partial</option>
+									<option value="Full">Full</option>
+								</select>
+								<label> Weather Sensitivity: </label>
+							</div>
+							<div class="input-field col s2 hide" id="node3">
 								<input name="Zone3[node]"  type="number" value="3">
 								<label id="node3name" for="Zone3[node]" class="active">Node</label>
 							</div>
-							<div class="input-field col s1 hide" id="valve3">
+
+							<div class="input-field col s2 hide" id="valve3">
 								<input name="Zone3[valve]"  type="number" value="3">
 								<label for="Zone3[valve]" class="active">Valve</label>
 							</div>
 							<br/>
-							<button id="NVChange3" type="button" class="hide" onClick="changeNV()"> Submit</button>
+							<button id="NVChange3" type="button" class="col s1 hide" onClick="changeNV()"> Submit</button>
 							<br/><br/><br/>
+							
+							
 							<input value="8" name="Zone3[openevents]" class="hide">
+							</div>
 							<br/>
 							<div id="row1" class="row hide">
 								<div class="col s3">
@@ -2043,23 +2090,37 @@
 							</div>
 						</div>
 						<div id="tab4" class="tab-content card-content hide">
-							<span class="col s5" onClick="editTitle()"><h4 id="zone4" class="zoneTitle" >Zone 4</h4></span>
+							<div id="Title4">
+							<span class="col s4" onClick="editTitle()"><h4 id="zone4" class="zoneTitle" >Zone 4</h4></span>
 							<input id="newTitle4" type = "text" class="col s3 offset-s1 hide" name="Zone4[name]">
 							<button id="subTitle4" type = "button" class="hide" onClick="genTitle()"> Change Title </button>
+							</div>
 							<br/>
+							
 							<a id="adControls4" class="right" onClick="advanced()">Advanced Controls</a>
-							<div class="input-field col s1 offset-s4 hide" id="node4">
+							<div id="advancedControls4">
+							<div class="input-field col s2 offset-s2 hide" id="node4">
 								<input name="Zone4[node]"  type="number" value="3">
 								<label id="node4name" for="Zone4[node]" class="active">Node</label>
 							</div>
-							<div class="input-field col s1 hide" id="valve4">
+
+							<div class="input-field col s2 hide" id="valve4">
 								<input name="Zone4[valve]"  type="number" value="4">
 								<label for="Zone4[valve]" class="active">Valve</label>
 							</div>
 							<br/>
 							<button id="NVChange4" type="button" class="hide" onClick="changeNV()"> Submit</button>
 							<br/><br/><br/>
+							<div id="weather4" class="input-field col s3 hide">
+								<select name="Zone4[weather]">
+									<option value="None">None</option>
+									<option value="Partial">Partial</option>
+									<option value="Full">Full</option>
+								</select>
+								<label> Weather Sensitivity: </label>
+							</div>
 							<input value="8" name="Zone4[openevents]" class="hide">
+							</div>
 							<br/>
 							<div id="row1" class="row hide">
 								<div class="col s3">
@@ -2734,6 +2795,7 @@
 
 		<script type="text/javascript">
 			$(document).ready(function() {
+				
 				$.getJSON('../../garden_net/gn_util/current_schedule_in_db.txt', function(jsondata){
 					$.each(jsondata, function(i, item){
 						var thingName = "";
@@ -2794,6 +2856,12 @@
 									$("input[name='"+thingName+"[event"+x+"[zone_ID]]']").val(event);
 
 								}
+
+							}else if(j == "weather"){
+									nextName = thingName + "[" + j +"]";
+									$("select[name='"+nextName+"']").val(event);
+									$("select[name='"+nextName+"']").material_select('destroy');
+									$("select[name='"+nextName+"']").material_select();
 
 							}else{
 								nextName = thingName + "[" + j +"]";

@@ -291,7 +291,7 @@ function genTitle(){
 		type: 'POST',
 		data: {jsonString: jsonString},
 		success: function(data) {
-			alert("Garden Info Submitted!");
+			console.log("Garden Info Submitted!");
 		}
 		
 
@@ -312,21 +312,29 @@ function advanced(){
 		$('#node1').removeClass("hide");
 		$('#valve1').removeClass("hide");
 		$('#NVChange1').removeClass("hide");
+		$('#weather1').removeClass("hide");
+		$("#advancedControls4").removeClass("hide");
 		$('#adControls1').addClass("hide");
 	}else if($('#tab2').hasClass("active")){
 		$('#node2').removeClass("hide");
 		$('#valve2').removeClass("hide");
 		$('#NVChange2').removeClass("hide");
+		$('#weather2').removeClass("hide");
+		$("#advancedControls4").removeClass("hide");
 		$('#adControls2').addClass("hide");
 	}else if($('#tab3').hasClass("active")){
 		$('#node3').removeClass("hide");
 		$('#valve3').removeClass("hide");
+		$('#weather3').removeClass("hide");
 		$('#NVChange3').removeClass("hide");
+		$("#advancedControls4").removeClass("hide");
 		$('#adControls3').addClass("hide");
 	}else if($('#tab4').hasClass("active")){
 		$('#node4').removeClass("hide");
 		$('#valve4').removeClass("hide");
 		$('#NVChange4').removeClass("hide");
+		$('#weather4').removeClass("hide");
+		$("#advancedControls4").removeClass("hide");
 		$('#adControls4').addClass("hide");
 	}
 }
@@ -344,21 +352,25 @@ function changeNV(){
 		$('#node1').addClass("hide");
 		$('#valve1').addClass("hide");
 		$('#NVChange1').addClass("hide");
+		$('#weather1').addClass("hide");
 		$('#adControls1').removeClass("hide");
 	}else if ($('#tab2').hasClass("active")){
 		$('#node2').addClass("hide");
 		$('#valve2').addClass("hide");
 		$('#NVChange2').addClass("hide");
+		$('#weather2').addClass("hide");
 		$('#adControls2').removeClass("hide");
 	}else if ($('#tab3').hasClass("active")){
 		$('#node3').addClass("hide");
 		$('#valve3').addClass("hide");
 		$('#NVChange3').addClass("hide");
+		$('#weather3').addClass("hide");
 		$('#adControls3').removeClass("hide");
 	}else if ($('#tab4').hasClass("active")){
 		$('#node4').addClass("hide");
 		$('#valve4').addClass("hide");
 		$('#NVChange4').addClass("hide");
+		$('#weather4').addClass("hide");
 		$('#adControls4').removeClass("hide");
 	}
 
@@ -402,7 +414,7 @@ function changeNV(){
 		type: 'POST',
 		data: {jsonString: jsonString},
 		success: function(data) {
-			alert("Garden Info Submitted!");
+			console.log("Garden Info Submitted!");
 		}
 		
 
@@ -531,6 +543,7 @@ function submit(){
 		$('input[name="Zone'+i+'[openevents]"]').prop("disabled", true);
 		$('input[name="Zone'+i+'[node]"]').prop("disabled", true);
 		$('input[name="Zone'+i+'[valve]"]').prop("disabled", true);
+		$('select[name="Zone'+i+'[weather]"]').prop("disabled", true);
 	}
 	$('input[name="Garden[openZones]"]').prop("disabled", true);
 
@@ -549,6 +562,7 @@ function submit(){
 		$('input[name="Zone'+i+'[openevents]"]').prop("disabled", false);
 		$('input[name="Zone'+i+'[node]"]').prop("disabled", false);
 		$('input[name="Zone'+i+'[valve]"]').prop("disabled", false);
+		$('select[name="Zone'+i+'[weather]"]').prop("disabled", false);
 	}
 	$('input[name="Garden[openZones]"]').prop("disabled", false);
 	for(i=0; i<6; i++){

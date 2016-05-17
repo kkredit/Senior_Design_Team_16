@@ -17,6 +17,7 @@
 
 
 $(document).ready(function(){
+
 	tabs=$('#tabs').scrollTabs({
 		click_callback: function(e){
 			$('div[id^="demo"]').addClass("hide").removeClass("active");
@@ -44,8 +45,10 @@ $(document).ready(function(){
 
 function submit(){
 	var myForm = $("#demoForm").serializeJSON();
+	$('#weather').prop("disabled", true);
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
+	$('#weather').prop("disabled", false);
 
 	for(i=0; i<3; i++){
 		for(j=0; j<3; j++){
@@ -75,3 +78,5 @@ function submit(){
 
 	});
 }
+
+
