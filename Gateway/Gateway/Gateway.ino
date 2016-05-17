@@ -1,5 +1,5 @@
 /* 
- * master.ino
+ * Gateway.ino
  * 
  * This sketch is for master (gateway) in the GardeNet system. Functions include:
  *    - Establishing and maintaining a mesh network
@@ -8,7 +8,7 @@
  *    - Tracking several variables with regards to its and the garden's status
  * 
  * (C) 2016, John Connell, Anthony Jin, Charles Kingston, and Kevin Kredit
- * Last Modified: 4/18/16
+ * Last Modified: 5/17/16
  */
 
 
@@ -25,21 +25,21 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/SharedDefinitions.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/SharedDefinitions.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/SharedDefinitions.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/SharedDefinitions.h"
 #include "StandardCplusplus.h"
 //#include <system_configuration.h>
 //#include <unwind-cxx.h>
 //#include <utility.h>
 #include <Time.h>
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/Schedule.cpp"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.h"
-#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/ScheduleClass/ScheduleEvent.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/Schedule.cpp"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.h"
-//#include "C:/Users/kevin/Documents/Senior_Design_Team_16/ScheduleClass/ScheduleEvent.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/ScheduleClass/Schedule.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/ScheduleClass/Schedule.cpp"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/ScheduleClass/ScheduleEvent.h"
+//#include "C:/Users/Antonivs/Desktop/Arbeit/Undergrad/Senior_Design/repo/Gateway/ScheduleClass/ScheduleEvent.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/ScheduleClass/Schedule.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/ScheduleClass/Schedule.cpp"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/ScheduleClass/ScheduleEvent.h"
+#include "C:/Users/kevin/Documents/Senior_Design_Team_16/Gateway/ScheduleClass/ScheduleEvent.cpp"
 
 // pins
 //#define unused    2

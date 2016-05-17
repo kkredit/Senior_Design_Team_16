@@ -5,8 +5,8 @@
  *      Author: charleskingston
  *
  *      Tester that tests the functionality of the both the
- *      scheduleEvent class as well as the Schedule class that
- *      uses the scheduleEventClass
+ *      ScheduleEvent class as well as the Schedule class that
+ *      uses the ScheduleEventClass
  */
 
 #include "ScheduleTester.h"
@@ -23,7 +23,7 @@ void ScheduleTester::runTests(){
 
 void ScheduleTester::testScheduleEvents () {
 	cout << "\nBeginning to test the ScheduleEvents..." << endl;
-	scheduleEvent test0;
+	ScheduleEvent test0;
 	cout << "test0 .............................";
 	assert (test0.getNodeID() == 0);
 	assert (test0.getStartTime() == 0);
@@ -36,7 +36,7 @@ void ScheduleTester::testScheduleEvents () {
 	assert (test0.getEndTime() == 03.00);
 	cout << "passed" << endl;
 
-	scheduleEvent test1;
+	ScheduleEvent test1;
 	cout << "test1 .............................";
 	assert (test1.getNodeID() == 0);
 	assert (test1.getStartTime() == 0);
@@ -49,7 +49,7 @@ void ScheduleTester::testScheduleEvents () {
 	assert (test1.getEndTime() == 15.00);
 	cout << "passed" << endl;
 
-	scheduleEvent test2;
+	ScheduleEvent test2;
 	cout << "test2 .............................";
 	assert (test2.getNodeID() == 0);
 	assert (test2.getStartTime() == 0);
@@ -69,7 +69,7 @@ void ScheduleTester::testScheduleEvents () {
 	assert (!(test0 < test2));
 	cout << "passed" << endl;
 
-	cout << "scheduleEvent class passed all tests!" << endl;
+	cout << "ScheduleEvent class passed all tests!" << endl;
 }
 
 void ScheduleTester::testInsert(){
@@ -77,13 +77,13 @@ void ScheduleTester::testInsert(){
 
 	cout << "test0 .............................";
 	Schedule test0;
-	scheduleEvent event0(6,.20,5.00);
+	ScheduleEvent event0(6,.20,5.00);
 	test0.insert(0,event0);
-	scheduleEvent event1(1,1.00,2.00);
+	ScheduleEvent event1(1,1.00,2.00);
 	test0.insert(0,event1);
-	scheduleEvent event2(1,1.00,2.00);
+	ScheduleEvent event2(1,1.00,2.00);
 	test0.insert(0,event2);
-	scheduleEvent event3(1,.5,1.00);
+	ScheduleEvent event3(1,.5,1.00);
 	test0.insert(0,event3);
 	assert(test0.days[0].size() == 4);
 	assert(test0.popFrontStartTime(0) == event0);
@@ -98,13 +98,13 @@ void ScheduleTester::testInsert(){
 
 	cout << "test1 .............................";
 	Schedule test1;
-	scheduleEvent event4(6,5.20,5.00);
+	ScheduleEvent event4(6,5.20,5.00);
 	test1.insert(1,event4);
-	scheduleEvent event5(1,5.00,2.00);
+	ScheduleEvent event5(1,5.00,2.00);
 	test1.insert(1,event5);
-	scheduleEvent event6(1,4.45,2.00);
+	ScheduleEvent event6(1,4.45,2.00);
 	test1.insert(1,event6);
-	scheduleEvent event7(1,4.30,1.00);
+	ScheduleEvent event7(1,4.30,1.00);
 	test1.insert(1,event7);
 	assert(test1.days[1].size() == 4);
 	assert(test1.popFrontStartTime(1) == event7);
@@ -119,14 +119,14 @@ void ScheduleTester::testInsert(){
 
 	cout << "test2 .............................";
 	Schedule test2;
-	scheduleEvent event8(2,1.00,2.00);
+	ScheduleEvent event8(2,1.00,2.00);
 	for (unsigned i=0; i<=6; i++){
 		test2.insert(i,event8);
 	}
 	for (unsigned i=0; i<=6; i++){
 		assert(test2.days[i].size() == 1);
 	}
-	scheduleEvent tempEvent;
+	ScheduleEvent tempEvent;
 	cout << endl;
 	for (unsigned i = 0; i <= 6; i++){
 		tempEvent = test2.popFrontStartTime(i);

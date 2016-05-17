@@ -9,7 +9,7 @@
 #define SCHEDULETESTER_H_
 
 #include "Schedule.h"
-#include "scheduleEvent.h"
+#include "ScheduleEvent.h"
 
 #include <iostream>
 #include <cassert>
