@@ -1,0 +1,62 @@
+Feedback data from Node_Status and Garden_Status
+
+opcode:
+00 - daily report
+01 - Bad valve state
+02 - Mesh down
+03 - Gateway self-reset
+04 - Bad voltage state
+05 - Garden toggled
+
+
+Once a day:
+Includes: numRegisteredNodes, %MeshUptime, %3GUptime, for each node { total accumulated flow, total watering time for each valve }
+// add: percent of time garden was awake (will usually be 100%), for each node { maxed out flow meter, which valves are connected, percent of time node was awake }
+00
+//// NOT USED%{Garden_Status->numRegisteredNodes}(uint8_t) //// implied from the node portion
+%{Garden_Status->percentGardenAwake}(float)
+%{Garden_Status->percentMeshUptime}(float)
+%{Garden_Status->percent3GUptime}(float)
+///// NOTE: following is repeated for each registered node; each set inside {}
+%nodeID(uint8_t)
+%{Node_Status->meshState}(uint8_t)
+%{Node_Status->percentNodeAwake}(float)
+%{Node_Status->accumulatedFlow}(float)
+%{Node_Status->maxedOutFlowMeter}(bool)--as '0' or '1'
+///// NOTE: following is repeated for each connected valve; each set inside []
+%valveNum(uint8_t)
+%{Master->total_watering_time_per_valve}(uint16_t)
+
+Ex.) 00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}
+
+Alert cases:
+1. Bad flow rate  (stuck on / stuck off)
+01
+%nodeID(uint8_t)
+%{Node_Status->flowState}(uint8_t)	(see SharedDefinitions.h)
+%{Node_Status->currentFlowRate}(float)
+
+Ex.) 01%1%5%0.00
+
+2. Mesh down
+02
+
+3. Gateway self-reset
+03
+
+4. Bad voltage state
+04
+%nodeID(uint8_t)
+%{Node_Status->voltageState}(uint8_t)	(see SharedDefinitions.h)
+
+Ex.) 04%1%1
+
+
+Special cases:
+5. No modem response sends email via server)                                      ////// but the modem can't tell the server that it's down if it's down
+"The GardeNet controller is not responding to the server. Please reset it!"
+ 
+Note: this happens whenever the modem is NOT connected to the server for a long time (>5min?)
+
+For myself: Server down (send SMS / email message via modem)
+"The GardeNet server is down. Please reset it!"

@@ -1,0 +1,71 @@
+Feedback data from Node_Status and Garden_Status
+
+opcode:
+00 - daily report
+01 - Bad valve state
+02 - Mesh down
+03 - Gateway self-reset
+04 - Bad voltage state
+
+
+Once a day:
+Includes: numRegisteredNodes, %MeshUptime, %3GUptime, for each node { total accumulated flow, total watering time for each valve }
+// add: percent of time garden was awake (will usually be 100%), for each node { maxed out flow meter, which valves are connected, percent of time node was awake }
+00
+%{Garden_Status->numRegisteredNodes}(uint8_t)
+%{Garden_Status->percent_Garden_Uptime}
+%{Garden_Status->percent_Mesh_Uptime}(float)
+%{Garden_Status->percent_3G_Uptime}(float)
+%nodeID(uint8_t)
+%{Node_Status->percent_Node_Uptime}(float)
+%{Node_Status->connected_Valves}(uint8_t seperated by |)
+%{Node_Status->accumulatedFlow}(float)
+%{Node_Status->maxedOutFlowMeter}(bool)
+%{Master->total_watering_time_per_valve}(float in hours seperated by |)
+
+Ex.) 00%1%0.99%0.99%0.99%1%50.5%1|2|3%209.3%false%1.11|1.25|1.38
+
+Alert cases:
+1. Bad flow rate
+01
+%{which_Node}(uint8_t)
+%{flowState}(uint8_t) (see SharedDefinitions.h)
+%{Node_Status->currentFlowRate}(float)
+
+Ex.) 01%1%5%0.00
+
+2. Mesh down
+02
+%{Garden_Status.meshState}(uint8_t)
+
+Ex.) 02%2
+
+3. Gateway self-reset
+03
+
+4. Bad voltage state
+04
+%{whichNode}(uint8_t)
+%{Node_Status->voltageState}(uint8_t)	(SharedDefinitions line 113 - 115)
+
+Ex.) 04%1%0
+
+5. Gateway sleep/wake toggle
+05
+%{Garden_Status.isAwake}(uint8_t) (see SharedDefinitions.h)
+
+Ex.) 05%1
+
+6. Incomplete JSON
+RESENDSCHEDULE
+
+////////////////////////// Below may be out of date //////////////////////////////////////////
+
+Special cases:
+5. No modem response sends email via server)                                      ////// but the modem can't tell the server that it's down if it's down
+"The GardeNet controller is not responding to the server. Please reset it!"
+ 
+Note: this happens whenever the modem is NOT connected to the server for a long time (>5min?)
+
+For myself: Server down (send SMS / email message via modem)
+"The GardeNet server is down. Please reset it!"

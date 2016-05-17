@@ -1,0 +1,21 @@
+Setup:
+1) retreive own IP address
+
+2) open socket to server -> ask for alert setting -> ask for schedule ->
+ask for garden status -> send modem IP address -> suspend connection
+
+3) query server DNS into IP address -> open firewall to server
+
+
+Normal Operation:
+1) listen for inbound connection -> process message -> wait to disconnect
+
+2) restore / reinitiate socket connection to server -> send alert message
+-> suspend connection
+
+3) isNewDay -> restore / reinitiate socket connection to server -> retrieve
+updated information -> suspend connection
+
+4) connection error: send SMS alert after 15 minutes (Kevin) 
+
+5) PDP context not activated (#SGACT): #SGACT
