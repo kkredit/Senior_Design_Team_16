@@ -48,6 +48,8 @@ from event import Event
 from gateway_report import Report
 from socket import error as SocketError
 from weather_forecast import Forecast
+from pytz import timezone
+import datetime
 from zone import Zone
 import errno
 
@@ -63,9 +65,9 @@ begin_message = False
 
 # GLOBAL VARIABLEs
 RECV_BUFFER = 8192
-ipc_file = "ipc_file.txt"
-user_info_file = "user_info.txt"
-alerts_file = "alerts.txt"
+ipc_file = "/var/www/Team16Website/garden_net/gn_util/ipc_file.txt"
+user_info_file = "/var/www/Team16Website/garden_net/gn_util/user_info.txt"
+alerts_file = "/var/www/Team16Website/garden_net/gn_util/alerts.txt"
 file_data = ""
 db = Database(False)
 json_conversion = JSON_Interface()
@@ -195,6 +197,30 @@ def broadcast(message: str, soc_list: list):
 				# send the message to the controller
 				#encoded = base64.b64encode(message.encode('ascii'))
 				s.sendall(message.encode('utf-8'))
+				time.sleep(3)
+				# close the socket
+				#s.close()
+				# remove it from our list
+				#soc_list.remove(s)
+			# catch the TimeoutError and remove the socket from out list
+			except SocketError as e:
+				if e.errno == errno.ECONNRESET:
+					broadcast(message, soc_list)
+				else:
+					soc_list.remove(s)
+					print(e)
+
+def broadcast_demo(message: str, soc_list: list):
+	# iterate over the socket list
+	for s in soc_list:
+		# If the socket is not us, not the ipc_socket, or not the test_server_socket
+		if s != server_socket and s != ipc_socket and s != test_server_socket and s != user_alert_socket\
+				and s != demo_one_socket and s != garden_status_socket and s != demo_two_socket:
+			# try to send the message
+			try:
+				# send the message to the controller
+				#encoded = base64.b64encode(message.encode('ascii'))
+				s.sendall(message.encode('utf-8'))
 				# close the socket
 				#s.close()
 				# remove it from our list
@@ -233,12 +259,9 @@ def create_event_list(json_str: str):
 					start_time = float(temp_start.replace(":", "."))
 					temp_stop = parsed[zone_string][event_string]['stop_time']
 					stop_time = float(temp_stop.replace(":", "."))
-					if (zone_id != i):
-						zone_id = i
 					valve = parsed[zone_string][event_string]['valve_num']
 					event = Event(start_time, stop_time, day, zone_id, valve)
 					EVENT_LIST.append(event)
-
 					# print(start_time)
 					# print(parsed[zone_string][event_string])
 					# print(event)
@@ -263,7 +286,7 @@ def send_event(begin_message):
 				print("Sending the EOT message")
 			done_message = "DONE"
 			broadcast(done_message, SOCKET_LIST)
-			time.sleep(5)
+			#time.sleep(5)
 			if args.verbose:
 				print("Successfully sent!")
 			global sending_todays_schedule
@@ -273,9 +296,18 @@ def send_event(begin_message):
 			if args.verbose:
 				print("Sending the BOT message: " + begin)
 			broadcast(begin, SOCKET_LIST)
-			time.sleep(5)
+			#time.sleep(5)
 			if args.verbose:
 				print("Successfully sent!")
+
+			# test_file = open("testing_overnight.txt", "a")
+			# fmt = "%Y-%m-%d %H:%M:%S %Z%z"
+			# now_time = datetime.datetime.now(timezone('US/Eastern'))
+			# time = now_time.strftime(fmt)
+			# test_file.write("\n" + time)
+			# for item in EVENT_LIST:
+			# 	test_file.write("\n" + str(item))
+			# test_file.close()
 		# there's still events in the EVENT_LIST
 		else:
 			# pop the front of the list
@@ -284,7 +316,7 @@ def send_event(begin_message):
 				print("Sending: " + str(it))
 				print("The length of the event list is: " + str(len(EVENT_LIST)))
 			broadcast(str(it), SOCKET_LIST)
-			time.sleep(5)
+			#time.sleep(5)
 			if args.verbose:
 				print("Successfully sent!")
 			# set the EOT flag
@@ -309,6 +341,248 @@ def get_todays_schedule():
 		if args.verbose:
 			print(item)
 	send_event(True)
+
+def increase_times(event: Event, increase_percentage: float, threshold: int, forecast: Forecast):
+	# print(event)
+	degrees_above = int(forecast.get_max_temp()) - threshold
+	total_increase_percentage = degrees_above * increase_percentage
+	#print("The total increase percentage: " + str(total_increase_percentage))
+	total_watering_time = event.stop_time - event.start_time
+	total_watering_time_hour = int(total_watering_time)
+	total_watering_time_minute = int((total_watering_time - total_watering_time) * 100)
+	total_watering_time_in_minutes = (total_watering_time_hour * 60) + total_watering_time_minute
+	#print("total_watering_time: " + str(total_watering_time_in_minutes))
+	increase_in_minutes = total_watering_time_in_minutes*total_increase_percentage
+	#print(increase_in_minutes)
+	#print("Total increase time: " + str(increase))
+	increase_hour = int(increase_in_minutes/60)
+	increase_minute = int(increase_in_minutes - increase_hour*60)
+	#print("Increase hour: " + str(increase_hour) + " Increase minute: " + str(increase_minute))
+	current_hour = int(event.stop_time)
+	current_minute = int((event.stop_time - current_hour) * 100)
+	if (int(current_minute) + increase_minute) == 60:
+		new_hour = int(current_hour) + 1 + increase_hour
+		new_minute = 0
+		temp = str(new_hour) + '.' + str(new_minute)
+		new_time = float(temp)
+		event.set_stop_time(new_time)
+	elif (int(current_minute) + increase_minute) > 60:
+		new_hour = current_hour + 1 + increase_hour
+		new_minute = (current_minute + increase_minute) - 60
+		if new_minute < 10:
+			temp = str(new_hour) + ".0" + str(new_minute)
+			new_time = float(temp)
+			event.set_stop_time(new_time)
+		else:
+			temp = str(new_hour) + "." + str(new_minute)
+			new_time = float(temp)
+			event.set_stop_time(new_time)
+	else:
+		new_hour = current_hour + increase_hour
+		new_minute = current_minute + increase_minute
+		temp = str(new_hour) + "." + str(new_minute)
+		new_time = float(temp)
+		event.set_stop_time(new_time)
+	return event
+
+def check_weather():
+	rain_threshold = .6
+	temp_threshold = 80
+	no_events_msg = "NoEvents"
+	if forecast.check_rain_prob(rain_threshold):
+		if args.verbose:
+			print("There will be rain today. No watering is needed!")
+			print("Sending: NoEvents")
+		broadcast(str(no_events_msg), SOCKET_LIST)
+		#time.sleep(5)
+		if args.verbose:
+			print("Successfully sent!")
+	elif forecast.check_temp(temp_threshold):
+		if args.verbose:
+			print("The forecast calls for very hot weather. Increasing watering times!")
+		day = forecast.get_current_day()
+		new_event_list = []
+		try:
+			event_list = db.get_all_events_on_day(day)
+			weather_setting_file = open("/var/www/Team16Website/garden_net/gn_util/garden_info.txt", "r")
+			#weather_setting_file = open("garden_info.txt", "r")
+			weather_settings = ""
+			for line in weather_setting_file:
+				weather_settings += line
+			parsed = json.loads(weather_settings)
+			for event in event_list:
+				i = 1
+				while True:
+					zone_string = "Zone" + str(i)
+					if int(parsed[zone_string]["node"]) == event.owner and \
+								int(parsed[zone_string]["valve"]) == event.valve_num and \
+								str(parsed[zone_string]["weather"]).upper() == "FULL":
+						#print(str(event) + " Needs to FULLY increase water times")
+						new_event_list.append(increase_times(event, .04, temp_threshold, forecast))
+						break
+					elif int(parsed[zone_string]["node"]) == event.owner and \
+								int(parsed[zone_string]["valve"]) == event.valve_num and \
+								str(parsed[zone_string]["weather"]).upper() == "PARTIAL":
+						#print(str(event) + " Needs to PARTIALLY increase water times")
+						new_event_list.append(increase_times(event, .02, temp_threshold, forecast))
+						break
+					elif int(parsed[zone_string]["node"]) == event.owner and \
+								int(parsed[zone_string]["valve"]) == event.valve_num and \
+								str(parsed[zone_string]["weather"]).upper() == "NONE":
+						#print(str(event) + " does NOT need to increase")
+						new_event_list.append(increase_times(event, 0, temp_threshold, forecast))
+						break
+					i += 1
+			EVENT_LIST.clear()
+			for item in new_event_list:
+				EVENT_LIST.append(item)
+				if args.verbose:
+					print("New event: " + str(item))
+			send_event(True)
+		except Exception as e:
+			if args.verbose:
+				print("No event found today, sending: NoEvents")
+				broadcast(no_events_msg, SOCKET_LIST)
+				print(e)
+
+	else:
+		if args.verbose:
+			print("No weather interference today. Sending the normal schedule!")
+		get_todays_schedule()
+
+
+
+def check_weather_old():
+	rain_threshold = .6
+	temp_threshold = 80
+	no_events_msg = "NoEvents"
+	if forecast.check_rain_prob(rain_threshold):
+		if args.verbose:
+			print("There will be rain today. No watering is needed!")
+			print("Sending: NoEvents")
+		broadcast(str(no_events_msg), SOCKET_LIST)
+		#time.sleep(5)
+		if args.verbose:
+			print("Successfully sent!")
+	elif forecast.check_temp(temp_threshold):
+		if args.verbose:
+			print("The forecast calls for very hot weather. Increasing watering times!")
+		day = forecast.get_current_day()
+		try:
+			event_list = db.get_all_events_on_day(day)
+			for event in event_list:
+				current_hour = int(event.stop_time)
+				current_minute = int((event.stop_time - current_hour) * 100)
+				if (int(current_minute) + 15) == 60:
+					new_hour = int(current_hour) + 1
+					new_minute = 0
+					temp = str(new_hour) + '.' + str(new_minute)
+					new_time = float(temp)
+					event.set_stop_time(new_time)
+				elif (int(current_minute) + 15) > 60:
+					new_hour = current_hour + 1
+					new_minute = (current_minute + 15) - 60
+					if new_minute < 10:
+						temp = str(new_hour) + ".0" + str(new_minute)
+						new_time = float(temp)
+						event.set_stop_time(new_time)
+					else:
+						temp = str(new_hour) + "." + str(new_minute)
+						new_time = float(temp)
+						event.set_stop_time(new_time)
+				else:
+					new_minute = current_minute + 15
+					temp = str(current_hour) + "." + str(new_minute)
+					new_time = float(temp)
+					event.set_stop_time(new_time)
+			EVENT_LIST.clear()
+			for item in event_list:
+				EVENT_LIST.append(item)
+				if args.verbose:
+					print("New event: " + str(item))
+			send_event(True)
+		except Exception as e:
+			if args.verbose:
+				print("No event found today, sending: NoEvents")
+				broadcast(no_events_msg, SOCKET_LIST)
+				print(e)
+
+	else:
+		if args.verbose:
+			print("No weather interference today. Sending the normal schedule!")
+		get_todays_schedule()
+
+def check_weather_demo():
+	rain = False
+	hot = False
+	demo_weather_report = open("/var/www/Team16Website/garden_net/gn_util/demo_weather_reports.txt", "r")
+	for line in demo_weather_report:
+		if line.split('\t')[0] == "rain":
+			if line.split('\t')[1].upper().split('\n')[0] == "TRUE":
+				rain = True
+				if args.verbose:
+					print("RAIN")
+		elif line.split('\t')[0] == "hot":
+			if line.split('\t')[1].upper().split('\n')[0] == "TRUE":
+				if args.verbose:
+					print("HOT")
+				hot = True
+	demo_weather_report.close()
+	no_events_msg = "NoEvents"
+	if rain:
+		if args.verbose:
+			print("There will be rain today. No watering is needed!")
+			print("Sending: NoEvents")
+		broadcast(str(no_events_msg), SOCKET_LIST)
+		EVENT_LIST.clear()
+		#time.sleep(5)
+		if args.verbose:
+			print("Successfully sent!")
+	elif hot:
+		if args.verbose:
+			print("The forecast calls for very hot weather. Increasing watering times!")
+		day = forecast.get_current_day()
+		event_list = EVENT_LIST
+		for event in event_list:
+			current_hour = int(event.stop_time)
+			current_minute = int((event.stop_time - current_hour) * 100)
+			if (int(current_minute) + 15) == 60:
+				new_hour = int(current_hour) + 1
+				new_minute = 0
+				temp = str(new_hour) + '.' + str(new_minute)
+				new_time = float(temp)
+				event.set_stop_time(new_time)
+			elif (int(current_minute) + 15) > 60:
+				new_hour = current_hour + 1
+				new_minute = (current_minute + 15) - 60
+				if new_minute < 10:
+					temp = str(new_hour) + ".0" + str(new_minute)
+					new_time = float(temp)
+					event.set_stop_time(new_time)
+				else:
+					temp = str(new_hour) + "." + str(new_minute)
+					new_time = float(temp)
+					event.set_stop_time(new_time)
+			else:
+				new_minute = current_minute + 15
+				temp = str(current_hour) + "." + str(new_minute)
+				new_time = float(temp)
+				event.set_stop_time(new_time)
+		for item in event_list:
+			if args.verbose:
+				print("New event: " + str(item))
+		send_event(True)
+
+	else:
+		if args.verbose:
+			print("No weather interference today. Sending the normal schedule!")
+		send_event(True)
+
+def convert_to_zero_or_one(value: str):
+	if value == "true":
+		return "1"
+	else:
+		return "0"
 
 """
 #######################################################################################################################
@@ -398,7 +672,7 @@ while True:
 			if args.verbose:
 				print("Got a connection from the slider")
 			status_client, status_addr = garden_status_socket.accept()
-			status_file = open("garden_power_status.txt", "r")
+			status_file = open("/var/www/Team16Website/garden_net/gn_util/garden_power_status.txt", "r")
 			status = status_file.readline()
 			if args.verbose:
 				print("Sending: " + status)
@@ -408,6 +682,41 @@ while True:
 			status_client.close()
 			if args.verbose:
 				print("Closed the test garden_power_status.txt")
+		elif sock == demo_one_socket:
+			if args.verbose:
+				print("Got a connection from the demo1")
+			demo1_client, demo1_addr = demo_one_socket.accept()
+			demo1_client.close()
+			demo1_file = open("/var/www/Team16Website/garden_net/gn_util/demo1_file.txt", "r")
+			if args.verbose:
+				print("Closed demo1 socket")
+			demo1_file_contents = []
+			for line in demo1_file:
+				demo1_file_contents.append(line)
+			valve1 = str(demo1_file_contents[1]).split('\t')[0]
+			valve2 = str(demo1_file_contents[1]).split('\t')[1]
+			valve3 = str(demo1_file_contents[1]).split('\t')[2]
+			send_string = "DEMO1%"+convert_to_zero_or_one(valve1) + "%" + convert_to_zero_or_one(valve2) + "%" + convert_to_zero_or_one(valve3)
+			if args.verbose:
+				print("Sending: " + send_string)
+			broadcast(send_string, SOCKET_LIST)
+			if args.verbose:
+				print("Successfully sent!")
+		elif sock == demo_two_socket:
+			if args.verbose:
+				print("Got a connection from the demo2")
+			demo2_client, demo2_addr = demo_two_socket.accept()
+			demo2_client.close()
+			demo2_file = open("/var/www/Team16Website/garden_net/gn_util/demo2_file.txt", "r")
+			if args.verbose:
+				print("Closed demo2 socket")
+			demo2_file = open("/var/www/Team16Website/garden_net/gn_util/demo2_file.txt", "r")
+			string = ""
+			for line in demo2_file:
+				string += line
+			create_event_list(string)
+			check_weather_demo()
+			# send_event(True)
 		elif sock == ipc_socket:
 			if args.verbose:
 				print("Got a connection from myself")
@@ -438,53 +747,42 @@ while True:
 				if args.verbose:
 					print(converted)
 
-				f2 = open("current_schedule_in_db.txt", 'w')
+				f2 = open("/var/www/Team16Website/garden_net/gn_util/current_schedule_in_db.txt", 'w')
 				f2.write(file_data)
 				f2.close()
 
-				# broadcast(converted, SOCKET_LIST)
-				# broadcast(file_data, SOCKET_LIST)
-				# if args.verbose:
-				# 	print("Creating the event list")
-				# # for item in EVENT_LIST:
-				# # 	EVENT_LIST.remove(item)
-				# # create_event_list(converted)
-				# if args.verbose:
-				# 	print("Event list created")
-				# # send_event()
-				# if args.verbose:
-				# 	for event in EVENT_LIST:
-				# 		print(str(event))
 				get_todays_schedule()
 				print("The length of the event list is: " + str(len(EVENT_LIST)))
-				# send_event(True)
-				# sock.close()
-				# print(file_data)
-				# broadcast(file_data, SOCKET_LIST)
-				# print(file_data)
-				# broadcast(file_data, SOCKET_LIST)
+
 		try:
 			data = sock.recv(RECV_BUFFER)
 			if data:
 				print("Received: " + data.decode('utf-8'))
+				# test_file_2 = open("received_testing_overnight.txt", "a")
+				# fmt = "%Y-%m-%d %H:%M:%S %Z%z"
+				# now_time = datetime.datetime.now(timezone('US/Eastern'))
+				# time = now_time.strftime(fmt)
+				# test_file_2.write("\n" + time)
+				# for item in EVENT_LIST:
+				# 	test_file_2.write("\nReceived: " + data.decode('utf-8'))
+				# test_file_2.close()
 				if str(data.decode('utf-8')).upper() == "RESENDSCHEDULE":
 					if args.verbose:
 						print("I need to resend the schedule")
-					resend_port = 5538
-					try:
-						resend = socket.create_connection(('localhost', resend_port))
-						if args.verbose:
-							print("Reconnecting to local host")
-					except:
-						if args.verbose:
-							print("Unable to connect")
-					resend.close()
+					# resend_port = 5538
+					# try:
+					# 	resend = socket.create_connection(('localhost', resend_port))
+					# 	if args.verbose:
+					# 		print("Reconnecting to local host")
+					# except:
+					# 	if args.verbose:
+					# 		print("Unable to connect")
+					# resend.close()
+					check_weather()
 				elif str(data.decode('utf-8')).upper() == "SCHEDULE?":
 					if args.verbose:
 						print("Getting today's schedule")
-					get_todays_schedule()
-					if args.verbose:
-						print("Successfully sent today's schedule")
+					check_weather()
 				elif str(data.decode('utf-8')).upper() == "ALERT?":
 					if args.verbose:
 						print("Opening alert port")
@@ -496,7 +794,7 @@ while True:
 				elif str(data.decode('utf-8')).upper() == "STATE?":
 					if args.verbose:
 						print("Sending the current state!")
-					state_file = open("garden_power_status.txt", "r")
+					state_file = open("/var/www/Team16Website/garden_net/gn_util/garden_power_status.txt", "r")
 					state = state_file.readline().split("\n")[0]
 					if args.verbose:
 						print("Sending: " + state + " .........")

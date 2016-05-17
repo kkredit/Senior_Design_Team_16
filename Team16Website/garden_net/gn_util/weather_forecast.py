@@ -10,9 +10,10 @@
 	can use it to manipulate the schedule of events.
 """
 # Third party imports
-from forecastiopy import ForecastIO, FIOHourly
+from forecastiopy import ForecastIO, FIOHourly, FIODaily
 from datetime import datetime, timedelta
 from pytz import timezone
+from send_email import Alert
 
 class Forecast:
 	"""
@@ -67,9 +68,10 @@ class Forecast:
 		if self._fio.has_hourly() is True:
 			hourly = FIOHourly.FIOHourly(self._fio)
 			for hour in range(0, 24):
-				if hourly.get_hour(hour)['precipProbability'] > threshold:
+				#print(hourly.get_hour(hour)['precipProbability'])
+				if hourly.get_hour(hour)['precipProbability'] >= threshold:
 					sum += 1
-			if sum >= 6:
+			if sum >= 3:
 				return True
 			else:
 				return False
@@ -180,15 +182,42 @@ class Forecast:
 		elif it == 7:
 			return "Sunday"
 
+	def get_max_temp(self):
+		if self._fio.has_daily():
+			daily = FIODaily.FIODaily(self._fio)
+			return daily.get_day(0)["temperatureMax"]
+
+	def check_for_freeze(self):
+		if self._fio.has_daily():
+			daily = FIODaily.FIODaily(self._fio)
+			for x in range(0, 14):
+				try:
+					tempMin = daily.get_day(x)["temperatureMin"]
+					if float(tempMin) <= 32:
+						fmt = "%m-%d-%Y"
+						now_time = datetime.now(timezone('US/Eastern')) + timedelta(days=x)
+						time = now_time.strftime(fmt)# + datetime.timedelta(days=x)
+						#print(time)
+						TEXT = "Hello GardeNet User,\n\nThe forecast for " + time + " shows that the temperature" \
+								" may reach " + str(tempMin) + " degrees. We suggest preparing your system for the " \
+							   "freeze. \n\nRegards,\nGardeNet"
+						Alert(TEXT)
+						break
+				except:
+					pass
+
 if __name__ == "__main__":
 	forecast = Forecast()
 	#days_rainfall = forecast.get_total_24_rain_forecast()
 	#forecast_string = forecast.get_forecast()
 	#print(days_rainfall)
 	#print(forecast_string)
-	rain = forecast.check_rain_prob(.80)
-	temp = forecast.check_temp(92)
-	day = forecast.get_current_day()
-	print(rain)
-	print(temp)
-	print(day)
+	rain = forecast.check_rain_prob(.6)
+	# temp = forecast.check_temp(92)
+	# day = forecast.get_current_day()
+	# print(rain)
+	# print(temp)
+	# print(day)
+	# print(rain)
+	# print(forecast.get_max_temp())
+	forecast.check_for_freeze()

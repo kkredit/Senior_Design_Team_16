@@ -17,6 +17,7 @@
 """
 # Third Party Imports
 import datetime
+from datetime import timedelta
 from pytz import timezone
 from sqlalchemy import Column, Float, String, Integer, ForeignKey
 
@@ -38,9 +39,19 @@ class Historical_Database_Interface(HistoricalBase):
 	def __init__(self, long_ugly_string: str):
 		self._long_ugly = long_ugly_string
 		fmt = "%m-%d-%Y"
-		now_time = datetime.datetime.now(timezone('US/Eastern'))
-		time = now_time.strftime(fmt)
-		#print(time)
+		current_hour_fmt = "%H"
+		current_minute_fmt = "%M"
+		current_time = datetime.datetime.now(timezone('US/Eastern'))
+		current_hour = int(current_time.strftime(current_hour_fmt))
+		print(current_hour)
+		current_minute = int(current_time.strftime(current_minute_fmt))
+		# between 12 and 12:05
+		if current_hour == 0 and current_minute < 5:
+			now_time = datetime.datetime.now(timezone('US/Eastern')) - timedelta(days=1)
+			time = now_time.strftime(fmt)
+		else:
+			now_time = datetime.datetime.now(timezone('US/Eastern'))
+			time = now_time.strftime(fmt)
 		self._date = time
 
 	"""
@@ -62,5 +73,22 @@ class Historical_Database_Interface(HistoricalBase):
 		return self._date
 	############################
 if __name__ == "__main__":
-	it = Historical_Database_Interface("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
-	print(str(it).split('\t')[1])
+	# it = Historical_Database_Interface("00%0.99%0.99%0.99%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}%{%1%0%0.99%209.3%1%[%1%60%]%[%2%30%]%[%3%75%]%}")
+	# print(str(it).split('\t')[1])
+	fmt = "%m-%d-%Y"
+	current_hour_fmt = "%H"
+	current_minute_fmt = "%M"
+	current_time = datetime.datetime.now(timezone('US/Eastern')) + timedelta(hours=13)
+	current_hour = int(current_time.strftime(current_hour_fmt))
+	print(current_hour)
+	current_minute = int(current_time.strftime(current_minute_fmt))
+	# between 12 and 12:05
+	if current_hour == 0 and current_minute < 5:
+		now_time = datetime.datetime.now(timezone('US/Eastern')) - timedelta(days=1)
+		time = now_time.strftime(fmt)
+	else:
+		now_time = datetime.datetime.now(timezone('US/Eastern'))
+		time = now_time.strftime(fmt)
+
+	print(time)
+

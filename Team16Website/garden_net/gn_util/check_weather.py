@@ -7,8 +7,8 @@ from JSON import JSON_Interface
 forecast = Forecast()
 #db = Database(False)
 ipc_file = "ipc_file.txt"
-rain_threshold = .80
-temp_threshold = 92
+rain_threshold = .8
+temp_threshold = 10
 json_convert = JSON_Interface()
 
 soc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -64,61 +64,94 @@ db.add_event(test_event15)
 
 #########testing
 
-
+print(forecast.check_temp(temp_threshold))
 f = open(ipc_file, 'w')
-
 if forecast.check_rain_prob(rain_threshold):
 	#print("NoEvents")
 	f.write("NoEvents")
 	f.close()
-	try:
-		soc = socket.create_connection(('localhost', port))
-	except:
-		print("Unable to connect")
+
+	# try:
+	# 	soc = socket.create_connection(('localhost', port))
+	# except:
+	# 	print("Unable to connect")
 elif forecast.check_temp(temp_threshold):
+	# day = forecast.get_current_day()
+	# #event_list = db.get_events_on_day_for_zone(day, 1)
+	# event_list = db.get_events_on_day_for_zone("Everyday", 2)
+	# zone = 1
+	# it = "{"
+	# while True:
+	# 	try:
+	# 		zone_obj = Zone(zone)
+	# 		for event in event_list:
+	# 			current_hour = int(event.stop_time)
+	# 			current_minute = int((event.stop_time - current_hour) * 100)
+	# 			if (int(current_minute) + 15) == 60:
+	# 				new_hour = int(current_hour) + 1
+	# 				new_minute = 0
+	# 				temp = str(new_hour) + '.' + str(new_minute)
+	# 				new_time = float(temp)
+	# 				event.set_stop_time(new_time)
+	# 			elif (int(current_minute) + 15) > 60:
+	# 				new_hour = current_hour + 1
+	# 				new_minute = (current_minute + 15) - 60
+	# 				if new_minute < 10:
+	# 					temp = str(new_hour) + ".0" + str(new_minute)
+	# 					new_time = float(temp)
+	# 					event.set_stop_time(new_time)
+	# 				else:
+	# 					temp = str(new_hour) + "." + str(new_minute)
+	# 					new_time = float(temp)
+	# 					event.set_stop_time(new_time)
+	# 			else:
+	# 				new_minute = current_minute + 15
+	# 				temp = str(current_hour) + "." + str(new_minute)
+	# 				new_time = float(temp)
+	# 				event.set_stop_time(new_time)
+	# 		temp_zone = Zone(zone+1)
+	# 		try:
+	# 			db.get_events_on_day_for_zone(day, zone+1)
+	# 			it += json_convert.to_JSON(event_list, zone_obj, True)
+	# 		except:
+	# 			it += json_convert.to_JSON(event_list, zone_obj, False)
+	# 	except:
+	# 		break
+	# 	zone += 1
+	# it += "}"
+	# f.write(it)
+	resend_update = open("resend_update.txt", "w")
 	day = forecast.get_current_day()
-	zone = 1
-	it = "{"
-	while True:
-		try:
-			event_list = db.get_events_on_day_for_zone(day, zone)
-			zone_obj = Zone(zone)
-			for event in event_list:
-				current_hour = int(event.stop_time)
-				current_minute = int((event.stop_time - current_hour) * 100)
-				if (int(current_minute) + 15) == 60:
-					new_hour = int(current_hour) + 1
-					new_minute = 0
-					temp = str(new_hour) + '.' + str(new_minute)
-					new_time = float(temp)
-					event.set_stop_time(new_time)
-				elif (int(current_minute) + 15) > 60:
-					new_hour = current_hour + 1
-					new_minute = (current_minute + 15) - 60
-					if new_minute < 10:
-						temp = str(new_hour) + ".0" + str(new_minute)
-						new_time = float(temp)
-						event.set_stop_time(new_time)
-					else:
-						temp = str(new_hour) + "." + str(new_minute)
-						new_time = float(temp)
-						event.set_stop_time(new_time)
-				else:
-					new_minute = current_minute + 15
-					temp = str(current_hour) + "." + str(new_minute)
-					new_time = float(temp)
-					event.set_stop_time(new_time)
-			temp_zone = Zone(zone+1)
-			try:
-				db.get_events_on_day_for_zone(day, zone+1)
-				it += json_convert.to_JSON(event_list, zone_obj, True)
-			except:
-				it += json_convert.to_JSON(event_list, zone_obj, False)
-		except:
-			break
-		zone += 1
-	it += "}"
-	f.write(it)
+	event_list = db.get_all_events_on_day(day)
+	for event in event_list:
+		current_hour = int(event.stop_time)
+		current_minute = int((event.stop_time - current_hour) * 100)
+		if (int(current_minute) + 15) == 60:
+			new_hour = int(current_hour) + 1
+			new_minute = 0
+			temp = str(new_hour) + '.' + str(new_minute)
+			new_time = float(temp)
+			event.set_stop_time(new_time)
+		elif (int(current_minute) + 15) > 60:
+			new_hour = current_hour + 1
+			new_minute = (current_minute + 15) - 60
+			if new_minute < 10:
+				temp = str(new_hour) + ".0" + str(new_minute)
+				new_time = float(temp)
+				event.set_stop_time(new_time)
+			else:
+				temp = str(new_hour) + "." + str(new_minute)
+				new_time = float(temp)
+				event.set_stop_time(new_time)
+		else:
+			new_minute = current_minute + 15
+			temp = str(current_hour) + "." + str(new_minute)
+			new_time = float(temp)
+			event.set_stop_time(new_time)
+	for item in event_list:
+		print(item)
+		resend_update.write(str(item) + "\n")
+
 else:
 	day = forecast.get_current_day()
 	zone = 1
@@ -159,5 +192,5 @@ f.close()
 
 it = db.get_all_events_on_day("Tuesday")
 
-for nothing in it:
-	print(nothing)
+# for nothing in it:
+# 	print(nothing)

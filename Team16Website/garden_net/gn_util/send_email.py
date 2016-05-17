@@ -28,7 +28,8 @@ class Alert:
 			if str(current[0]).upper() == "EMAIL:":
 				email_address = str(current[1].split('\n')[0])
 		TO = email_address
-		SUBJECT = "GardeNet Alert!"
+		#SUBJECT = "GardeNet Alert!"
+		SUBJECT = "TESTING"
 
 
 		# gmail Credentials
