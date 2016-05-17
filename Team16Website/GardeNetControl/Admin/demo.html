@@ -248,7 +248,7 @@
 							<input name="Zone2[event0[stop_time]]" type="time">
 							<label class="active" for="Zone2[event0[stop_time]]">Stop</label>
 							<input value="1" name="Zone2[event0[zone_ID]]" class="hide">
-							<input value="1" name="Zone2[event0[valve_num]]" class="hide">
+							<input value="2" name="Zone2[event0[valve_num]]" class="hide">
 						</div>
 					</div>
 					<div id="row4" class="row">
@@ -277,7 +277,7 @@
 							<input name="Zone2[event1[stop_time]]" type="time">
 							<label class="active" for="Zone2[event1[stop_time]]">Stop</label>
 							<input value="1" name="Zone2[event1[zone_ID]]" class="hide">
-							<input value="1" name="Zone2[event1[valve_num]]" class="hide">
+							<input value="2" name="Zone2[event1[valve_num]]" class="hide">
 						</div>
 					</div>
 
@@ -311,7 +311,7 @@
 							<input name="Zone3[event0[stop_time]]" type="time">
 							<label class="active" for="Zone3[event0[stop_time]]">Stop</label>
 							<input value="1" name="Zone3[event0[zone_ID]]" class="hide">
-							<input value="1" name="Zone3[event0[valve_num]]" class="hide">
+							<input value="3" name="Zone3[event0[valve_num]]" class="hide">
 						</div>
 					</div>
 					<div id="row6" class="row">
@@ -340,7 +340,7 @@
 							<input name="Zone3[event1[stop_time]]" type="time">
 							<label class="active" for="Zone3[event1[stop_time]]">Stop</label>
 							<input value="1" name="Zone3[event1[zone_ID]]" class="hide">
-							<input value="1" name="Zone3[event1[valve_num]]" class="hide">
+							<input value="3" name="Zone3[event1[valve_num]]" class="hide">
 						</div>
 					</div>
 				</form>
@@ -392,6 +392,131 @@
 		</div>
 	</footer>
 	<script src="../../js/materialize.min.js"></script>
+	<script>
+		$("#mySwitch1").change(function(){
+
+		var sw1 = $('#mySwitch1').prop('checked');
+		var sw2 = $('#mySwitch2').prop('checked');
+		var sw3 = $('#mySwitch3').prop('checked');
+		var string = "Demo 1\n"+sw1+"\t"+sw2+"\t"+sw3;
+		console.log(string);	
+		//alert('checkbox value: '+ checkbox);
+		$.ajax({
+			url: "../demo1.php",
+			cache: false,
+			dataType: "text",
+			type: 'POST',
+			data: {string: string},
+			success: function(data) {
+				
+				}
+			
+
+			});
+
+		});
+		$("#mySwitch2").change(function(){
+
+		var sw1 = $('#mySwitch1').prop('checked');
+		var sw2 = $('#mySwitch2').prop('checked');
+		var sw3 = $('#mySwitch3').prop('checked');
+		var string = "Demo 1\n"+sw1+"\t"+sw2+"\t"+sw3;
+		console.log(string);	
+		//alert('checkbox value: '+ checkbox);
+		$.ajax({
+			url: "../demo1.php",
+			cache: false,
+			dataType: "text",
+			type: 'POST',
+			data: {string: string},
+			success: function(data) {
+				
+				}
+			
+
+			});
+
+		});
+		$("#mySwitch3").change(function(){
+
+		var sw1 = $('#mySwitch1').prop('checked');
+		var sw2 = $('#mySwitch2').prop('checked');
+		var sw3 = $('#mySwitch3').prop('checked');
+		var string = "Demo 1\n"+sw1+"\t"+sw2+"\t"+sw3;
+		console.log(string);	
+		//alert('checkbox value: '+ checkbox);
+		$.ajax({
+			url: "../demo1.php",
+			cache: false,
+			dataType: "text",
+			type: 'POST',
+			data: {string: string},
+			success: function(data) {
+				
+				}
+			
+
+			});
+
+		});
+	</script>
+	<script>
+	$(document).ready(function() {
+			jQuery.get('../../garden_net/gn_util/demo1_file.txt', function(data) {
+			   //process text file line by line
+
+			   var lines = [];
+			   lines = data.split("\n");
+			   var tabs = [];
+			   
+			 
+			   	tab = lines[1].split("\t");
+			   	
+			   	
+			  
+
+			  	var sw1 = (tab[0] == "true");
+			  	var sw2 = (tab[1] == "true");
+			  	var sw3 = (tab[2] == "true");
+			  
+
+
+
+			  	$("#mySwitch1").prop("checked", sw1);
+			  	$("#mySwitch2").prop("checked", sw2);
+			  	$("#mySwitch3").prop("checked", sw3);
+			  });
+
+				$.getJSON('../../garden_net/gn_util/demo2_file.txt', function(jsondata){
+					$.each(jsondata, function(i, item){
+						var thingName = "";
+						thingName = i;
+						$.each(item, function(j, event){
+							var nextName = "";
+							nextName = thingName + "[" + j;
+							$.each(event, function(k, name){
+								var finalName = "";
+								finalName = nextName + "[" + k + "]]";
+								if(k == "day"){
+									$("select[name='"+finalName+"']").val(name);
+									$("select[name='"+finalName+"']").material_select('destroy');
+									$("select[name='"+finalName+"']").material_select();
+								}else{
+									$("input[name='"+finalName+"']").val(name);
+								}
+							});
+						});
+					});
+				});
+
+
+
+			});
+	</script>
+
+
+
+					
 
 	<!--  Scripts-->
 

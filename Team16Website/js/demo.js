@@ -1,5 +1,22 @@
+ // -- Beginning of file --
+/* 
+ * [demo.js]
+ * 
+ * demo.js handles the form entry fields for Demo 2 for Senior Design Night
+ * Fields are treated as if they were the same as the normal schedule.
+ *
+ * (C) 2016, John Connell
+ * Last Modified: [29-04-2016]
+ */
+
+
+
+
+
+
+
+
 $(document).ready(function(){
-	$("select").material_select();
 	tabs=$('#tabs').scrollTabs({
 		click_callback: function(e){
 			$('div[id^="demo"]').addClass("hide").removeClass("active");
@@ -12,6 +29,18 @@ $(document).ready(function(){
 	});
 });
 
+/* 
+ * submit()
+ *
+ * Takes input form of demo.html and submits them with error checking.
+ * 
+ * 
+ * @param text str1: values of each form's start time
+ * @param text str2: values of each form's end time
+ * ^^ repeat for each parameter^^
+ * 
+ * @return type varname: returns alert of "Demo Submitted!" upon successful submission.
+ */ 
 
 function submit(){
 	var myForm = $("#demoForm").serializeJSON();
@@ -34,13 +63,13 @@ function submit(){
 
 
 	$.ajax({
-		url: "../savejson.php",
+		url: "../demo2.php",
 		cache: false,
 		dataType: "text",
 		type: 'POST',
 		data: {jsonString: jsonString},
 		success: function(data) {
-			alert("Garden Info Submitted!");
+			alert("Demo Submitted!");
 		}
 		
 

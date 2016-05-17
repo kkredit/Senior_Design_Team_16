@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
 
@@ -9,15 +8,15 @@
 
 	<!-- CSS  -->
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-	<link href="../../css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-	<link href="../../css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
-	<!-- <link rel="stylesheet" type="time/css" href="../../css/materialize.clockpicker.css"> -->
+	<link href="../css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+	<link href="../css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+	<!-- <link rel="stylesheet" type="time/css" href="../css/materialize.clockpicker.css"> -->
 
 	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-	<script src="../../js/jquery.serializejson.js"></script>
+	<script src="../js/jquery.serializejson.js"></script>
 
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	<script type="text/javascript" src="../../js/history.js"></script>
+	<script type="text/javascript" src="../js/history.js"></script>
     
 
 
@@ -34,25 +33,25 @@
 	<div class = "navbar-fixed">
 		<nav class="white" role="navigation">
 			<div class="nav-wrapper container"  style="z-index: 3">
-				<a id="logo-container" href="index.html" class="brand-logo hide-on-small-and-down"><i>Garde<b>Net  </b> Controller  <img src="../../photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
+				<a id="logo-container" href="index.html" class="brand-logo hide-on-small-and-down"><i>Garde<b>Net  </b> Controller  <img src="../photos/GARDENET.jpg" width="40" height="45" alt=""/></i></a>
 				<a id="logo-container" href="index.html" class="brand-logo hide-on-med-and-up text-align right"><i>Garde<b>Net  </b> Controller  </i></a>
 				<ul class="right hide-on-med-and-down">
-					<li><a href="../../index.html">Home</a></li>
+					<li><a href="../index.html">Home</a></li>
 					<li class="active"><a href="#">GardeNet Controller</a></li>
-					<li><a href="../index.html">Logout</a></li>
+					<li><a href="Admin/admin.html">Admin Access</a></li>
 				</ul>
 
 				<!-- Mobile NavBar -->
 				<ul id="nav-mobile" class="side-nav teal text-white">
-					<li><a class= "white-text" href="../../index.html">Home: </a></li>
+					<li><a class= "white-text" href="../index.html">Home: </a></li>
 					<li class="no-padding">
 						<ul class="collapsible collapsible-accordion">
 							<li><a class="white-text collapsible-header" style="padding-left:2em;">- Documents/About Us<i class="mdi-navigation-arrow-drop-down right"></i></a>
 								<div class="collapsible-body teal">
 									<ul>
-										<li><a class="white-text" href="../../index.html#documents">Documents</a></li>
-										<li><a class = "white-text" href="../../about.html">About Us</a></li>
-										<li><a class="white-text" href="../../blog.html">Blog</a></li>
+										<li><a class="white-text" href="../index.html#documents">Documents</a></li>
+										<li><a class = "white-text" href="../about.html">About Us</a></li>
+										<li><a class="white-text" href="../blog.html">Blog</a></li>
 									</ul>
 								</div>
 							</li>
@@ -86,12 +85,10 @@
 					<div class="divider white"></div>
 					<li class= "active"><a class = "teal-text" href="../index.html">GardeNet Controller:</a></li>
 					<div class="divider teal"></div>
-					<li><a class= "white-text" href="admin.html" style="padding-left:2em;">- Schedule</a></li>
+					<li><a class= "white-text" href="index.html" style="padding-left:2em;">- Schedule</a></li>
 					<li class= "active"><a class= "teal-text" href="history.html" style="padding-left:2em;">- Historical Data</a></li>
-					<li><a class= "white-text" href="alert.html" style="padding-left:2em;">- Alert Settings</a></li>
-					<li><a class= "white-text" href="account.html" style="padding-left:2em;">- Account Settings</a></li>
 					<div class="divider white"></div>
-					<li><a class= "white-text" href="../index.html">Logout</a></li>
+					<li><a class= "white-text" href="Admin/admin.html">Admin Access</a></li>
 				</ul>
 				<a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
 			</div>
@@ -102,10 +99,8 @@
 		<nav class="teal darken-2 container subnav z-depth-0" role="navigation">
 			<div class="nav-wrapper">
 				<ul class="right">
-					<li><a class="white-text" href="admin.html">Schedule</a></li>
+					<li><a class="white-text" href="indexS.html">Schedule</a></li>
 					<li class="active"><a class="white-text" href="history.html">Historical Data</a></li>
-					<li><a class="white-text" href="alert.html">Alert Settings</a></li>
-					<li><a class="white-text" href="account.html">Account Settings</a></li>
 				</ul>
 			</div>
 		</nav>
@@ -125,13 +120,7 @@
 
 	</div>
 
-	<div class="container">
-		<a href="../../garden_net/gn_util/historical_data.txt" download="HistoricalData.txt" ><button >Download Historical Data</button></a>
-		<a href="#"><button class="right" onClick="deleteData()">Delete Historical Data</button></a>
-		<br/>
-		<br/>
-		
-	</div>
+	
 
 
 
@@ -169,7 +158,7 @@
 					</ul>
 				</div>
 				<div class="col l1 s12">
-					<a href = "http://www.calvin.edu"><img src= "../../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
+					<a href = "http://www.calvin.edu"><img src= "../photos/CalvinLogo.jpg" alt = "Calvin logo" height= "135" width = "270"></a>
 				</div>
 			</div>
 		</div>
@@ -182,16 +171,16 @@
 
 	<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
 
-	<script src="../../js/init.js"></script>
+	<script src="../js/init.js"></script>
 
-	<script src="../../js/materialize.min.js"></script>
+	<script src="../js/materialize.min.js"></script>
 
 	<!--  Scripts-->
 
-	<script src="../../js/jquery.serializejson.js"></script>
+	<script src="../js/jquery.serializejson.js"></script>
 
-	<script src="../../js/jquery.scrolltabs.js"></script>
-	<script src="../../js/jquery.mousewheel.js"></script>
+	<script src="../js/jquery.scrolltabs.js"></script>
+	<script src="../js/jquery.mousewheel.js"></script>
 
 
 

@@ -1,3 +1,18 @@
+ // -- Beginning of file --
+/* 
+ * [duplicate_delete.js]
+ * 
+ * duplicate_delete.js script file is the main source of all javascript functions
+ * in the main scheduler of the garden. Other functions include changing the username
+ * and password of the Admin pages of GardeNet
+ * 
+ * (C) 2016, John Connell
+ * Last Modified: [20-04-2016]
+ */
+
+
+
+
 var number = 4;
 var tabs = null;
 var num = 4;
@@ -7,6 +22,9 @@ var tab3num = 4;
 var tab4num = 4;
 var i= 0;
 var j= 0;
+
+
+// Initialize the zone tabs to show and hide data on click
 $(document).ready(function(){
 	tabs=$('#tabs').scrollTabs({
 		click_callback: function(e){
@@ -40,7 +58,17 @@ $(document).ready(function(){
 });
 
 
-
+/* 
+ * loadZonesandEvents()
+ *
+ * Pulls information from garden_info.txt JSON text file,
+ * then opens the number of necessary zones and events as specified in the file.
+ * 
+ * @param int tab#num: number of open events per tab
+ * @param int number: number of open zones/tabs
+ * 
+ * @return type varname: displays the correct number of tabs and events.
+ */ 
 function loadZonesandEvents(){
 	$.getJSON('../../garden_net/gn_util/garden_info.txt', function(jsondata){
 		$.each(jsondata, function(i, item){
@@ -94,7 +122,20 @@ function loadZonesandEvents(){
 
 }
 
-
+/* 
+ * login()
+ *
+ * Takes input form of account.html file and submits them with error checking.
+ * 
+ * @preconditions: as applicable
+ * @postconditions: as applicable
+ * 
+ * @param text username: new username of user
+ * @param text password: new password of user
+ * ^^ repeat for each parameter^^
+ * 
+ * @return type varname: returns account of data in text file.
+ */ 
 function login(){
 
 	if($('input[name="Username1"]').val() == $('input[name="Username2"]').val()){
@@ -103,7 +144,10 @@ function login(){
 			var jsonString= JSON.stringify(login);
 			console.log(jsonString);
 
-
+	/*
+	 * All ajax forms used on page are POST commands due to url size restrictions with GET
+	 * POST also allows for data security when sending commands and information.
+	 */
 			$.ajax({
 				url: "../login.php",
 				cache: false,
@@ -128,42 +172,13 @@ function login(){
 
 }
 
-// function alert(){
 
-// 	if($('input[name="phone-1"]').val() == $('input[name="phone-4"]').val()){
-// 		if($('input[name="Email1"]').val() == $('input[name="Email2"]').val()){
-// 			var cell = $('input[name="CellNum1"]').val($('input[name="phone-1"]').val()+$('input[name="phone-2"]').val()+$('input[name="phone-3"]').val());
-// 			console.log(cell);
-
-// 			var login = $("#login").serializeJSON();
-// 			var jsonString= JSON.stringify(login);
-// 			console.log(jsonString);
-
-
-// 			// $.ajax({
-// 			// 	url: "../login.php",
-// 			// 	cache: false,
-// 			// 	dataType: "text",
-// 			// 	type: 'POST',
-// 			// 	data: {jsonString: jsonString},
-// 			// 	success: function(data) {
-// 			// 		alert(data);
-// 			// 	}
-				
-
-// 			// });
-
-// 		}else{
-// 			alert("Alert: Email Addresses do not match.\nPlease enter the same email in both forms.");
-// 		}
-// 	}else{
-// 		alert("Alert: Phone Numbers do not match.\nPlease enter the same number in both forms.");
-// 	}
-	
-
-
-// }
-
+/* 
+ * editTitle()
+ *
+ * Changes Zone title to the user's input
+ * 
+ */ 
 
 
 
@@ -196,6 +211,15 @@ function editTitle(){
 	}
 
 }
+
+/* 
+ * genTitle()
+ *
+ * Sets the title on submission
+ * 
+ */ 
+
+
 
 function genTitle(){
 	var newTitle;
@@ -256,7 +280,10 @@ function genTitle(){
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
 
-
+	/*
+	 * All ajax forms used on page are POST commands due to url size restrictions with GET
+	 * POST also allows for data security when sending commands and information.
+	 */
 	$.ajax({
 		url: "../saveinfo.php",
 		cache: false,
@@ -271,7 +298,12 @@ function genTitle(){
 	});
 }
 
-
+/* 
+ * advanced()
+ *
+ * Displays the advanced options
+ * 
+ */ 
 
 
 
@@ -298,6 +330,14 @@ function advanced(){
 		$('#adControls4').addClass("hide");
 	}
 }
+
+/* 
+ * genTitle()
+ *
+ * Sends the Changed options of Node and Valve to the garden_info text file
+ * 
+ */ 
+
 
 function changeNV(){
 	if($('#tab1.active').hasClass("active")){
@@ -351,7 +391,10 @@ function changeNV(){
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
 
-
+	/*
+	 * All ajax forms used on page are POST commands due to url size restrictions with GET
+	 * POST also allows for data security when sending commands and information.
+	 */
 	$.ajax({
 		url: "../saveinfo.php",
 		cache: false,
@@ -364,30 +407,50 @@ function changeNV(){
 		
 
 	});
-	location.reload();
+	
 }
 
 
 
 
-
+/* 
+ * forwardFunction()
+ *
+ * Used to increment the amount of zones currently used
+ * 
+ */ 
 
 function forwardFunction()
 {
-	if(number<16){
+	if(number<3){
 		++number; 
 		tabs.addTab("<li id='li_"+number+"'><a id ='"+number+"' href='#tab"+number+"'>Zone "+number+"</li>");
 
 		if(number>0){
-			$("#button2").show()
+			$("#button2").show();
 		}
 	}
 	else{
-		$("#button").hide();   
+		++number; 
+		$("#button").hide(); 
+		tabs.addTab("<li id='li_"+number+"'><a id ='"+number+"' href='#tab"+number+"'>Zone "+number+"</li>");
+		for(j=0; j<21; j++){
+			$('select[name="Zone'+number+'[event'+j+'[day]]"]').material_select();
+		}
+
 	}
 	$('input[name="Garden[openZones]"]').val(number);
 
 }
+
+
+/* 
+ * deleteTabs()
+ *
+ * Used to decrement the amount of zones currently used 
+ * from the last created zone.
+ * 
+ */ 
 
 function deleteTabs()
 { 
@@ -414,7 +477,28 @@ function deleteTabs()
 
 
 }
+
+
+/* 
+ * submit()
+ *
+ * Takes all form data of the schedule and changes them into a JSON format
+ * with the help of the serializeJSON() javascript file
+ * 
+ * 
+ * submit also has the responsibility of submitting not only the schedule but 
+ * also the garden information for the necessity of redundancy
+ *
+ */ 
+
+
 function submit(){
+
+
+	/*
+	 * For the unused events, the values are changed to the defaults i.e.
+	 *  Day = Monday, start_time = 00:00, stop_time = 01:00
+	 */
 	
 	for(i=tab1num-1; i<20; i++){
 		$('select[name="Zone1[event'+i+'[day]]"]').val("Monday");
@@ -437,7 +521,10 @@ function submit(){
 		$('input[name="Zone4[event'+i+'[stop_time]]"]').val("01:00");
 	}
 	
-
+	/*
+	 * Disables the Garden Info forms to prevent submission in
+	 *  the schedule file.
+	 */
 
 	for(i=1; i<10; i++){
 		$('input[name="Zone'+i+'[name]"]').prop("disabled", true);
@@ -480,6 +567,10 @@ function submit(){
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
 
+	/*
+	 * All ajax forms used on page are POST commands due to url size restrictions with GET
+	 * POST also allows for data security when sending commands and information.
+	 */
 	$.ajax({
 		url: "../savejson.php",
 		dataType: "text",
@@ -487,13 +578,15 @@ function submit(){
 		data: {jsonString: jsonString},
 		success: function(data) {
 			alert("Schedule Submitted!");
-			console.log(data);
 		}
 		
 
 	});
 
-
+	/*
+	 * Disables the Schedule forms to prevent submission in
+	 *  the garden info file.
+	 */
 	for(i=0; i<21; i++){
 		for(j=0; j<21; j++){
 			$('select[name="Zone'+i+'[event'+j+'[day]]"]').prop("disabled", true);
@@ -521,14 +614,17 @@ function submit(){
 	var jsonString = JSON.stringify(myForm);
 	console.log(jsonString);
 
-
+	/*
+	 * All ajax forms used on page are POST commands due to url size restrictions with GET
+	 * POST also allows for data security when sending commands and information.
+	 */
 	$.ajax({
 		url: "../saveinfo.php",
 		dataType: "text",
 		type: 'POST',
 		data: {jsonString: jsonString},
 		success: function(data) {
-			alert("Garden Info Submitted!");
+			console.log("Garden Info Submitted!");
 		}
 		
 
@@ -537,7 +633,12 @@ function submit(){
 
 }
 
-
+/* 
+ * addEvent1()
+ *
+ * Increments the number of events that are active per zone of the schedule
+ * 
+ */ 
 
 function addEvent1(){
 	var active = $('div').hasClass("tab-content card-content active");
@@ -567,6 +668,13 @@ function addEvent1(){
 
 	
 }
+
+/* 
+ * deleteEvent1()
+ *
+ * Decrements the number of events that are active per zone of the schedule
+ * 
+ */ 
 
 function deleteEvent1(){
 	var active = $('div').hasClass("tab-content card-content active");
@@ -602,20 +710,35 @@ function deleteEvent1(){
 	
 }
 
+/* 
+ * switchCheck()
+ *
+ * Checks the Garden Power switch and sends it to the garden_power_status text file
+ * 
+ */ 
+
 function switchCheck(){
 
 	var checkbox = $('#mySwitch').prop('checked');
 	var string = JSON.stringify(checkbox);
 	console.log(string);	
-	//alert('checkbox value: '+ checkbox);
+		/*
+		 * All ajax forms used on page are POST commands due to url size restrictions with GET
+		 * POST also allows for data security when sending commands and information.
+		 *///alert('checkbox value: '+ checkbox);
 	$.ajax({
-		url: "../savejson.php",
+		url: "../switch.php",
 		cache: false,
 		dataType: "text",
 		type: 'POST',
 		data: {string: string},
 		success: function(data) {
-			alert("hi");
+			if(data == "true"){
+				alert("Garden Power: Awake");
+			}else{
+				alert("Garden Power: Sleep");
+			}
+			
 		}
 		
 

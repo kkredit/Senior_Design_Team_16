@@ -132,19 +132,24 @@
 
 					        <tbody>
 					          <tr>
-					            <td>Voltage Problem</td>
+					            <td>Valve Leak or Stoppage</td>
 					            <td><p><input type="checkbox" id="sms1"/><label for="sms1"></label></p></td>
 					            <td><input type="checkbox" id="email1"/><label for="email1"></label></td>
 					          </tr>
 					          <tr>
-					            <td>Connection to Server</td>
-					            <td><input type="checkbox" id="sms2"/><label for="sms2"></label></td>
+					            <td>Node Voltage Level</td>
+					            <td><p><input type="checkbox" id="sms2"/><label for="sms2"></label></p></td>
 					            <td><input type="checkbox" id="email2"/><label for="email2"></label></td>
 					          </tr>
 					          <tr>
-					            <td>Connection to Node</td>
+					            <td>Gateway Reset Notification</td>
 					            <td><input type="checkbox" id="sms3"/><label for="sms3"></label></td>
 					            <td><input type="checkbox" id="email3"/><label for="email3"></label></td>
+					          </tr>
+					          <tr>
+					            <td>Radio Network Issues</td>
+					            <td><input type="checkbox" id="sms4"/><label for="sms4"></label></td>
+					            <td><input type="checkbox" id="email4"/><label for="email4"></label></td>
 					          </tr>
 					        </tbody>
 					    </table>
@@ -261,21 +266,25 @@
 	var sms1 = "";
 	var sms2= "";
 	var sms3= "";
+	var sms4= "";
 	var em1= "";
 	var em2= "";
 	var em3= "";
+	var em4= "";
 	var jsonSting = "";
 		
 		$("#sms1").change(function(){
 			sms1 = $("#sms1").is(":checked");
 			sms2 = $("#sms2").is(":checked");
 			sms3 = $("#sms3").is(":checked");
+			sms4 = $("#sms4").is(":checked");
 			em1 = $("#email1").is(":checked");
 			em2 = $("#email2").is(":checked");
-			em3 = $("#email3").is(":checked"); 
+			em3 = $("#email3").is(":checked");
+			em4 = $("#email4").is(":checked"); 
 			
 
-			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			jsonString= "Valve Leak or Stoppage\t"+sms1+"\t"+em1+"\nNode Voltage Level\t"+sms2+"\t"+em2+"\nGateway Reset Notification\t"+sms3+"\t"+em3+"\nRadio Network Issues\t"+sms4+"\t"+em4;
 			$.ajax({
 						url: "../warning.php",
 						cache: false,
@@ -291,12 +300,14 @@
 			sms1 = $("#sms1").is(":checked");
 			sms2 = $("#sms2").is(":checked");
 			sms3 = $("#sms3").is(":checked");
+			sms4 = $("#sms4").is(":checked");
 			em1 = $("#email1").is(":checked");
 			em2 = $("#email2").is(":checked");
-			em3 = $("#email3").is(":checked"); 
+			em3 = $("#email3").is(":checked");
+			em4 = $("#email4").is(":checked"); 
 			
 
-			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			jsonString= "Valve Leak or Stoppage\t"+sms1+"\t"+em1+"\nNode Voltage Level\t"+sms2+"\t"+em2+"\nGateway Reset Notification\t"+sms3+"\t"+em3+"\nRadio Network Issues\t"+sms4+"\t"+em4;
 			$.ajax({
 						url: "../warning.php",
 						cache: false,
@@ -313,12 +324,37 @@
 			sms1 = $("#sms1").is(":checked");
 			sms2 = $("#sms2").is(":checked");
 			sms3 = $("#sms3").is(":checked");
+			sms4 = $("#sms4").is(":checked");
 			em1 = $("#email1").is(":checked");
 			em2 = $("#email2").is(":checked");
-			em3 = $("#email3").is(":checked"); 
+			em3 = $("#email3").is(":checked");
+			em4 = $("#email4").is(":checked"); 
 			
 
-			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			jsonString= "Valve Leak or Stoppage\t"+sms1+"\t"+em1+"\nNode Voltage Level\t"+sms2+"\t"+em2+"\nGateway Reset Notification\t"+sms3+"\t"+em3+"\nRadio Network Issues\t"+sms4+"\t"+em4;
+			$.ajax({
+						url: "../warning.php",
+						cache: false,
+						dataType: "text",
+						type: 'POST',
+						data: {jsonString: jsonString},
+						success: function(data) {
+							
+						}
+					});
+		});
+		$("#sms4").change(function(){
+			sms1 = $("#sms1").is(":checked");
+			sms2 = $("#sms2").is(":checked");
+			sms3 = $("#sms3").is(":checked");
+			sms4 = $("#sms4").is(":checked");
+			em1 = $("#email1").is(":checked");
+			em2 = $("#email2").is(":checked");
+			em3 = $("#email3").is(":checked");
+			em4 = $("#email4").is(":checked"); 
+			
+
+			jsonString= "Valve Leak or Stoppage\t"+sms1+"\t"+em1+"\nNode Voltage Level\t"+sms2+"\t"+em2+"\nGateway Reset Notification\t"+sms3+"\t"+em3+"\nRadio Network Issues\t"+sms4+"\t"+em4;
 			$.ajax({
 						url: "../warning.php",
 						cache: false,
@@ -334,12 +370,14 @@
 			sms1 = $("#sms1").is(":checked");
 			sms2 = $("#sms2").is(":checked");
 			sms3 = $("#sms3").is(":checked");
+			sms4 = $("#sms4").is(":checked");
 			em1 = $("#email1").is(":checked");
 			em2 = $("#email2").is(":checked");
-			em3 = $("#email3").is(":checked"); 
+			em3 = $("#email3").is(":checked");
+			em4 = $("#email4").is(":checked"); 
 			
 
-			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			jsonString= "Valve Leak or Stoppage\t"+sms1+"\t"+em1+"\nNode Voltage Level\t"+sms2+"\t"+em2+"\nGateway Reset Notification\t"+sms3+"\t"+em3+"\nRadio Network Issues\t"+sms4+"\t"+em4;
 			$.ajax({
 						url: "../warning.php",
 						cache: false,
@@ -355,12 +393,14 @@
 			sms1 = $("#sms1").is(":checked");
 			sms2 = $("#sms2").is(":checked");
 			sms3 = $("#sms3").is(":checked");
+			sms4 = $("#sms4").is(":checked");
 			em1 = $("#email1").is(":checked");
 			em2 = $("#email2").is(":checked");
-			em3 = $("#email3").is(":checked"); 
+			em3 = $("#email3").is(":checked");
+			em4 = $("#email4").is(":checked"); 
 			
 
-			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			jsonString= "Valve Leak or Stoppage\t"+sms1+"\t"+em1+"\nNode Voltage Level\t"+sms2+"\t"+em2+"\nGateway Reset Notification\t"+sms3+"\t"+em3+"\nRadio Network Issues\t"+sms4+"\t"+em4;
 			$.ajax({
 						url: "../warning.php",
 						cache: false,
@@ -376,12 +416,14 @@
 			sms1 = $("#sms1").is(":checked");
 			sms2 = $("#sms2").is(":checked");
 			sms3 = $("#sms3").is(":checked");
+			sms4 = $("#sms4").is(":checked");
 			em1 = $("#email1").is(":checked");
 			em2 = $("#email2").is(":checked");
-			em3 = $("#email3").is(":checked"); 
+			em3 = $("#email3").is(":checked");
+			em4 = $("#email4").is(":checked"); 
 			
 
-			jsonString= "Voltage Level\t"+sms1+"\t"+em1+"\nConnection to Server\t"+sms2+"\t"+em2+"\nConnection to Node\t"+sms3+"\t"+em3;
+			jsonString= "Valve Leak or Stoppage\t"+sms1+"\t"+em1+"\nNode Voltage Level\t"+sms2+"\t"+em2+"\nGateway Reset Notification\t"+sms3+"\t"+em3+"\nRadio Network Issues\t"+sms4+"\t"+em4;
 			$.ajax({
 						url: "../warning.php",
 						cache: false,
@@ -393,6 +435,30 @@
 						}
 					});
 		});
+		$("#email4").change(function(){
+			sms1 = $("#sms1").is(":checked");
+			sms2 = $("#sms2").is(":checked");
+			sms3 = $("#sms3").is(":checked");
+			sms4 = $("#sms4").is(":checked");
+			em1 = $("#email1").is(":checked");
+			em2 = $("#email2").is(":checked");
+			em3 = $("#email3").is(":checked");
+			em4 = $("#email4").is(":checked"); 
+			
+
+			jsonString= "Valve Leak or Stoppage\t"+sms1+"\t"+em1+"\nNode Voltage Level\t"+sms2+"\t"+em2+"\nGateway Reset Notification\t"+sms3+"\t"+em3+"\nRadio Network Issues\t"+sms4+"\t"+em4;
+			$.ajax({
+						url: "../warning.php",
+						cache: false,
+						dataType: "text",
+						type: 'POST',
+						data: {jsonString: jsonString},
+						success: function(data) {
+							
+						}
+					});
+		});
+
 
 	</script>
 

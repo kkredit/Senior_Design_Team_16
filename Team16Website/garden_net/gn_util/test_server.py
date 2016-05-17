@@ -71,3 +71,4 @@ except:
 soc.close()
 
 #print('Socket was closed.')
+

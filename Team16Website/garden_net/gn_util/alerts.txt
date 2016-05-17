@@ -1,4 +1,4 @@
-Valve Leak or Stoppage	true	false
-Node Voltage Level	true	true
-Gateway Reset Notification	true	false
-Radio Network Issues	true	true
+Valve Leak or Stoppage	false	true
+Node Voltage Level	false	true
+Gateway Reset Notification	false	false
+Radio Network Issues	false	true
