@@ -2455,11 +2455,11 @@ void setup() {
   Timer1.attachInterrupt(updateStatusISR);
 
   // setup time
-  timeInit();
+//  timeInit();
   
   // Hard-coded time for testing purpose
-  // setTime(hr,min,sec,day,mnth,yr)
-  // setTime(21, 0, 0, 3, 5, 16);
+//   setTime(hr,min,sec,day,mnth,yr)
+   setTime(23, 55, 0, 18, 5, 16);
 
   // discharge the capacitor in case the above code took a while
   refreshReset();
@@ -2536,10 +2536,12 @@ void setup() {
 void loop() {
 
   //////////////////////// Time acceleration for testing /////////////////////////////
-  // jump to 50 seconds
-//  if(second() > 0 && second() < 15 ) {
-//    setTime(now()+50-second());
-//  }
+  // jump to 50 seconds, but not if between 11:58 PM and 12:06 AM
+  if(second() > 0 && second() < 15 &&
+      !(hour() == 23 && minute() > 58) &&
+      !(hour() == 0 && minute() < 6)){
+    setTime(now()+50-second());
+  }
   ////////////////////////////////////////////////////////////////////////////////////
 
   // Communication with server via 3G
@@ -2608,11 +2610,12 @@ void loop() {
   }
 
   // at 12:01, after statuses are all collected, call isNewDay to send report to the serverr
-  if(hour() == 0 && minute() == 2 && second() == 0 && calledIsNewDay == false) {
+//  if(hour() == 0 && minute() == 2 && second() == 0 && calledIsNewDay == false) {
+  if(hour() == 0 && minute() == 2 && calledIsNewDay == false) {
     Serial.println(F("\nIt is 12:02 AM; sending the daily report to the server"));
     isNewDay();
     setupGarden();
-    timeInit();
+//    timeInit(); // COMMENT OUT IF ACCELERATING TIME
     calledIsNewDay = true;
   }
 
