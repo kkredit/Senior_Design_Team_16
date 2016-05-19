@@ -2316,7 +2316,9 @@ void setupGarden() {
         if(tr_g_opmode == TR_G_ALERT_SETTING) {
           handleModemOperation(tr_g_opmode);
           alertGood = true;
-        }
+        } else if (currentString == "SRING: 1,6,NoInfo") {
+         alertGood = true;
+       }
         currentString = "";
       } else if (incomingByte != '\r' && incomingByte != '\n') {
         currentString += incomingByte;
